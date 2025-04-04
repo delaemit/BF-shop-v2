@@ -23,6 +23,7 @@ package-lock.json
 /public/vendor
 /lang/vendor
 /storage/*.key
+/storage/.php_cs
 /storage/dcc-data/
 /test-results
 /vendor

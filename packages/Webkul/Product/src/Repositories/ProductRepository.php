@@ -280,7 +280,7 @@ class ProductRepository extends Repository
 
             if (!empty($params['channel_id'])) {
                 $qb->leftJoin('product_channels', 'products.id', '=', 'product_channels.product_id')
-                    ->where('product_channels.channel_id', explode(',', $params['channel_id']));
+                    ->where('product_channels.channel_id', explode(',', (string) $params['channel_id']));
             }
 
             if (!empty($params['type'])) {
