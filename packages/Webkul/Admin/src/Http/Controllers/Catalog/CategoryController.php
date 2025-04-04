@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Catalog;
 
 use Illuminate\Http\JsonResponse;
@@ -20,13 +22,18 @@ class CategoryController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param ChannelRepository $channelRepository
+     * @param CategoryRepository $categoryRepository
+     * @param AttributeRepository $attributeRepository
+     *
      * @return void
      */
     public function __construct(
         protected ChannelRepository $channelRepository,
         protected CategoryRepository $categoryRepository,
         protected AttributeRepository $attributeRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -58,6 +65,8 @@ class CategoryController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param CategoryRequest $categoryRequest
      *
      * @return \Illuminate\Http\Response
      */
@@ -92,6 +101,8 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -107,6 +118,9 @@ class CategoryController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param CategoryRequest $categoryRequest
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -135,12 +149,14 @@ class CategoryController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         $category = $this->categoryRepository->findOrFail($id);
 
-        if (! $this->isCategoryDeletable($category)) {
+        if (!$this->isCategoryDeletable($category)) {
             return new JsonResponse([
                 'message' => trans('admin::app.catalog.categories.delete-category-root'),
             ], 400);
@@ -165,6 +181,8 @@ class CategoryController extends Controller
 
     /**
      * Remove the specified resources from database.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {
@@ -176,31 +194,30 @@ class CategoryController extends Controller
             $category = $this->categoryRepository->find($categoryId);
 
             if (isset($category)) {
-                if (! $this->isCategoryDeletable($category)) {
+                if (!$this->isCategoryDeletable($category)) {
                     $suppressFlash = false;
 
                     return new JsonResponse(['message' => trans('admin::app.catalog.categories.delete-category-root')], 400);
-                } else {
-                    try {
-                        $suppressFlash = true;
+                }
+                try {
+                    $suppressFlash = true;
 
-                        Event::dispatch('catalog.category.delete.before', $categoryId);
+                    Event::dispatch('catalog.category.delete.before', $categoryId);
 
-                        $this->categoryRepository->delete($categoryId);
+                    $this->categoryRepository->delete($categoryId);
 
-                        Event::dispatch('catalog.category.delete.after', $categoryId);
-                    } catch (\Exception $e) {
-                        return new JsonResponse([
-                            'message' => trans('admin::app.catalog.categories.delete-failed'),
-                        ], 500);
-                    }
+                    Event::dispatch('catalog.category.delete.after', $categoryId);
+                } catch (\Exception $e) {
+                    return new JsonResponse([
+                        'message' => trans('admin::app.catalog.categories.delete-failed'),
+                    ], 500);
                 }
             }
         }
 
         if (
-            count($categoryIds) != 1
-            || $suppressFlash == true
+            count($categoryIds) !== 1
+            || $suppressFlash === true
         ) {
             return new JsonResponse([
                 'message' => trans('admin::app.catalog.categories.delete-success'),
@@ -212,6 +229,8 @@ class CategoryController extends Controller
 
     /**
      * Mass update Category.
+     *
+     * @param MassUpdateRequest $massUpdateRequest
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -248,7 +267,8 @@ class CategoryController extends Controller
      * This method will fetch all root category ids from the channel. If `id` is present,
      * then it is not deletable.
      *
-     * @param  \Webkul\Category\Contracts\Category  $category
+     * @param \Webkul\Category\Contracts\Category $category
+     *
      * @return bool
      */
     private function isCategoryDeletable($category)
@@ -257,7 +277,7 @@ class CategoryController extends Controller
             return false;
         }
 
-        return ! $this->channelRepository->pluck('root_category_id')->contains($category->id);
+        return !$this->channelRepository->pluck('root_category_id')->contains($category->id);
     }
 
     /**
@@ -278,7 +298,7 @@ class CategoryController extends Controller
     public function search()
     {
         $categories = $this->categoryRepository->getAll([
-            'name'   => request()->input('query'),
+            'name' => request()->input('query'),
             'locale' => app()->getLocale(),
         ]);
 

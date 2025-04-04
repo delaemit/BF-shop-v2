@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Menu;
 
 use Illuminate\Support\Collection;
@@ -8,6 +10,13 @@ class MenuItem
 {
     /**
      * Create a new MenuItem instance.
+     *
+     * @param string $key
+     * @param string $name
+     * @param string $route
+     * @param int $sort
+     * @param string $icon
+     * @param Collection $children
      *
      * @return void
      */
@@ -18,7 +27,8 @@ class MenuItem
         public int $sort,
         public string $icon,
         public Collection $children,
-    ) {}
+    ) {
+    }
 
     /**
      * Get name of menu item.
@@ -73,7 +83,7 @@ class MenuItem
      */
     public function getChildren(): Collection
     {
-        if (! $this->haveChildren()) {
+        if (!$this->haveChildren()) {
             return collect();
         }
 
@@ -85,7 +95,7 @@ class MenuItem
      */
     public function isActive(): bool
     {
-        if (request()->fullUrlIs($this->getUrl().'*')) {
+        if (request()->fullUrlIs($this->getUrl() . '*')) {
             return true;
         }
 

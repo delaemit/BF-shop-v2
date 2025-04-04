@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\Promotions;
 
 use Illuminate\Http\JsonResponse;
@@ -14,9 +16,13 @@ class CatalogRuleController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CatalogRuleRepository $catalogRuleRepository
+     *
      * @return void
      */
-    public function __construct(protected CatalogRuleRepository $catalogRuleRepository) {}
+    public function __construct(protected CatalogRuleRepository $catalogRuleRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -45,6 +51,8 @@ class CatalogRuleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param CatalogRuleRequest $catalogRuleRequest
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(CatalogRuleRequest $catalogRuleRequest)
@@ -63,6 +71,8 @@ class CatalogRuleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -74,6 +84,9 @@ class CatalogRuleController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param CatalogRuleRequest $catalogRuleRequest
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -94,6 +107,8 @@ class CatalogRuleController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {

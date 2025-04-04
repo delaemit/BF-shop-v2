@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings;
 
 use Illuminate\Http\JsonResponse;
@@ -18,12 +20,16 @@ class UserController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param AdminRepository $adminRepository
+     * @param RoleRepository $roleRepository
+     *
      * @return void
      */
     public function __construct(
         protected AdminRepository $adminRepository,
         protected RoleRepository $roleRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -43,6 +49,8 @@ class UserController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param UserForm $request
      */
     public function store(UserForm $request): JsonResponse
     {
@@ -66,7 +74,7 @@ class UserController extends Controller
         $admin = $this->adminRepository->create($data);
 
         if (request()->hasFile('image')) {
-            $admin->image = current(request()->file('image'))->store('admins/'.$admin->id);
+            $admin->image = current(request()->file('image'))->store('admins/' . $admin->id);
 
             $admin->save();
         }
@@ -81,7 +89,7 @@ class UserController extends Controller
     /**
      * User Details
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function edit($id): JsonResponse
     {
@@ -91,12 +99,14 @@ class UserController extends Controller
 
         return new JsonResponse([
             'roles' => $roles,
-            'user'  => $user,
+            'user' => $user,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param UserForm $request
      */
     public function update(UserForm $request): JsonResponse
     {
@@ -115,10 +125,10 @@ class UserController extends Controller
         $admin = $this->adminRepository->update($data, $id);
 
         if (request()->hasFile('image')) {
-            $admin->image = current(request()->file('image'))->store('admins/'.$admin->id);
+            $admin->image = current(request()->file('image'))->store('admins/' . $admin->id);
         } else {
-            if (! request()->has('image.image')) {
-                if (! empty(request()->input('image.image'))) {
+            if (!request()->has('image.image')) {
+                if (!empty(request()->input('image.image'))) {
                     Storage::delete($admin->image);
                 }
 
@@ -128,7 +138,7 @@ class UserController extends Controller
 
         $admin->save();
 
-        if (! empty($data['password'])) {
+        if (!empty($data['password'])) {
             Event::dispatch('admin.password.update.after', $admin);
         }
 
@@ -142,11 +152,11 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function destroy($id): JsonResponse
     {
-        if ($this->adminRepository->count() == 1) {
+        if ($this->adminRepository->count() === 1) {
             return new JsonResponse([
                 'message' => trans('admin::app.settings.users.last-delete-error'),
             ], 400);
@@ -173,7 +183,8 @@ class UserController extends Controller
     /**
      * Show the form for confirming the user password.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function confirm($id)
@@ -193,7 +204,7 @@ class UserController extends Controller
         $password = request()->input('password');
 
         if (Hash::check($password, auth()->guard('admin')->user()->password)) {
-            if ($this->adminRepository->count() == 1) {
+            if ($this->adminRepository->count() === 1) {
                 session()->flash('error', trans('admin::app.settings.users.delete-last'));
             } else {
                 $id = auth()->guard('admin')->user()->id;
@@ -206,7 +217,7 @@ class UserController extends Controller
 
                 return new JsonResponse([
                     'redirectUrl' => route('admin.session.create'),
-                    'message'     => trans('admin::app.settings.users.delete-success'),
+                    'message' => trans('admin::app.settings.users.delete-success'),
                 ]);
             }
         } else {
@@ -219,7 +230,9 @@ class UserController extends Controller
     /**
      * Prepare user data.
      *
-     * @param  int  $id
+     * @param int $id
+     * @param UserForm $request
+     *
      * @return array|\Illuminate\Http\RedirectResponse
      */
     private function prepareUserData(UserForm $request, $id)
@@ -228,21 +241,21 @@ class UserController extends Controller
 
         $user = $this->adminRepository->find($id);
 
-        /**
+        /*
          * Password check.
          */
-        if (! $data['password']) {
+        if (!$data['password']) {
             unset($data['password']);
         } else {
             $data['password'] = bcrypt($data['password']);
         }
 
-        /**
+        /*
          * Is user with `permission_type` all changed status.
          */
         $data['status'] = isset($data['status']);
 
-        $isStatusChangedToInactive = ! $data['status'] && (bool) $user->status;
+        $isStatusChangedToInactive = !$data['status'] && (bool) $user->status;
 
         if (
             $isStatusChangedToInactive
@@ -272,6 +285,8 @@ class UserController extends Controller
 
     /**
      * Cannot change redirect response.
+     *
+     * @param string $columnName
      */
     private function cannotChangeRedirectResponse(string $columnName): \Illuminate\Http\RedirectResponse
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CMS\Repositories;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -17,6 +19,8 @@ class PageRepository extends Repository
     }
 
     /**
+     * @param array $data
+     *
      * @return \Webkul\CMS\Contracts\Page
      */
     public function create(array $data)
@@ -41,7 +45,9 @@ class PageRepository extends Repository
     }
 
     /**
-     * @param  int  $id
+     * @param int $id
+     * @param array $data
+     *
      * @return \Webkul\CMS\Contracts\Page
      */
     public function update(array $data, $id)
@@ -62,8 +68,9 @@ class PageRepository extends Repository
     /**
      * Checks slug is unique or not based on locale
      *
-     * @param  int  $id
-     * @param  string  $urlKey
+     * @param int $id
+     * @param string $urlKey
+     *
      * @return bool
      */
     public function isUrlKeyUnique($id, $urlKey)
@@ -74,13 +81,14 @@ class PageRepository extends Repository
             ->select(\DB::raw(1))
             ->exists();
 
-        return ! $exists;
+        return !$exists;
     }
 
     /**
      * Retrieve category from slug
      *
-     * @param  string  $urlKey
+     * @param string $urlKey
+     *
      * @return \Webkul\CMS\Contracts\Page
      */
     public function findByUrlKey($urlKey)
@@ -91,8 +99,9 @@ class PageRepository extends Repository
     /**
      * Retrieve category from slug
      *
-     * @param  string  $urlKey
-     * @return \Webkul\CMS\Contracts\Page|\Exception
+     * @param string $urlKey
+     *
+     * @return \Exception|\Webkul\CMS\Contracts\Page
      */
     public function findByUrlKeyOrFail($urlKey)
     {
@@ -102,7 +111,7 @@ class PageRepository extends Repository
             return $page;
         }
 
-        throw (new ModelNotFoundException)->setModel(
+        throw (new ModelNotFoundException())->setModel(
             get_class($this->model), $urlKey
         );
     }

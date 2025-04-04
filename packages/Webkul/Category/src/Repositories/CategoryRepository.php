@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Category\Repositories;
 
 use Illuminate\Support\Facades\DB;
@@ -23,6 +25,8 @@ class CategoryRepository extends Repository
     /**
      * Get categories.
      *
+     * @param array $params
+     *
      * @return void
      */
     public function getAll(array $params = [])
@@ -34,11 +38,11 @@ class CategoryRepository extends Repository
         foreach ($params as $key => $value) {
             switch ($key) {
                 case 'name':
-                    $queryBuilder->where('category_translations.name', 'like', '%'.urldecode($value).'%');
+                    $queryBuilder->where('category_translations.name', 'like', '%' . urldecode($value) . '%');
 
                     break;
                 case 'description':
-                    $queryBuilder->where('category_translations.description', 'like', '%'.urldecode($value).'%');
+                    $queryBuilder->where('category_translations.description', 'like', '%' . urldecode($value) . '%');
 
                     break;
                 case 'status':
@@ -66,13 +70,15 @@ class CategoryRepository extends Repository
     /**
      * Create category.
      *
+     * @param array $data
+     *
      * @return \Webkul\Category\Contracts\Category
      */
     public function create(array $data)
     {
         if (
             isset($data['locale'])
-            && $data['locale'] == 'all'
+            && $data['locale'] === 'all'
         ) {
             $model = app()->make($this->model());
 
@@ -103,8 +109,10 @@ class CategoryRepository extends Repository
     /**
      * Update category.
      *
-     * @param  int  $id
-     * @param  string  $attribute
+     * @param int $id
+     * @param string $attribute
+     * @param array $data
+     *
      * @return \Webkul\Category\Contracts\Category
      */
     public function update(array $data, $id)
@@ -129,6 +137,8 @@ class CategoryRepository extends Repository
     /**
      * Specify category tree.
      *
+     * @param ?int $id
+     *
      * @return \Webkul\Category\Contracts\Category
      */
     public function getCategoryTree(?int $id = null)
@@ -140,6 +150,8 @@ class CategoryRepository extends Repository
 
     /**
      * Specify category tree.
+     *
+     * @param ?int $id
      *
      * @return \Illuminate\Support\Collection
      */
@@ -163,6 +175,8 @@ class CategoryRepository extends Repository
     /**
      * Get child categories.
      *
+     * @param mixed $parentId
+     *
      * @return \Illuminate\Support\Collection
      */
     public function getChildCategories($parentId)
@@ -173,7 +187,8 @@ class CategoryRepository extends Repository
     /**
      * get visible category tree.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Support\Collection
      */
     public function getVisibleCategoryTree($id = null)
@@ -186,8 +201,9 @@ class CategoryRepository extends Repository
     /**
      * Checks slug is unique or not based on locale.
      *
-     * @param  int  $id
-     * @param  string  $slug
+     * @param int $id
+     * @param string $slug
+     *
      * @return bool
      */
     public function isSlugUnique($id, $slug)
@@ -198,13 +214,14 @@ class CategoryRepository extends Repository
             ->select(DB::raw(1))
             ->exists();
 
-        return ! $exists;
+        return !$exists;
     }
 
     /**
      * Retrieve category from slug.
      *
-     * @param  string  $slug
+     * @param string $slug
+     *
      * @return \Webkul\Category\Contracts\Category
      */
     public function findBySlug($slug)
@@ -217,7 +234,8 @@ class CategoryRepository extends Repository
     /**
      * Retrieve category from slug.
      *
-     * @param  string  $slug
+     * @param string $slug
+     *
      * @return \Webkul\Category\Contracts\Category
      */
     public function findBySlugOrFail($slug)
@@ -228,27 +246,28 @@ class CategoryRepository extends Repository
     /**
      * Upload category's images.
      *
-     * @param  array  $data
-     * @param  \Webkul\Category\Contracts\Category  $category
-     * @param  string  $type
+     * @param array $data
+     * @param \Webkul\Category\Contracts\Category $category
+     * @param string $type
+     *
      * @return void
      */
-    public function uploadImages($data, $category, $type = 'logo_path')
+    public function uploadImages($data, $category, $type = 'logo_path'): void
     {
         if (isset($data[$type])) {
             foreach ($data[$type] as $imageId => $image) {
-                $file = $type.'.'.$imageId;
+                $file = $type . '.' . $imageId;
 
                 if (request()->hasFile($file)) {
                     if ($category->{$type}) {
                         Storage::delete($category->{$type});
                     }
 
-                    $manager = new ImageManager;
+                    $manager = new ImageManager();
 
                     $image = $manager->make(request()->file($file))->encode('webp');
 
-                    $category->{$type} = 'category/'.$category->id.'/'.Str::random(40).'.webp';
+                    $category->{$type} = 'category/' . $category->id . '/' . Str::random(40) . '.webp';
 
                     Storage::put($category->{$type}, $image);
 
@@ -269,7 +288,8 @@ class CategoryRepository extends Repository
     /**
      * Get partials.
      *
-     * @param  array|null  $columns
+     * @param array|null $columns
+     *
      * @return array
      */
     public function getPartial($columns = null)
@@ -279,9 +299,9 @@ class CategoryRepository extends Repository
         $trimmed = [];
 
         foreach ($categories as $key => $category) {
-            if (! empty($category->name)) {
+            if (!empty($category->name)) {
                 $trimmed[$key] = [
-                    'id'   => $category->id,
+                    'id' => $category->id,
                     'name' => $category->name,
                     'slug' => $category->slug,
                 ];
@@ -297,7 +317,9 @@ class CategoryRepository extends Repository
      * To Do: Move column from the `category_translations` to `category` table. And remove
      * this created method.
      *
-     * @param  string  $attributeNames
+     * @param string $attributeNames
+     * @param array $data
+     *
      * @return array
      */
     private function setSameAttributeValueToAllLocale(array $data, ...$attributeNames)
@@ -308,7 +330,7 @@ class CategoryRepository extends Repository
 
         foreach ($attributeNames as $attributeName) {
             foreach (core()->getAllLocales() as $locale) {
-                if ($requestedLocale == $locale->code) {
+                if ($requestedLocale === $locale->code) {
                     foreach ($model->translatedAttributes as $attribute) {
                         if ($attribute === $attributeName) {
                             $data[$locale->code][$attribute] = $data[$requestedLocale][$attribute] ?? $data[$data['locale']][$attribute];

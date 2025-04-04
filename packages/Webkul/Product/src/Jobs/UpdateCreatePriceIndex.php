@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -17,7 +19,8 @@ class UpdateCreatePriceIndex implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  array  $productIds
+     * @param array $productIds
+     *
      * @return void
      */
     public function __construct(protected $productIds)
@@ -30,9 +33,9 @@ class UpdateCreatePriceIndex implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        if (! count($this->productIds)) {
+        if (!count($this->productIds)) {
             return;
         }
 

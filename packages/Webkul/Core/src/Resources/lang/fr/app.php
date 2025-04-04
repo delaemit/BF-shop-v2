@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'path-hint' => [
         'template' => 'Modèle',
-        'parents'  => 'Parents',
+        'parents' => 'Parents',
     ],
 
     'currency-position' => [
         'options' => [
-            'left'             => 'Gauche',
-            'left-with-space'  => 'Gauche avec espace',
-            'right'            => 'Droite',
+            'left' => 'Gauche',
+            'left-with-space' => 'Gauche avec espace',
+            'right' => 'Droite',
             'right-with-space' => 'Droite avec espace',
         ],
     ],

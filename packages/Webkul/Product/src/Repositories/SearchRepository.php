@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +14,8 @@ class SearchRepository extends ProductRepository
     /**
      * Upload provided image
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return string
      */
     public function uploadSearchImage($data)

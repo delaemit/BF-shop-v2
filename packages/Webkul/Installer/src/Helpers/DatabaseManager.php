@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Helpers;
 
-use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ class DatabaseManager
      */
     public function isInstalled()
     {
-        if (! file_exists(base_path('.env'))) {
+        if (!file_exists(base_path('.env'))) {
             return false;
         }
 
@@ -25,24 +26,24 @@ class DatabaseManager
 
             $isConnected = (bool) DB::connection()->getDatabaseName();
 
-            if (! $isConnected) {
+            if (!$isConnected) {
                 return false;
             }
 
             $hasTable = Schema::hasTable('admins');
 
-            if (! $hasTable) {
+            if (!$hasTable) {
                 return false;
             }
 
             $userCount = DB::table('admins')->count();
 
-            if (! $userCount) {
+            if (!$userCount) {
                 return false;
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }
@@ -50,13 +51,13 @@ class DatabaseManager
     /**
      * Drop all the tables and migrate in the database
      *
-     * @return void|string
+     * @return string|void
      */
     public function migration()
     {
         try {
             Artisan::call('migrate:fresh');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
             ], 500);
@@ -66,14 +67,16 @@ class DatabaseManager
     /**
      * Seed the database.
      *
-     * @return void|string
+     * @param mixed $data
+     *
+     * @return string|void
      */
     public function seeder($data)
     {
         $data['parameter'] = [
-            'default_locale'     => $data['parameter']['default_locales'],
-            'allowed_locales'    => $data['parameter']['allowed_locales'],
-            'default_currency'   => $data['parameter']['default_currency'],
+            'default_locale' => $data['parameter']['default_locales'],
+            'allowed_locales' => $data['parameter']['allowed_locales'],
+            'default_currency' => $data['parameter']['default_currency'],
             'allowed_currencies' => $data['parameter']['allowed_currencies'],
         ];
 
@@ -81,7 +84,7 @@ class DatabaseManager
             app(BagistoDatabaseSeeder::class)->run($data['parameter']);
 
             $this->storageLink();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $e->getMessage();
         }
     }
@@ -89,7 +92,7 @@ class DatabaseManager
     /**
      * Storage Link.
      */
-    private function storageLink()
+    private function storageLink(): void
     {
         Artisan::call('storage:link');
     }
@@ -97,24 +100,26 @@ class DatabaseManager
     /**
      * Generate New Application Key
      */
-    public function generateKey()
+    public function generateKey(): void
     {
         try {
             Artisan::call('key:generate');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
     }
 
     /**
      * Generate fake product data.
      *
-     * @return void|string
+     * @param mixed $parameters
+     *
+     * @return string|void
      */
     public function seedSampleProducts($parameters)
     {
         try {
             app(ProductTableSeeder::class)->run($parameters);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
             ], 500);

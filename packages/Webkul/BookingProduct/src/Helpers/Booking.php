@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\BookingProduct\Helpers;
 
 use Carbon\Carbon;
@@ -30,11 +32,11 @@ class Booking
      * @var array
      */
     protected $typeHelpers = [
-        'default'     => DefaultSlot::class,
+        'default' => DefaultSlot::class,
         'appointment' => AppointmentSlot::class,
-        'event'       => EventTicket::class,
-        'rental'      => RentalSlot::class,
-        'table'       => TableSlot::class,
+        'event' => EventTicket::class,
+        'rental' => RentalSlot::class,
+        'table' => TableSlot::class,
     ];
 
     /**
@@ -55,6 +57,14 @@ class Booking
     /**
      * Create a new helper instance.
      *
+     * @param BookingProductRepository $bookingProductRepository
+     * @param BookingRepository $bookingRepository
+     * @param BookingProductDefaultSlotRepository $bookingProductDefaultSlotRepository
+     * @param BookingProductAppointmentSlotRepository $bookingProductAppointmentSlotRepository
+     * @param BookingProductEventTicketRepository $bookingProductEventTicketRepository
+     * @param BookingProductRentalSlotRepository $bookingProductRentalSlotRepository
+     * @param BookingProductTableSlotRepository $bookingProductTableSlotRepository
+     *
      * @return void
      */
     public function __construct(
@@ -67,16 +77,18 @@ class Booking
         protected BookingProductTableSlotRepository $bookingProductTableSlotRepository,
     ) {
         $this->typeRepositories = [
-            'default'     => $this->bookingProductDefaultSlotRepository,
-            'event'       => $this->bookingProductEventTicketRepository,
+            'default' => $this->bookingProductDefaultSlotRepository,
+            'event' => $this->bookingProductEventTicketRepository,
             'appointment' => $this->bookingProductAppointmentSlotRepository,
-            'table'       => $this->bookingProductTableSlotRepository,
-            'rental'      => $this->bookingProductRentalSlotRepository,
+            'table' => $this->bookingProductTableSlotRepository,
+            'rental' => $this->bookingProductRentalSlotRepository,
         ];
     }
 
     /**
      * Returns the booking type helper instance.
+     *
+     * @param string $type
      *
      * @return mixed
      */
@@ -87,6 +99,8 @@ class Booking
 
     /**
      * Returns the booking information.
+     *
+     * @param BookingProduct $bookingProduct
      */
     public function getWeekSlotDurations(BookingProduct $bookingProduct): array
     {
@@ -104,7 +118,7 @@ class Booking
             }
 
             $slotsByDays[] = [
-                'name'  => trans($this->daysOfWeek[$index]),
+                'name' => trans($this->daysOfWeek[$index]),
                 'slots' => isset($availableDays[$index]) ? $this->convert24To12Hours($slots) : [],
             ];
         }
@@ -114,6 +128,8 @@ class Booking
 
     /**
      * Returns html of slots for a current day.
+     *
+     * @param BookingProduct $bookingProduct
      */
     public function getTodaySlotsHtml(BookingProduct $bookingProduct)
     {
@@ -122,24 +138,24 @@ class Booking
         $weekSlots = $this->getWeekSlotDurations($bookingProduct);
 
         foreach ($weekSlots[Carbon::now()->format('w')]['slots'] as $slot) {
-            $slots[] = $slot['from'].' - '.$slot['to'];
+            $slots[] = $slot['from'] . ' - ' . $slot['to'];
         }
 
         return count($slots)
             ? implode(' | ', $slots)
-            : '<span class="text-danger">'.trans('shop::app.products.booking.closed').'</span>';
+            : '<span class="text-danger">' . trans('shop::app.products.booking.closed') . '</span>';
     }
 
     /**
      * Sort days.
+     *
+     * @param array $days
      */
     public function sortDaysOfWeek(array $days): array
     {
         $daysAux = array_intersect($this->daysOfWeek, $days);
 
-        usort($daysAux, function ($a, $b) {
-            return array_search($a, $this->daysOfWeek) - array_search($b, $this->daysOfWeek);
-        });
+        usort($daysAux, fn($a, $b) => array_search($a, $this->daysOfWeek, true) - array_search($b, $this->daysOfWeek, true));
 
         return $daysAux;
     }
@@ -147,7 +163,8 @@ class Booking
     /**
      * Returns slots for a particular day.
      *
-     * @param  \Webkul\BookingProduct\Contracts\BookingProduct  $bookingProduct
+     * @param \Webkul\BookingProduct\Contracts\BookingProduct $bookingProduct
+     * @param string $date
      */
     public function getSlotsByDate($bookingProduct, string $date): array
     {
@@ -157,7 +174,7 @@ class Booking
             return [];
         }
 
-        $requestedDate = Carbon::createFromTimeString($date.' 00:00:00');
+        $requestedDate = Carbon::createFromTimeString($date . ' 00:00:00');
 
         return $this->slotsCalculation($bookingProduct, $requestedDate, $bookingProductSlot);
     }
@@ -165,7 +182,7 @@ class Booking
     /**
      * Returns is item have quantity.
      *
-     * @param  \Webkul\Checkout\Contracts\CartItem|array  $cartItem
+     * @param array|\Webkul\Checkout\Contracts\CartItem $cartItem
      */
     public function isItemHaveQuantity($cartItem)
     {
@@ -183,11 +200,13 @@ class Booking
 
     /**
      * Return slot if it is available.
+     *
+     * @param array $cartProducts
      */
     public function isSlotAvailable(array $cartProducts): bool
     {
         foreach ($cartProducts as $cartProduct) {
-            if (! $this->isItemHaveQuantity($cartProduct)) {
+            if (!$this->isItemHaveQuantity($cartProduct)) {
                 return false;
             }
         }
@@ -198,7 +217,7 @@ class Booking
     /**
      * Returns slots that are going to expire.
      *
-     * @param  \Webkul\Checkout\Contracts\CartItem|array  $cartItem
+     * @param array|\Webkul\Checkout\Contracts\CartItem $cartItem
      */
     public function isSlotExpired($cartItem): bool
     {
@@ -208,17 +227,15 @@ class Booking
 
         $slots = $typeHelper->getSlotsByDate($bookingProduct, $cartItem['additional']['booking']['date']);
 
-        $slotExists = collect($slots)->contains(function ($slot) use ($cartItem) {
-            return $slot['timestamp'] == $cartItem['additional']['booking']['slot'];
-        });
+        $slotExists = collect($slots)->contains(fn($slot) => $slot['timestamp'] === $cartItem['additional']['booking']['slot']);
 
-        return ! $slotExists;
+        return !$slotExists;
     }
 
     /**
      * Returns get booked quantity.
      *
-     * @param  array  $data
+     * @param array $data
      */
     public function getBookedQuantity($data): int
     {
@@ -237,6 +254,8 @@ class Booking
 
     /**
      * Returns additional cart item information.
+     *
+     * @param array $data
      */
     public function getCartItemOptions(array $data): array
     {
@@ -251,19 +270,19 @@ class Booking
 
     /**
      * Get booking attributes based on booking type.
+     *
+     * @param mixed $bookingProduct
+     * @param mixed $data
      */
     protected function getBookingAttributes($bookingProduct, $data): array
     {
         switch ($bookingProduct->type) {
             case 'event':
                 return $this->getEventAttributes($bookingProduct, $data);
-
             case 'rental':
                 return $this->getRentalAttributes($bookingProduct, $data);
-
             case 'table':
                 return $this->getTableAttributes($data);
-
             default:
                 return $this->getDefaultAttributes($data);
         }
@@ -271,6 +290,8 @@ class Booking
 
     /**
      * Returns the available week days.
+     *
+     * @param BookingProduct $bookingProduct
      */
     private function getAvailableWeekDays(BookingProduct $bookingProduct)
     {
@@ -301,6 +322,8 @@ class Booking
 
     /**
      * Add booking additional prices to cart item.
+     *
+     * @param array $products
      */
     public function addAdditionalPrices(array $products): array
     {
@@ -309,10 +332,12 @@ class Booking
 
     /**
      * Validate cart item product price.
+     *
+     * @param CartItem $item
      */
     public function validateCartItem(CartItem $item): CartItemValidationResult
     {
-        $result = new CartItemValidationResult;
+        $result = new CartItemValidationResult();
 
         if ($this->isCartItemInactive($item)) {
             $result->itemIsInactive();
@@ -328,24 +353,29 @@ class Booking
     /**
      * Returns true if the cart item is inactive.
      *
-     * @param  \Webkul\Checkout\Contracts\CartItem|array  $cartItem
+     * @param array|\Webkul\Checkout\Contracts\CartItem $cartItem
+     * @param mixed $item
      */
     public function isCartItemInactive($item): bool
     {
-        return ! $item->product->status;
+        return !$item->product->status;
     }
 
     /**
      * Slots Calculation for all types of booking products.
+     *
+     * @param object $bookingProduct
+     * @param object $requestedDate
+     * @param object $bookingProductSlot
      */
     public function slotsCalculation(object $bookingProduct, object $requestedDate, object $bookingProductSlot): array
     {
-        if ($bookingProduct->type == 'default') {
+        if ($bookingProduct->type === 'default') {
             [$availableFrom, $availableTo, $timeDurations] = $this->getDefaultSlotDetails($bookingProduct, $bookingProductSlot, $requestedDate);
 
             if (
-                ! count($timeDurations)
-                || ! $timeDurations[0]['status']
+                !count($timeDurations)
+                || !$timeDurations[0]['status']
             ) {
                 return [];
             }
@@ -366,12 +396,12 @@ class Booking
             $fromChunks = explode(':', $timeDuration['from']);
             $toChunks = explode(':', $timeDuration['to']);
 
-            $startDayTime = Carbon::createFromTimeString($requestedDate->format('Y-m-d').' 00:00:00')
+            $startDayTime = Carbon::createFromTimeString($requestedDate->format('Y-m-d') . ' 00:00:00')
                 ->addMinutes($fromChunks[0] * 60 + $fromChunks[1]);
 
             $tempStartDayTime = clone $startDayTime;
 
-            $endDayTime = Carbon::createFromTimeString($requestedDate->format('Y-m-d').' 00:00:00')
+            $endDayTime = Carbon::createFromTimeString($requestedDate->format('Y-m-d') . ' 00:00:00')
                 ->addMinutes($toChunks[0] * 60 + $toChunks[1]);
 
             $isFirstIteration = true;
@@ -379,7 +409,7 @@ class Booking
             while (1) {
                 $from = clone $tempStartDayTime;
 
-                if ($bookingProduct->type == 'rental') {
+                if ($bookingProduct->type === 'rental') {
                     $tempStartDayTime->addMinutes(60);
                 } else {
                     $tempStartDayTime->addMinutes($bookingProductSlot->duration);
@@ -387,8 +417,8 @@ class Booking
                     if ($isFirstIteration) {
                         $isFirstIteration = false;
                     } else {
-                        $from->modify('+'.$bookingProductSlot->break_time.' minutes');
-                        $tempStartDayTime->modify('+'.$bookingProductSlot->break_time.' minutes');
+                        $from->modify('+' . $bookingProductSlot->break_time . ' minutes');
+                        $tempStartDayTime->modify('+' . $bookingProductSlot->break_time . ' minutes');
                     }
                 }
 
@@ -408,24 +438,24 @@ class Booking
                         $qty = $timeDuration['qty'] ?? 1
                         && Carbon::now() <= $from
                     ) {
-                        if ($bookingProduct->type == 'rental') {
-                            if (! isset($slots[$index])) {
-                                $slots[$index]['time'] = $startDayTime->format('h:i A').' - '.$endDayTime->format('h:i A');
+                        if ($bookingProduct->type === 'rental') {
+                            if (!isset($slots[$index])) {
+                                $slots[$index]['time'] = $startDayTime->format('h:i A') . ' - ' . $endDayTime->format('h:i A');
                             }
 
                             $slots[$index]['slots'][] = [
-                                'from'           => $from->format('h:i A'),
-                                'to'             => $to->format('h:i A'),
+                                'from' => $from->format('h:i A'),
+                                'to' => $to->format('h:i A'),
                                 'from_timestamp' => $from->getTimestamp(),
-                                'to_timestamp'   => $to->getTimestamp(),
-                                'qty'            => $qty,
+                                'to_timestamp' => $to->getTimestamp(),
+                                'qty' => $qty,
                             ];
                         } else {
                             $slots[] = [
-                                'from'      => $from->format('h:i A'),
-                                'to'        => $to->format('h:i A'),
-                                'timestamp' => $from->getTimestamp().'-'.$to->getTimestamp(),
-                                'qty'       => $qty,
+                                'from' => $from->format('h:i A'),
+                                'to' => $to->format('h:i A'),
+                                'timestamp' => $from->getTimestamp() . '-' . $to->getTimestamp(),
+                                'qty' => $qty,
                             ];
                         }
                     }
@@ -440,25 +470,27 @@ class Booking
 
     /**
      * Convert time from 24 to 12 hour format
+     *
+     * @param array $slots
      */
     private function convert24To12Hours(array $slots): array
     {
-        return array_map(function ($slot) {
-            return [
-                'from' => Carbon::createFromTimeString($slot['from'])->format('h:i a'),
-                'to'   => Carbon::createFromTimeString($slot['to'])->format('h:i a'),
-            ];
-        }, $slots);
+        return array_map(fn($slot) => [
+            'from' => Carbon::createFromTimeString($slot['from'])->format('h:i a'),
+            'to' => Carbon::createFromTimeString($slot['to'])->format('h:i a'),
+        ], $slots);
     }
 
     /**
      * Update the cart item price.
+     *
+     * @param CartItem $item
      */
     private function updateCartItemPrice(CartItem $item): void
     {
         $price = $item->product->getTypeInstance()->getFinalPrice($item->quantity);
 
-        if ($price != $item->base_price) {
+        if ($price !== $item->base_price) {
             $item->base_price = $price;
             $item->price = core()->convertPrice($price);
 
@@ -471,6 +503,10 @@ class Booking
 
     /**
      * Get default slot details.
+     *
+     * @param mixed $bookingProduct
+     * @param mixed $bookingProductSlot
+     * @param mixed $requestedDate
      */
     private function getDefaultSlotDetails($bookingProduct, $bookingProductSlot, $requestedDate): array
     {
@@ -491,18 +527,22 @@ class Booking
 
     /**
      * Get slot details based on booking type.
+     *
+     * @param mixed $bookingProduct
+     * @param mixed $bookingProductSlot
+     * @param mixed $requestedDate
      */
     private function getSlotDetails($bookingProduct, $bookingProductSlot, $requestedDate): array
     {
-        if ($bookingProduct->type == 'default') {
+        if ($bookingProduct->type === 'default') {
             return $this->getDefaultSlotDetails($bookingProduct, $bookingProductSlot, $requestedDate);
         }
 
-        $availableFrom = ! $bookingProduct->available_every_week && $bookingProduct->available_from
+        $availableFrom = !$bookingProduct->available_every_week && $bookingProduct->available_from
             ? Carbon::createFromTimeString($bookingProduct->available_from)
             : Carbon::now()->copy()->startOfDay();
 
-        $availableTo = ! $bookingProduct->available_every_week && $bookingProduct->available_from
+        $availableTo = !$bookingProduct->available_every_week && $bookingProduct->available_from
             ? Carbon::createFromTimeString($bookingProduct->available_to)
             : Carbon::createFromTimeString('2080-01-01 00:00:00');
 
@@ -515,6 +555,9 @@ class Booking
 
     /**
      * Get event booking attributes.
+     *
+     * @param mixed $bookingProduct
+     * @param mixed $data
      */
     private function getEventAttributes($bookingProduct, $data): array
     {
@@ -523,31 +566,34 @@ class Booking
         return [
             [
                 'attribute_name' => trans('shop::app.products.booking.cart.event-ticket'),
-                'option_id'      => 0,
-                'option_label'   => $ticket->name,
+                'option_id' => 0,
+                'option_label' => $ticket->name,
             ], [
                 'attribute_name' => trans('shop::app.products.booking.cart.event-from'),
-                'option_id'      => 0,
-                'option_label'   => Carbon::createFromTimeString($bookingProduct->available_from)->format('d F, Y'),
+                'option_id' => 0,
+                'option_label' => Carbon::createFromTimeString($bookingProduct->available_from)->format('d F, Y'),
             ], [
                 'attribute_name' => trans('shop::app.products.booking.cart.event-till'),
-                'option_id'      => 0,
-                'option_label'   => Carbon::createFromTimeString($bookingProduct->available_to)->format('d F, Y'),
+                'option_id' => 0,
+                'option_label' => Carbon::createFromTimeString($bookingProduct->available_to)->format('d F, Y'),
             ],
         ];
     }
 
     /**
      * Get rental booking attributes.
+     *
+     * @param mixed $bookingProduct
+     * @param mixed $data
      */
     private function getRentalAttributes($bookingProduct, $data): array
     {
         $rentingType = $data['booking']['renting_type'] ?? $bookingProduct->rental_slot->renting_type;
 
-        if ($rentingType == 'daily') {
-            $from = Carbon::createFromTimeString($data['booking']['date_from'].' 00:00:01')->format('d F, Y');
+        if ($rentingType === 'daily') {
+            $from = Carbon::createFromTimeString($data['booking']['date_from'] . ' 00:00:01')->format('d F, Y');
 
-            $to = Carbon::createFromTimeString($data['booking']['date_to'].' 23:59:59')->format('d F, Y');
+            $to = Carbon::createFromTimeString($data['booking']['date_to'] . ' 23:59:59')->format('d F, Y');
         } else {
             $from = Carbon::createFromTimestamp($data['booking']['slot']['from'])->format('d F, Y h:i A');
 
@@ -557,22 +603,24 @@ class Booking
         return [
             [
                 'attribute_name' => trans('shop::app.products.booking.cart.rent-type'),
-                'option_id'      => 0,
-                'option_label'   => trans('shop::app.products.booking.cart.'.$rentingType),
+                'option_id' => 0,
+                'option_label' => trans('shop::app.products.booking.cart.' . $rentingType),
             ], [
                 'attribute_name' => trans('shop::app.products.booking.cart.rent-from'),
-                'option_id'      => 0,
-                'option_label'   => $from,
+                'option_id' => 0,
+                'option_label' => $from,
             ], [
                 'attribute_name' => trans('shop::app.products.booking.cart.rent-till'),
-                'option_id'      => 0,
-                'option_label'   => $to,
+                'option_id' => 0,
+                'option_label' => $to,
             ],
         ];
     }
 
     /**
      * Get table booking attributes.
+     *
+     * @param mixed $data
      */
     private function getTableAttributes($data): array
     {
@@ -581,20 +629,20 @@ class Booking
         $attributes = [
             [
                 'attribute_name' => trans('shop::app.products.booking.cart.booking-from'),
-                'option_id'      => 0,
-                'option_label'   => Carbon::createFromTimestamp($timestamps[0])->isoFormat('Do MMM, YYYY h:mm A'),
+                'option_id' => 0,
+                'option_label' => Carbon::createFromTimestamp($timestamps[0])->isoFormat('Do MMM, YYYY h:mm A'),
             ], [
                 'attribute_name' => trans('shop::app.products.booking.cart.booking-till'),
-                'option_id'      => 0,
-                'option_label'   => Carbon::createFromTimestamp($timestamps[1])->isoFormat('Do MMM, YYYY h:mm A'),
+                'option_id' => 0,
+                'option_label' => Carbon::createFromTimestamp($timestamps[1])->isoFormat('Do MMM, YYYY h:mm A'),
             ],
         ];
 
         if ($data['booking']['note'] !== '') {
             $attributes[] = [
                 'attribute_name' => trans('shop::app.products.booking.cart.special-note'),
-                'option_id'      => 0,
-                'option_label'   => $data['booking']['note'],
+                'option_id' => 0,
+                'option_label' => $data['booking']['note'],
             ];
         }
 
@@ -603,6 +651,8 @@ class Booking
 
     /**
      * Get default booking attributes.
+     *
+     * @param mixed $data
      */
     private function getDefaultAttributes($data): array
     {
@@ -611,12 +661,12 @@ class Booking
         return [
             [
                 'attribute_name' => trans('shop::app.products.booking.cart.booking-from'),
-                'option_id'      => 0,
-                'option_label'   => Carbon::createFromTimestamp($timestamps[0])->format('d F, Y h:i A'),
+                'option_id' => 0,
+                'option_label' => Carbon::createFromTimestamp($timestamps[0])->format('d F, Y h:i A'),
             ], [
                 'attribute_name' => trans('shop::app.products.booking.cart.booking-till'),
-                'option_id'      => 0,
-                'option_label'   => Carbon::createFromTimestamp($timestamps[1])->format('d F, Y h:i A'),
+                'option_id' => 0,
+                'option_label' => Carbon::createFromTimestamp($timestamps[1])->format('d F, Y h:i A'),
             ],
         ];
     }

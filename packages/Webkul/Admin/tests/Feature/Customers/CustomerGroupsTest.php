@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Customer\Models\CustomerGroup;
 
 use function Pest\Laravel\deleteJson;
@@ -71,7 +73,7 @@ it('should update the existing customers group', function () {
     putJson(route('admin.customers.groups.update'), [
         'name' => $name = fake()->name(),
         'code' => $customerGroup->code,
-        'id'   => $customerGroup->id,
+        'id' => $customerGroup->id,
     ])
         ->assertOk()
         ->assertSeeText(trans('admin::app.customers.groups.index.edit.success'));
@@ -81,7 +83,7 @@ it('should update the existing customers group', function () {
             [
                 'name' => $name,
                 'code' => $customerGroup->code,
-                'id'   => $customerGroup->id,
+                'id' => $customerGroup->id,
             ],
         ],
     ]);

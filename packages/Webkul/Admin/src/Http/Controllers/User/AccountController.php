@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\User;
 
-use Hash;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Webkul\Admin\Http\Controllers\Controller;
@@ -31,11 +32,11 @@ class AccountController extends Controller
         $user = auth()->guard('admin')->user();
 
         $this->validate(request(), [
-            'name'             => 'required',
-            'email'            => 'email|unique:admins,email,'.$user->id,
-            'password'         => 'nullable|min:6|confirmed',
+            'name' => 'required',
+            'email' => 'email|unique:admins,email,' . $user->id,
+            'password' => 'nullable|min:6|confirmed',
             'current_password' => 'required|min:6',
-            'image.*'          => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
+            'image.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
         ]);
 
         $data = request()->only([
@@ -47,7 +48,7 @@ class AccountController extends Controller
             'image',
         ]);
 
-        if (! Hash::check($data['current_password'], $user->password)) {
+        if (!\Hash::check($data['current_password'], $user->password)) {
             session()->flash('warning', trans('admin::app.account.edit.invalid-password'));
 
             return redirect()->back();
@@ -55,7 +56,7 @@ class AccountController extends Controller
 
         $isPasswordChanged = false;
 
-        if (! $data['password']) {
+        if (!$data['password']) {
             unset($data['password']);
         } else {
             $isPasswordChanged = true;
@@ -64,10 +65,10 @@ class AccountController extends Controller
         }
 
         if (request()->hasFile('image')) {
-            $data['image'] = current(request()->file('image'))->store('admins/'.$user->id);
+            $data['image'] = current(request()->file('image'))->store('admins/' . $user->id);
         } else {
-            if (! isset($data['image'])) {
-                if (! empty($data['image'])) {
+            if (!isset($data['image'])) {
+                if (!empty($data['image'])) {
                     Storage::delete($user->image);
                 }
 

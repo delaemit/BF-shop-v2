@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Helpers;
 
 use Carbon\Carbon;
@@ -10,20 +12,25 @@ class CatalogRuleIndex
     /**
      * Create a new helper instance.
      *
+     * @param CatalogRuleRepository $catalogRuleRepository
+     * @param CatalogRuleProduct $catalogRuleProductHelper
+     * @param CatalogRuleProductPrice $catalogRuleProductPriceHelper
+     *
      * @return void
      */
     public function __construct(
         protected CatalogRuleRepository $catalogRuleRepository,
         protected CatalogRuleProduct $catalogRuleProductHelper,
         protected CatalogRuleProductPrice $catalogRuleProductPriceHelper
-    ) {}
+    ) {
+    }
 
     /**
      * Full re-index
      *
      * @return void
      */
-    public function reIndexComplete()
+    public function reIndexComplete(): void
     {
         try {
             $this->cleanProductIndices();
@@ -41,24 +48,25 @@ class CatalogRuleIndex
     /**
      * Re-index rule indices
      *
-     * @param  \Webkul\CatalogRule\Contracts\CatalogRule  $rule
+     * @param \Webkul\CatalogRule\Contracts\CatalogRule $rule
+     *
      * @return void
      */
-    public function reIndexRule($rule)
+    public function reIndexRule($rule): void
     {
         $this->cleanRuleIndices($rule);
 
-        $startsFrom = $rule->starts_from ? Carbon::createFromTimeString($rule->starts_from.' 00:00:01') : null;
+        $startsFrom = $rule->starts_from ? Carbon::createFromTimeString($rule->starts_from . ' 00:00:01') : null;
 
-        $endsTill = $rule->ends_till ? Carbon::createFromTimeString($rule->ends_till.' 23:59:59') : null;
+        $endsTill = $rule->ends_till ? Carbon::createFromTimeString($rule->ends_till . ' 23:59:59') : null;
 
         if (
             (
-                ! $startsFrom
+                !$startsFrom
                 || $startsFrom <= Carbon::now()
             )
             && (
-                ! $endsTill
+                !$endsTill
                 || $endsTill >= Carbon::now()
             )
         ) {
@@ -71,13 +79,14 @@ class CatalogRuleIndex
     /**
      * Re-index single product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function reIndexProduct($product)
+    public function reIndexProduct($product): void
     {
         try {
-            if (! $product->getTypeInstance()->priceRuleCanBeApplied()) {
+            if (!$product->getTypeInstance()->priceRuleCanBeApplied()) {
                 return;
             }
 
@@ -100,10 +109,11 @@ class CatalogRuleIndex
     /**
      * Clean rule indices
      *
-     * @param  \Webkul\CatalogRule\Contracts\CatalogRule  $rule
+     * @param \Webkul\CatalogRule\Contracts\CatalogRule $rule
+     *
      * @return void
      */
-    public function cleanRuleIndices($rule)
+    public function cleanRuleIndices($rule): void
     {
         $this->catalogRuleProductHelper->cleanRuleIndices($rule);
 
@@ -113,10 +123,11 @@ class CatalogRuleIndex
     /**
      * Clean products indices
      *
-     * @param  array  $productIds
+     * @param array $productIds
+     *
      * @return void
      */
-    public function cleanProductIndices($productIds = [])
+    public function cleanProductIndices($productIds = []): void
     {
         $this->catalogRuleProductHelper->cleanProductIndices($productIds);
 
@@ -131,11 +142,11 @@ class CatalogRuleIndex
     public function getCatalogRules()
     {
         $catalogRules = $this->catalogRuleRepository->scopeQuery(function ($query) {
-            return $query->where(function ($query1) {
+            return $query->where(function ($query1): void {
                 $query1->where('catalog_rules.starts_from', '<=', Carbon::now()->format('Y-m-d'))
                     ->orWhereNull('catalog_rules.starts_from');
             })
-                ->where(function ($query2) {
+                ->where(function ($query2): void {
                     $query2->where('catalog_rules.ends_till', '>=', Carbon::now()->format('Y-m-d'))
                         ->orWhereNull('catalog_rules.ends_till');
                 })

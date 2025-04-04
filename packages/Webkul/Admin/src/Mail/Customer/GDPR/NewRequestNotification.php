@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Mail\Customer\GDPR;
 
 use Illuminate\Mail\Mailables\Address;
@@ -12,8 +14,12 @@ class NewRequestNotification extends Mailable
 {
     /**
      * Create a new message instance.
+     *
+     * @param GDPRDataRequest $gdprRequest
      */
-    public function __construct(public GDPRDataRequest $gdprRequest) {}
+    public function __construct(public GDPRDataRequest $gdprRequest)
+    {
+    }
 
     /**
      * Get the message envelope.

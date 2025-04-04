@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -10,6 +12,9 @@ use Webkul\Attribute\Contracts\AttributeFamily as AttributeFamilyContract;
 use Webkul\Attribute\Database\Factories\AttributeFamilyFactory;
 use Webkul\Product\Models\ProductProxy;
 
+/**
+ * @property \Illuminate\Support\Collection $custom_attributes
+ */
 class AttributeFamily extends Model implements AttributeFamilyContract
 {
     use HasFactory;

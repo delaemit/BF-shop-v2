@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +22,7 @@ class CampaignFactory extends Factory
     public function definition()
     {
         return [
-            'name'    => fake()->name(),
+            'name' => fake()->name(),
             'subject' => fake()->title(),
         ];
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\Settings\ChannelController;
 use Webkul\Admin\Http\Controllers\Settings\CurrencyController;
@@ -13,14 +15,14 @@ use Webkul\Admin\Http\Controllers\Settings\Tax\TaxRateController;
 use Webkul\Admin\Http\Controllers\Settings\ThemeController;
 use Webkul\Admin\Http\Controllers\Settings\UserController;
 
-/**
+/*
  * Settings routes.
  */
-Route::prefix('settings')->group(function () {
-    /**
+Route::prefix('settings')->group(function (): void {
+    /*
      * Channels routes.
      */
-    Route::controller(ChannelController::class)->prefix('channels')->group(function () {
+    Route::controller(ChannelController::class)->prefix('channels')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.channels.index');
 
         Route::get('create', 'create')->name('admin.settings.channels.create');
@@ -34,10 +36,10 @@ Route::prefix('settings')->group(function () {
         Route::delete('edit/{id}', 'destroy')->name('admin.settings.channels.delete');
     });
 
-    /**
+    /*
      * Currencies routes.
      */
-    Route::controller(CurrencyController::class)->prefix('currencies')->group(function () {
+    Route::controller(CurrencyController::class)->prefix('currencies')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.currencies.index');
 
         Route::post('create', 'store')->name('admin.settings.currencies.store');
@@ -51,10 +53,10 @@ Route::prefix('settings')->group(function () {
         Route::post('mass-delete', 'massDestroy')->name('admin.settings.currencies.mass_delete');
     });
 
-    /**
+    /*
      * Exchange rates routes.
      */
-    Route::controller(ExchangeRateController::class)->prefix('exchange-rates')->group(function () {
+    Route::controller(ExchangeRateController::class)->prefix('exchange-rates')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.exchange_rates.index');
 
         Route::post('create', 'store')->name('admin.settings.exchange_rates.store');
@@ -68,10 +70,10 @@ Route::prefix('settings')->group(function () {
         Route::delete('edit/{id}', 'destroy')->name('admin.settings.exchange_rates.delete');
     });
 
-    /**
+    /*
      * Locales routes.
      */
-    Route::controller(LocaleController::class)->prefix('locales')->group(function () {
+    Route::controller(LocaleController::class)->prefix('locales')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.locales.index');
 
         Route::post('create', 'store')->name('admin.settings.locales.store');
@@ -83,10 +85,10 @@ Route::prefix('settings')->group(function () {
         Route::delete('edit/{id}', 'destroy')->name('admin.settings.locales.delete');
     });
 
-    /**
+    /*
      * Inventory sources routes.
      */
-    Route::controller(InventorySourceController::class)->prefix('inventory-sources')->group(function () {
+    Route::controller(InventorySourceController::class)->prefix('inventory-sources')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.inventory_sources.index');
 
         Route::get('create', 'create')->name('admin.settings.inventory_sources.create');
@@ -100,11 +102,11 @@ Route::prefix('settings')->group(function () {
         Route::delete('edit/{id}', 'destroy')->name('admin.settings.inventory_sources.delete');
     });
 
-    Route::prefix('taxes')->group(function () {
-        /**
+    Route::prefix('taxes')->group(function (): void {
+        /*
          * Tax categories routes.
          */
-        Route::controller(TaxCategoryController::class)->prefix('categories')->group(function () {
+        Route::controller(TaxCategoryController::class)->prefix('categories')->group(function (): void {
             Route::get('', 'index')->name('admin.settings.taxes.categories.index');
 
             Route::post('', 'store')->name('admin.settings.taxes.categories.store');
@@ -116,10 +118,10 @@ Route::prefix('settings')->group(function () {
             Route::delete('edit/{id}', 'destroy')->name('admin.settings.taxes.categories.delete');
         });
 
-        /**
+        /*
          * Tax rates routes.
          */
-        Route::controller(TaxRateController::class)->prefix('rates')->group(function () {
+        Route::controller(TaxRateController::class)->prefix('rates')->group(function (): void {
             Route::get('', 'index')->name('admin.settings.taxes.rates.index');
 
             Route::get('create', 'create')->name('admin.settings.taxes.rates.create');
@@ -134,10 +136,10 @@ Route::prefix('settings')->group(function () {
         });
     });
 
-    /**
+    /*
      * Roles routes.
      */
-    Route::controller(RoleController::class)->prefix('roles')->group(function () {
+    Route::controller(RoleController::class)->prefix('roles')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.roles.index');
 
         Route::get('create', 'create')->name('admin.settings.roles.create');
@@ -151,10 +153,10 @@ Route::prefix('settings')->group(function () {
         Route::delete('edit/{id}', 'destroy')->name('admin.settings.roles.delete');
     });
 
-    /**
+    /*
      * Users routes.
      */
-    Route::controller(UserController::class)->prefix('users')->group(function () {
+    Route::controller(UserController::class)->prefix('users')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.users.index');
 
         Route::post('create', 'store')->name('admin.settings.users.store');
@@ -168,7 +170,7 @@ Route::prefix('settings')->group(function () {
         Route::put('confirm', 'destroySelf')->name('admin.settings.users.destroy');
     });
 
-    Route::controller(ThemeController::class)->prefix('themes')->group(function () {
+    Route::controller(ThemeController::class)->prefix('themes')->group(function (): void {
         Route::get('', 'index')->name('admin.settings.themes.index');
 
         Route::get('edit/{id}', 'edit')->name('admin.settings.themes.edit');
@@ -184,14 +186,14 @@ Route::prefix('settings')->group(function () {
         Route::post('mass-delete', 'massDestroy')->name('admin.settings.themes.mass_delete');
     });
 
-    /**
+    /*
      * Data Transfer routes.
      */
-    Route::prefix('data-transfer')->group(function () {
-        /**
+    Route::prefix('data-transfer')->group(function (): void {
+        /*
          * Import routes.
          */
-        Route::controller(ImportController::class)->prefix('imports')->group(function () {
+        Route::controller(ImportController::class)->prefix('imports')->group(function (): void {
             Route::get('', 'index')->name('admin.settings.data_transfer.imports.index');
 
             Route::get('create', 'create')->name('admin.settings.data_transfer.imports.create');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Settings;
 
 use Illuminate\Support\Facades\DB;
@@ -36,58 +38,54 @@ class ExchangeRatesDataGrid extends DataGrid
         return $queryBuilder;
     }
 
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'currency_exchange_id',
-            'label'      => trans('admin::app.settings.exchange-rates.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'currency_exchange_id',
+            'label' => trans('admin::app.settings.exchange-rates.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'currency_name',
-            'label'      => trans('admin::app.settings.exchange-rates.index.datagrid.currency-name'),
-            'type'       => 'string',
+            'index' => 'currency_name',
+            'label' => trans('admin::app.settings.exchange-rates.index.datagrid.currency-name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'currency_rate',
-            'label'      => trans('admin::app.settings.exchange-rates.index.datagrid.exchange-rate'),
-            'type'       => 'integer',
+            'index' => 'currency_rate',
+            'label' => trans('admin::app.settings.exchange-rates.index.datagrid.exchange-rate'),
+            'type' => 'integer',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('settings.exchange_rates.edit')) {
             $this->addAction([
-                'index'  => 'edit',
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.settings.exchange-rates.index.datagrid.edit'),
+                'index' => 'edit',
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.settings.exchange-rates.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.settings.exchange_rates.edit', $row->currency_exchange_id);
-                },
+                'url' => fn($row) => route('admin.settings.exchange_rates.edit', $row->currency_exchange_id),
             ]);
         }
 
         if (bouncer()->hasPermission('settings.exchange_rates.delete')) {
             $this->addAction([
-                'index'  => 'delete',
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.settings.exchange-rates.index.datagrid.delete'),
+                'index' => 'delete',
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.settings.exchange-rates.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.settings.exchange_rates.delete', $row->currency_exchange_id);
-                },
+                'url' => fn($row) => route('admin.settings.exchange_rates.delete', $row->currency_exchange_id),
             ]);
         }
     }

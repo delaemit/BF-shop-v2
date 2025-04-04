@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme;
 
 use Illuminate\Support\Facades\Vite;
@@ -16,10 +18,12 @@ class Theme
     /**
      * Create a new theme instance.
      *
-     * @param  string  $code
-     * @param  string  $name
-     * @param  string  $assetsPath
-     * @param  string  $viewsPath
+     * @param string $code
+     * @param string $name
+     * @param string $assetsPath
+     * @param string $viewsPath
+     * @param mixed $vite
+     *
      * @return void
      */
     public function __construct(
@@ -38,9 +42,11 @@ class Theme
      * Sets the parent.
      *
      * @param  \Webkul\Theme\Theme
+     * @param Theme $parent
+     *
      * @return void
      */
-    public function setParent(Theme $parent)
+    public function setParent(self $parent): void
     {
         $this->parent = $parent;
     }
@@ -73,7 +79,7 @@ class Theme
                 $path = $theme->viewsPath;
             }
 
-            if (! in_array($path, $paths)) {
+            if (!in_array($path, $paths, true)) {
                 $paths[] = $path;
             }
         } while ($theme = $theme->parent);
@@ -84,11 +90,13 @@ class Theme
     /**
      * Convert to asset url based on current theme.
      *
+     * @param string $url
+     *
      * @return string
      */
     public function url(string $url)
     {
-        $viteUrl = trim($this->vite['package_assets_directory'], '/').'/'.$url;
+        $viteUrl = trim($this->vite['package_assets_directory'], '/') . '/' . $url;
 
         return Vite::useHotFile($this->vite['hot_file'])
             ->useBuildDirectory($this->vite['build_directory'])
@@ -97,6 +105,8 @@ class Theme
 
     /**
      * Set bagisto vite.
+     *
+     * @param array $entryPoints
      *
      * @return \Illuminate\Foundation\Vite
      */

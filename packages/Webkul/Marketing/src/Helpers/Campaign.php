@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Helpers;
 
 use Carbon\Carbon;
@@ -14,13 +16,16 @@ class Campaign
     /**
      * Create a new helper instance.
      *
+     * @param EventRepository $eventRepository
+     * @param CampaignRepository $campaignRepository
      *
      * @return void
      */
     public function __construct(
         protected EventRepository $eventRepository,
         protected CampaignRepository $campaignRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Process the email.
@@ -33,14 +38,14 @@ class Campaign
             ->select('marketing_campaigns.*')
             ->where('marketing_campaigns.status', 1)
             ->where('marketing_templates.status', 'active')
-            ->where(function ($query) {
+            ->where(function ($query): void {
                 $query->where('marketing_events.date', Carbon::now()->format('Y-m-d'))
                     ->orWhereNull('marketing_events.date');
             })
             ->get();
 
         foreach ($campaigns as $campaign) {
-            if ($campaign->event->name == 'Birthday') {
+            if ($campaign->event->name === 'Birthday') {
                 $emails = $this->getBirthdayEmails($campaign);
             } else {
                 $emails = $this->getEmailAddresses($campaign);
@@ -55,7 +60,8 @@ class Campaign
     /**
      * Get the email address.
      *
-     * @param  \Webkul\Marketing\Contracts\Campaign  $campaign
+     * @param \Webkul\Marketing\Contracts\Campaign $campaign
+     *
      * @return array
      */
     public function getEmailAddresses($campaign)
@@ -72,7 +78,8 @@ class Campaign
     /**
      * Return customer's emails who has a birthday today.
      *
-     * @param  \Webkul\Marketing\Contracts\Campaign  $campaign
+     * @param \Webkul\Marketing\Contracts\Campaign $campaign
+     *
      * @return array
      */
     public function getBirthdayEmails($campaign)

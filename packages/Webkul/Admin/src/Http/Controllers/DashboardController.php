@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers;
 
 use Webkul\Admin\Helpers\Dashboard;
@@ -12,32 +14,36 @@ class DashboardController extends Controller
      * @var array
      */
     protected $typeFunctions = [
-        'over-all'                 => 'getOverAllStats',
-        'today'                    => 'getTodayStats',
+        'over-all' => 'getOverAllStats',
+        'today' => 'getTodayStats',
         'stock-threshold-products' => 'getStockThresholdProducts',
-        'total-sales'              => 'getSalesStats',
-        'total-visitors'           => 'getVisitorStats',
-        'top-selling-products'     => 'getTopSellingProducts',
-        'top-customers'            => 'getTopCustomers',
+        'total-sales' => 'getSalesStats',
+        'total-visitors' => 'getVisitorStats',
+        'top-selling-products' => 'getTopSellingProducts',
+        'top-customers' => 'getTopCustomers',
     ];
 
     /**
      * Create a controller instance.
      *
+     * @param Dashboard $dashboardHelper
+     *
      * @return void
      */
-    public function __construct(protected Dashboard $dashboardHelper) {}
+    public function __construct(protected Dashboard $dashboardHelper)
+    {
+    }
 
     /**
      * Dashboard page.
      *
-     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\View\View
      */
     public function index()
     {
         return view('admin::dashboard.index')->with([
             'startDate' => $this->dashboardHelper->getStartDate(),
-            'endDate'   => $this->dashboardHelper->getEndDate(),
+            'endDate' => $this->dashboardHelper->getEndDate(),
         ]);
     }
 

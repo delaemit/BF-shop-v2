@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Listeners;
 
 use Illuminate\Support\Facades\Bus;
@@ -17,6 +19,11 @@ class Product
     /**
      * Create a new listener instance.
      *
+     * @param ProductRepository $productRepository
+     * @param ProductBundleOptionProductRepository $productBundleOptionProductRepository
+     * @param ProductGroupedProductRepository $productGroupedProductRepository
+     * @param FlatIndexer $flatIndexer
+     *
      * @return void
      */
     public function __construct(
@@ -24,15 +31,17 @@ class Product
         protected ProductBundleOptionProductRepository $productBundleOptionProductRepository,
         protected ProductGroupedProductRepository $productGroupedProductRepository,
         protected FlatIndexer $flatIndexer
-    ) {}
+    ) {
+    }
 
     /**
      * Update or create product indices
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function afterCreate($product)
+    public function afterCreate($product): void
     {
         $this->flatIndexer->refresh($product);
 
@@ -44,10 +53,11 @@ class Product
     /**
      * Update or create product indices
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function afterUpdate($product)
+    public function afterUpdate($product): void
     {
         $this->flatIndexer->refresh($product);
 
@@ -63,18 +73,19 @@ class Product
     /**
      * Delete product indices
      *
-     * @param  int  $productId
+     * @param int $productId
+     *
      * @return void
      */
-    public function beforeDelete($productId)
+    public function beforeDelete($productId): void
     {
-        if (core()->getConfigData('catalog.products.search.engine') != 'elastic') {
+        if (core()->getConfigData('catalog.products.search.engine') !== 'elastic') {
             return;
         }
 
         $product = $this->productRepository->find($productId);
 
-        if (! $product) {
+        if (!$product) {
             return;
         }
 
@@ -86,14 +97,15 @@ class Product
     /**
      * Returns parents bundle product ids associated with simple product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getAllRelatedProductIds($product)
     {
         $productIds = [$product->id];
 
-        if ($product->type == 'simple') {
+        if ($product->type === 'simple') {
             if ($product->parent_id) {
                 $productIds[] = $product->parent_id;
             }
@@ -103,7 +115,7 @@ class Product
                 $this->getParentBundleProductIds($product),
                 $this->getParentGroupProductIds($product)
             );
-        } elseif ($product->type == 'configurable') {
+        } elseif ($product->type === 'configurable') {
             $productIds = [
                 ...$product->variants->pluck('id')->toArray(),
                 ...$productIds,
@@ -116,7 +128,8 @@ class Product
     /**
      * Returns parents bundle product ids associated with simple product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getParentBundleProductIds($product)
@@ -137,7 +150,8 @@ class Product
     /**
      * Returns parents group product ids associated with simple product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getParentGroupProductIds($product)

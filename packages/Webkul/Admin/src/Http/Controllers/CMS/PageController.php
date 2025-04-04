@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\CMS;
 
 use Illuminate\Http\JsonResponse;
@@ -14,9 +16,13 @@ class PageController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param PageRepository $pageRepository
+     *
      * @return void
      */
-    public function __construct(protected PageRepository $pageRepository) {}
+    public function __construct(protected PageRepository $pageRepository)
+    {
+    }
 
     /**
      * Loads the index page showing the static pages resources.
@@ -50,9 +56,9 @@ class PageController extends Controller
     public function store()
     {
         $this->validate(request(), [
-            'url_key'      => ['required', 'unique:cms_page_translations,url_key', new \Webkul\Core\Rules\Slug],
-            'page_title'   => 'required',
-            'channels'     => 'required',
+            'url_key' => ['required', 'unique:cms_page_translations,url_key', new \Webkul\Core\Rules\Slug()],
+            'page_title' => 'required',
+            'channels' => 'required',
             'html_content' => 'required',
         ]);
 
@@ -78,6 +84,8 @@ class PageController extends Controller
     /**
      * To edit a previously created CMS page.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -90,6 +98,8 @@ class PageController extends Controller
     /**
      * To update the previously created CMS page in storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(int $id)
@@ -97,22 +107,22 @@ class PageController extends Controller
         $locale = core()->getRequestedLocaleCode();
 
         $this->validate(request(), [
-            $locale.'.url_key'      => ['required', new \Webkul\Core\Rules\Slug, function ($attribute, $value, $fail) use ($id) {
-                if (! $this->pageRepository->isUrlKeyUnique($id, $value)) {
+            $locale . '.url_key' => ['required', new \Webkul\Core\Rules\Slug(), function ($attribute, $value, $fail) use ($id): void {
+                if (!$this->pageRepository->isUrlKeyUnique($id, $value)) {
                     $fail(trans('admin::app.cms.index.already-taken', ['name' => 'Page']));
                 }
             }],
-            $locale.'.page_title'     => 'required',
-            $locale.'.html_content'   => 'required',
-            'channels'                => 'required',
+            $locale . '.page_title' => 'required',
+            $locale . '.html_content' => 'required',
+            'channels' => 'required',
         ]);
 
         Event::dispatch('cms.page.update.before', $id);
 
         $page = $this->pageRepository->update([
-            $locale    => request()->input($locale),
+            $locale => request()->input($locale),
             'channels' => request()->input('channels'),
-            'locale'   => $locale,
+            'locale' => $locale,
         ], $id);
 
         Event::dispatch('cms.page.update.after', $page);
@@ -124,6 +134,8 @@ class PageController extends Controller
 
     /**
      * To delete the previously create CMS page.
+     *
+     * @param int $id
      */
     public function delete(int $id): JsonResponse
     {
@@ -142,6 +154,8 @@ class PageController extends Controller
 
     /**
      * To mass delete the CMS resource from storage.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDelete(MassDestroyRequest $massDestroyRequest): JsonResponse
     {

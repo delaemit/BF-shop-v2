@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Catalog;
 
 use Illuminate\Support\Facades\DB;
@@ -33,42 +35,42 @@ class AttributeDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.catalog.attributes.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.id'),
+            'type' => 'integer',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'code',
-            'label'      => trans('admin::app.catalog.attributes.index.datagrid.code'),
-            'type'       => 'string',
+            'index' => 'code',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.code'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'admin_name',
-            'label'      => trans('admin::app.catalog.attributes.index.datagrid.name'),
-            'type'       => 'string',
+            'index' => 'admin_name',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'              => 'type',
-            'label'              => trans('admin::app.catalog.attributes.index.datagrid.type'),
-            'type'               => 'string',
-            'searchable'         => true,
-            'filterable'         => true,
-            'filterable_type'    => 'dropdown',
+            'index' => 'type',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.type'),
+            'type' => 'string',
+            'searchable' => true,
+            'filterable' => true,
+            'filterable_type' => 'dropdown',
             'filterable_options' => [
                 [
                     'label' => trans('admin::app.catalog.attributes.index.datagrid.text'),
@@ -119,13 +121,13 @@ class AttributeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index'      => 'is_required',
-            'label'      => trans('admin::app.catalog.attributes.index.datagrid.required'),
-            'type'       => 'boolean',
+            'index' => 'is_required',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.required'),
+            'type' => 'boolean',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($row) {
+            'sortable' => true,
+            'closure' => function ($row) {
                 if ($row->is_required) {
                     return trans('admin::app.catalog.attributes.index.datagrid.true');
                 }
@@ -135,13 +137,13 @@ class AttributeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index'      => 'is_unique',
-            'label'      => trans('admin::app.catalog.attributes.index.datagrid.unique'),
-            'type'       => 'boolean',
+            'index' => 'is_unique',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.unique'),
+            'type' => 'boolean',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($row) {
+            'sortable' => true,
+            'closure' => function ($row) {
                 if ($row->is_unique) {
                     return trans('admin::app.catalog.attributes.index.datagrid.true');
                 }
@@ -151,13 +153,13 @@ class AttributeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index'      => 'value_per_locale',
-            'label'      => trans('admin::app.catalog.attributes.index.datagrid.locale-based'),
-            'type'       => 'boolean',
+            'index' => 'value_per_locale',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.locale-based'),
+            'type' => 'boolean',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($row) {
+            'sortable' => true,
+            'closure' => function ($row) {
                 if ($row->value_per_locale) {
                     return trans('admin::app.catalog.attributes.index.datagrid.true');
                 }
@@ -167,13 +169,13 @@ class AttributeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index'      => 'value_per_channel',
-            'label'      => trans('admin::app.catalog.attributes.index.datagrid.channel-based'),
-            'type'       => 'boolean',
+            'index' => 'value_per_channel',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.channel-based'),
+            'type' => 'boolean',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($row) {
+            'sortable' => true,
+            'closure' => function ($row) {
                 if ($row->value_per_channel) {
                     return trans('admin::app.catalog.attributes.index.datagrid.true');
                 }
@@ -183,13 +185,13 @@ class AttributeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index'           => 'created_at',
-            'label'           => trans('admin::app.catalog.attributes.index.datagrid.created-at'),
-            'type'            => 'date',
-            'searchable'      => true,
-            'filterable'      => true,
+            'index' => 'created_at',
+            'label' => trans('admin::app.catalog.attributes.index.datagrid.created-at'),
+            'type' => 'date',
+            'searchable' => true,
+            'filterable' => true,
             'filterable_type' => 'date_range',
-            'sortable'        => true,
+            'sortable' => true,
         ]);
     }
 
@@ -198,27 +200,23 @@ class AttributeDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('catalog.attributes.edit')) {
             $this->addAction([
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.catalog.attributes.index.datagrid.edit'),
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.catalog.attributes.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.catalog.attributes.edit', $row->id);
-                },
+                'url' => fn($row) => route('admin.catalog.attributes.edit', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('catalog.attributes.delete')) {
             $this->addAction([
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.catalog.attributes.index.datagrid.delete'),
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.catalog.attributes.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.catalog.attributes.delete', $row->id);
-                },
+                'url' => fn($row) => route('admin.catalog.attributes.delete', $row->id),
             ]);
         }
     }
@@ -228,14 +226,14 @@ class AttributeDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareMassActions()
+    public function prepareMassActions(): void
     {
         if (bouncer()->hasPermission('catalog.attributes.delete')) {
             $this->addMassAction([
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.catalog.attributes.index.datagrid.delete'),
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.catalog.attributes.index.datagrid.delete'),
                 'method' => 'POST',
-                'url'    => route('admin.catalog.attributes.mass_delete'),
+                'url' => route('admin.catalog.attributes.mass_delete'),
             ]);
         }
     }

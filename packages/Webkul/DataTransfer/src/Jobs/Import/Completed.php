@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Jobs\Import;
 
 use Illuminate\Bus\Queueable;
@@ -16,7 +18,8 @@ class Completed implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  mixed  $import
+     * @param mixed $import
+     *
      * @return void
      */
     public function __construct(protected $import)
@@ -29,7 +32,7 @@ class Completed implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app(ImportHelper::class)
             ->setImport($this->import)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Type;
 
 use Webkul\Attribute\Repositories\AttributeRepository;
@@ -51,6 +53,17 @@ class Downloadable extends AbstractType
     /**
      * Create a new product type instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param AttributeRepository $attributeRepository
+     * @param ProductRepository $productRepository
+     * @param ProductAttributeValueRepository $attributeValueRepository
+     * @param ProductInventoryRepository $productInventoryRepository
+     * @param productImageRepository $productImageRepository
+     * @param ProductVideoRepository $productVideoRepository
+     * @param ProductCustomerGroupPriceRepository $productCustomerGroupPriceRepository
+     * @param ProductDownloadableLinkRepository $productDownloadableLinkRepository
+     * @param ProductDownloadableSampleRepository $productDownloadableSampleRepository
+     *
      * @return void
      */
     public function __construct(
@@ -80,15 +93,17 @@ class Downloadable extends AbstractType
     /**
      * Update.
      *
-     * @param  int  $id
-     * @param  array  $attributes
+     * @param int $id
+     * @param array $attributes
+     * @param array $data
+     *
      * @return \Webkul\Product\Contracts\Product
      */
     public function update(array $data, $id, $attributes = [])
     {
         $product = parent::update($data, $id, $attributes);
 
-        if (! empty($attributes)) {
+        if (!empty($attributes)) {
             return $product;
         }
 
@@ -106,7 +121,7 @@ class Downloadable extends AbstractType
      */
     public function isSaleable()
     {
-        if (! $this->product->status) {
+        if (!$this->product->status) {
             return false;
         }
 
@@ -125,11 +140,11 @@ class Downloadable extends AbstractType
     public function getTypeValidationRules()
     {
         return [
-            'downloadable_links.*.type'       => 'required',
-            'downloadable_links.*.file'       => 'required_if:type,==,file',
-            'downloadable_links.*.file_name'  => 'required_if:type,==,file',
-            'downloadable_links.*.url'        => 'required_if:type,==,url',
-            'downloadable_links.*.downloads'  => 'required',
+            'downloadable_links.*.type' => 'required',
+            'downloadable_links.*.file' => 'required_if:type,==,file',
+            'downloadable_links.*.file_name' => 'required_if:type,==,file',
+            'downloadable_links.*.url' => 'required_if:type,==,url',
+            'downloadable_links.*.downloads' => 'required',
             'downloadable_links.*.sort_order' => 'required',
         ];
     }
@@ -137,7 +152,8 @@ class Downloadable extends AbstractType
     /**
      * Add product. Returns error message if can't prepare product.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return array
      */
     public function prepareForCart($data)
@@ -149,7 +165,7 @@ class Downloadable extends AbstractType
         $products = parent::prepareForCart($data);
 
         foreach ($this->product->downloadable_links as $link) {
-            if (! in_array($link->id, $data['links'])) {
+            if (!in_array($link->id, $data['links'], true)) {
                 continue;
             }
 
@@ -168,28 +184,28 @@ class Downloadable extends AbstractType
     /**
      * Compare options.
      *
-     * @param  array  $options1
-     * @param  array  $options2
+     * @param array $options1
+     * @param array $options2
+     *
      * @return bool
      */
     public function compareOptions($options1, $options2)
     {
-        if ($this->product->id != $options2['product_id']) {
+        if ($this->product->id !== $options2['product_id']) {
             return false;
         }
 
         if (
-            isset($options1['links'])
-            && isset($options2['links'])
+            isset($options1['links'], $options2['links'])
         ) {
             return $options1['links'] === $options2['links'];
         }
 
-        if (! isset($options1['links'])) {
+        if (!isset($options1['links'])) {
             return false;
         }
 
-        if (! isset($options2['links'])) {
+        if (!isset($options2['links'])) {
             return false;
         }
     }
@@ -197,7 +213,8 @@ class Downloadable extends AbstractType
     /**
      * Returns additional information for items.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return array
      */
     public function getAdditionalOptions($data)
@@ -205,15 +222,15 @@ class Downloadable extends AbstractType
         $labels = [];
 
         foreach ($this->product->downloadable_links as $link) {
-            if (in_array($link->id, $data['links'])) {
+            if (in_array($link->id, $data['links'], true)) {
                 $labels[] = $link->title;
             }
         }
 
         $data['attributes'][0] = [
             'attribute_name' => 'Downloads',
-            'option_id'      => 0,
-            'option_label'   => implode(', ', $labels),
+            'option_id' => 0,
+            'option_label' => implode(', ', $labels),
         ];
 
         return $data;
@@ -221,10 +238,12 @@ class Downloadable extends AbstractType
 
     /**
      * Validate cart item product price
+     *
+     * @param CartItem $item
      */
     public function validateCartItem(CartItem $item): CartItemValidationResult
     {
-        $validation = new CartItemValidationResult;
+        $validation = new CartItemValidationResult();
 
         if (parent::isCartItemInactive($item)) {
             $validation->itemIsInactive();
@@ -235,7 +254,7 @@ class Downloadable extends AbstractType
         $basePrice = $this->getFinalPrice($item->quantity);
 
         foreach ($item->product->downloadable_links as $link) {
-            if (! in_array($link->id, $item->additional['links'])) {
+            if (!in_array($link->id, $item->additional['links'], true)) {
                 continue;
             }
 
@@ -250,7 +269,7 @@ class Downloadable extends AbstractType
             $itemBasePrice = $item->base_price;
         }
 
-        if ($basePrice == $itemBasePrice) {
+        if ($basePrice === $itemBasePrice) {
             return $validation;
         }
 

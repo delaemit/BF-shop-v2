@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Str;
@@ -16,16 +18,18 @@ class ProductCustomerGroupPriceRepository extends Repository
     }
 
     /**
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     * @param array $data
+     *
      * @return void
      */
-    public function saveCustomerGroupPrices(array $data, $product)
+    public function saveCustomerGroupPrices(array $data, $product): void
     {
         $previousCustomerGroupPriceIds = $product->customer_group_prices()->pluck('id');
 
         if (isset($data['customer_group_prices'])) {
             foreach ($data['customer_group_prices'] as $customerGroupPriceId => $row) {
-                $row['customer_group_id'] = $row['customer_group_id'] == '' ? null : $row['customer_group_id'];
+                $row['customer_group_id'] = $row['customer_group_id'] === '' ? null : $row['customer_group_id'];
 
                 $row['unique_id'] = implode('|', array_filter([
                     $row['qty'],
@@ -55,15 +59,14 @@ class ProductCustomerGroupPriceRepository extends Repository
     /**
      * Check if product customer group prices already loaded then load from it.
      *
+     * @param mixed $product
+     * @param mixed $customerGroupId
+     *
      * @return object
      */
     public function prices($product, $customerGroupId)
     {
-        $prices = $product->customer_group_prices->filter(function ($customerGroupPrice) use ($customerGroupId) {
-            return $customerGroupPrice->customer_group_id == $customerGroupId
-                || is_null($customerGroupPrice->customer_group_id);
-        });
-
-        return $prices;
+        return $product->customer_group_prices->filter(fn($customerGroupPrice) => $customerGroupPrice->customer_group_id === $customerGroupId
+                || is_null($customerGroupPrice->customer_group_id));
     }
 }

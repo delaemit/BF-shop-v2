@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Traits;
 
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -10,6 +12,9 @@ trait PDFHandler
 {
     /**
      * Download PDF.
+     *
+     * @param string $html
+     * @param ?string $fileName
      *
      * @return \Illuminate\Http\Response
      */
@@ -23,9 +28,9 @@ trait PDFHandler
 
         if (($direction = core()->getCurrentLocale()->direction) == 'rtl') {
             $mPDF = new Mpdf([
-                'margin_left'   => 0,
-                'margin_right'  => 0,
-                'margin_top'    => 0,
+                'margin_left' => 0,
+                'margin_right' => 0,
+                'margin_top' => 0,
                 'margin_bottom' => 0,
             ]);
             $mPDF->SetDirectionality($direction);
@@ -33,7 +38,7 @@ trait PDFHandler
             $mPDF->WriteHTML($this->adjustArabicAndPersianContent($html));
 
             return response()->streamDownload(
-                fn () => print ($mPDF->Output('', 'S')),
+                fn() => print ($mPDF->Output('', 'S')),
                 $fileName.'.pdf'
             );
         }
@@ -47,11 +52,13 @@ trait PDFHandler
     /**
      * Adjust arabic and persian content.
      *
+     * @param string $html
+     *
      * @return string
      */
     protected function adjustArabicAndPersianContent(string $html)
     {
-        $arabic = new \ArPHP\I18N\Arabic;
+        $arabic = new \ArPHP\I18N\Arabic();
 
         $p = $arabic->arIdentify($html);
 

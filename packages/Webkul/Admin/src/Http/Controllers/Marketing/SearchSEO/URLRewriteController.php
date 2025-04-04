@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\SearchSEO;
 
 use Illuminate\Http\JsonResponse;
@@ -15,9 +17,13 @@ class URLRewriteController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param URLRewriteRepository $urlRewriteRepository
+     *
      * @return void
      */
-    public function __construct(public URLRewriteRepository $urlRewriteRepository) {}
+    public function __construct(public URLRewriteRepository $urlRewriteRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,11 +45,11 @@ class URLRewriteController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'entity_type'   => 'required:in:category,product,cms_page',
-            'request_path'  => 'required',
-            'target_path'   => 'required',
+            'entity_type' => 'required:in:category,product,cms_page',
+            'request_path' => 'required',
+            'target_path' => 'required',
             'redirect_type' => 'required|in:301,302',
-            'locale'        => 'required|exists:locales,code',
+            'locale' => 'required|exists:locales,code',
         ]);
 
         Event::dispatch('marketing.search_seo.url_rewrites.create.before');
@@ -66,18 +72,18 @@ class URLRewriteController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function update(): JsonResponse
     {
         $id = request()->id;
 
         $this->validate(request(), [
-            'entity_type'   => 'required:in:category,product,cms_page',
-            'request_path'  => 'required',
-            'target_path'   => 'required',
+            'entity_type' => 'required:in:category,product,cms_page',
+            'request_path' => 'required',
+            'target_path' => 'required',
             'redirect_type' => 'required|in:301,302',
-            'locale'        => 'required|exists:locales,code',
+            'locale' => 'required|exists:locales,code',
         ]);
 
         Event::dispatch('marketing.search_seo.url_rewrites.update.before', $id);
@@ -100,7 +106,8 @@ class URLRewriteController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
     public function destroy($id)
@@ -125,6 +132,8 @@ class URLRewriteController extends Controller
 
     /**
      * Mass delete the search terms.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers;
 
 use Illuminate\Support\Facades\DB;
@@ -124,16 +126,23 @@ class Import
     /**
      * Create a new helper instance.
      *
+     * @param ImportRepository $importRepository
+     * @param ImportBatchRepository $importBatchRepository
+     * @param Error $errorHelper
+     *
      * @return void
      */
     public function __construct(
         protected ImportRepository $importRepository,
         protected ImportBatchRepository $importBatchRepository,
         protected Error $errorHelper
-    ) {}
+    ) {
+    }
 
     /**
      * Set import instance.
+     *
+     * @param ImportContract $import
      */
     public function setImport(ImportContract $import): self
     {
@@ -217,12 +226,12 @@ class Import
         }
 
         $import = $this->importRepository->update([
-            'state'                => self::STATE_VALIDATED,
+            'state' => self::STATE_VALIDATED,
             'processed_rows_count' => $this->getProcessedRowsCount(),
-            'invalid_rows_count'   => $this->errorHelper->getInvalidRowsCount(),
-            'errors_count'         => $this->errorHelper->getErrorsCount(),
-            'errors'               => $this->getFormattedErrors(),
-            'error_file_path'      => $this->uploadErrorReport(),
+            'invalid_rows_count' => $this->errorHelper->getInvalidRowsCount(),
+            'errors_count' => $this->errorHelper->getErrorsCount(),
+            'errors' => $this->getFormattedErrors(),
+            'error_file_path' => $this->uploadErrorReport(),
         ], $this->import->id);
 
         $this->setImport($import);
@@ -252,7 +261,7 @@ class Import
     public function isErrorLimitExceeded(): bool
     {
         if (
-            $this->import->validation_strategy == self::VALIDATION_STRATEGY_STOP_ON_ERROR
+            $this->import->validation_strategy === self::VALIDATION_STRATEGY_STOP_ON_ERROR
             && $this->import->errors_count > $this->import->allowed_errors
         ) {
             return true;
@@ -263,6 +272,8 @@ class Import
 
     /**
      * Starts import process.
+     *
+     * @param ?ImportBatchContract $importBatch
      */
     public function start(?ImportBatchContract $importBatch = null): bool
     {
@@ -273,14 +284,14 @@ class Import
 
             $typeImporter->importData($importBatch);
         } catch (\Exception $e) {
-            /**
+            /*
              * Rollback transaction
              */
             DB::rollBack();
 
             throw $e;
         } finally {
-            /**
+            /*
              * Commit transaction
              */
             DB::commit();
@@ -291,6 +302,8 @@ class Import
 
     /**
      * Link import resources.
+     *
+     * @param ImportBatchContract $importBatch
      */
     public function link(ImportBatchContract $importBatch): bool
     {
@@ -301,14 +314,14 @@ class Import
 
             $typeImporter->linkData($importBatch);
         } catch (\Exception $e) {
-            /**
+            /*
              * Rollback transaction
              */
             DB::rollBack();
 
             throw $e;
         } finally {
-            /**
+            /*
              * Commit transaction
              */
             DB::commit();
@@ -319,6 +332,8 @@ class Import
 
     /**
      * Index import resources.
+     *
+     * @param ImportBatchContract $importBatch
      */
     public function index(ImportBatchContract $importBatch): bool
     {
@@ -329,14 +344,14 @@ class Import
 
             $typeImporter->indexData($importBatch);
         } catch (\Exception $e) {
-            /**
+            /*
              * Rollback transaction
              */
             DB::rollBack();
 
             throw $e;
         } finally {
-            /**
+            /*
              * Commit transaction
              */
             DB::commit();
@@ -351,9 +366,9 @@ class Import
     public function started(): void
     {
         $import = $this->importRepository->update([
-            'state'      => self::STATE_PROCESSING,
+            'state' => self::STATE_PROCESSING,
             'started_at' => now(),
-            'summary'    => [],
+            'summary' => [],
         ], $this->import->id);
 
         $this->setImport($import);
@@ -406,8 +421,8 @@ class Import
             ->toArray();
 
         $import = $this->importRepository->update([
-            'state'        => self::STATE_COMPLETED,
-            'summary'      => $summary,
+            'state' => self::STATE_COMPLETED,
+            'summary' => $summary,
             'completed_at' => now(),
         ], $this->import->id);
 
@@ -418,6 +433,8 @@ class Import
 
     /**
      * Returns import stats.
+     *
+     * @param string $state
      */
     public function stats(string $state): array
     {
@@ -442,13 +459,13 @@ class Import
             ?->toArray();
 
         return [
-            'batches'  => [
-                'total'     => $total,
+            'batches' => [
+                'total' => $total,
                 'completed' => $completed,
                 'remaining' => $total - $completed,
             ],
             'progress' => $progress,
-            'summary'  => $summary ?? [
+            'summary' => $summary ?? [
                 'created' => 0,
                 'updated' => 0,
                 'deleted' => 0,
@@ -465,8 +482,8 @@ class Import
 
         foreach ($this->errorHelper->getAllErrorsGroupedByCode() as $groupedErrors) {
             foreach ($groupedErrors as $errorMessage => $rowNumbers) {
-                if (! empty($rowNumbers)) {
-                    $errors[] = 'Row(s) '.implode(', ', $rowNumbers).': '.$errorMessage;
+                if (!empty($rowNumbers)) {
+                    $errors[] = 'Row(s) ' . implode(', ', $rowNumbers) . ': ' . $errorMessage;
                 } else {
                     $errors[] = $errorMessage;
                 }
@@ -481,17 +498,17 @@ class Import
      */
     public function uploadErrorReport(): ?string
     {
-        /**
+        /*
          * Return null if there are no errors.
          */
-        if (! $this->errorHelper->getErrorsCount()) {
+        if (!$this->errorHelper->getErrorsCount()) {
             return null;
         }
 
-        /**
+        /*
          * Return null if there are no invalid rows.
          */
-        if (! $this->errorHelper->getInvalidRowsCount()) {
+        if (!$this->errorHelper->getInvalidRowsCount()) {
             return null;
         }
 
@@ -507,8 +524,8 @@ class Import
      */
     public function getTypeImporter(): AbstractImporter
     {
-        if (! $this->typeImporter) {
-            $importerConfig = config('importers.'.$this->import->type);
+        if (!$this->typeImporter) {
+            $importerConfig = config('importers.' . $this->import->type);
 
             $this->typeImporter = app()->make($importerConfig['importer'])
                 ->setImport($this->import)

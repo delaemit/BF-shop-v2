@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,16 +23,16 @@ class CatalogRuleFactory extends Factory
     public function definition(): array
     {
         $startsFrom = $this->faker->dateTimeBetween('now', '+30 days');
-        $endsTill = $this->faker->dateTimeBetween($startsFrom, $startsFrom->format('Y-m-d').' +30 days');
+        $endsTill = $this->faker->dateTimeBetween($startsFrom, $startsFrom->format('Y-m-d') . ' +30 days');
 
         return [
-            'starts_from'     => $this->faker->dateTimeThisMonth,
-            'ends_till'       => $this->faker->dateTimeBetween($startsFrom, $endsTill),
-            'status'          => $this->faker->boolean(),
-            'name'            => preg_replace('/[^a-zA-Z ]/', '', $this->faker->name()),
-            'description'     => substr($this->faker->paragraph, 0, 50),
-            'action_type'     => 'by_percent',
-            'discount_amount' => rand(1, 50),
+            'starts_from' => $this->faker->dateTimeThisMonth,
+            'ends_till' => $this->faker->dateTimeBetween($startsFrom, $endsTill),
+            'status' => $this->faker->boolean(),
+            'name' => preg_replace('/[^a-zA-Z ]/', '', $this->faker->name()),
+            'description' => substr($this->faker->paragraph, 0, 50),
+            'action_type' => 'by_percent',
+            'discount_amount' => random_int(1, 50),
         ];
     }
 
@@ -39,7 +41,7 @@ class CatalogRuleFactory extends Factory
      */
     public function configure(): static
     {
-        return $this->afterCreating(function (CatalogRule $catalogRule) {
+        return $this->afterCreating(function (CatalogRule $catalogRule): void {
             Event::dispatch('promotions.catalog_rule.update.after', $catalogRule);
         });
     }

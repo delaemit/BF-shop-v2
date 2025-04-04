@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\DataGrid;
 
 use Illuminate\Support\Facades\Crypt;
@@ -17,8 +19,8 @@ class DataGridController extends Controller
          */
         $params = $this->validate(request(), [
             'datagrid_id' => ['required'],
-            'column'      => ['required'],
-            'search'      => ['required', 'min:2'],
+            'column' => ['required'],
+            'search' => ['required', 'min:2'],
         ]);
 
         /**
@@ -32,12 +34,12 @@ class DataGridController extends Controller
          */
         $column = collect($datagrid->getColumns())->where('index', $params['column'])->firstOrFail();
 
-        /**
+        /*
          * Fetching on the basis of column options.
          */
         return app($column->options['params']['repository'])
-            ->select([$column->options['params']['column']['label'].' as label', $column->options['params']['column']['value'].' as value'])
-            ->where($column->options['params']['column']['label'], 'LIKE', '%'.$params['search'].'%')
+            ->select([$column->options['params']['column']['label'] . ' as label', $column->options['params']['column']['value'] . ' as value'])
+            ->where($column->options['params']['column']['label'], 'LIKE', '%' . $params['search'] . '%')
             ->get();
     }
 }

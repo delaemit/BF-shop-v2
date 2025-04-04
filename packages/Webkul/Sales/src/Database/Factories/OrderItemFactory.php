@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,18 +25,18 @@ class OrderItemFactory extends Factory
         $fallbackPrice = $this->faker->randomFloat(4, 0, 1000);
 
         return [
-            'price'        => $fallbackPrice,
-            'base_price'   => $fallbackPrice,
-            'total'        => $fallbackPrice,
-            'base_total'   => $fallbackPrice,
-            'qty_ordered'  => 1,
-            'qty_shipped'  => 0,
+            'price' => $fallbackPrice,
+            'base_price' => $fallbackPrice,
+            'total' => $fallbackPrice,
+            'base_total' => $fallbackPrice,
+            'qty_ordered' => 1,
+            'qty_shipped' => 0,
             'qty_invoiced' => 0,
             'qty_canceled' => 0,
             'qty_refunded' => 0,
-            'additional'   => [],
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            'additional' => [],
+            'created_at' => now(),
+            'updated_at' => now(),
             'product_type' => Product::class,
         ];
     }

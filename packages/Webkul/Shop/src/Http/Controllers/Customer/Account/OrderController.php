@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\Customer\Account;
 
 use Webkul\Checkout\Facades\Cart;
@@ -16,12 +18,16 @@ class OrderController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param OrderRepository $orderRepository
+     * @param InvoiceRepository $invoiceRepository
+     *
      * @return void
      */
     public function __construct(
         protected OrderRepository $orderRepository,
         protected InvoiceRepository $invoiceRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -40,23 +46,26 @@ class OrderController extends Controller
     /**
      * Show the view for the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function view($id)
     {
         $order = $this->orderRepository->findOneWhere([
             'customer_id' => auth()->guard('customer')->id(),
-            'id'          => $id,
+            'id' => $id,
         ]);
 
-        abort_if(! $order, 404);
+        abort_if(!$order, 404);
 
         return view('shop::customers.account.orders.view', compact('order'));
     }
 
     /**
      * Reorder action for the specified resource.
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -78,27 +87,29 @@ class OrderController extends Controller
     /**
      * Print and download the for the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function printInvoice($id)
     {
         $invoice = $this->invoiceRepository->where('id', $id)
-            ->whereHas('order', function ($query) {
+            ->whereHas('order', function ($query): void {
                 $query->where('customer_id', auth()->guard('customer')->id());
             })
             ->firstOrFail();
 
         return $this->downloadPDF(
             view('shop::customers.account.orders.pdf', compact('invoice'))->render(),
-            'invoice-'.$invoice->created_at->format('d-m-Y')
+            'invoice-' . $invoice->created_at->format('d-m-Y')
         );
     }
 
     /**
      * Cancel action for the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function cancel($id)
@@ -109,7 +120,7 @@ class OrderController extends Controller
         $order = $customer->orders()->find($id);
 
         /* if order id not found then process should be aborted with 404 page */
-        if (! $order) {
+        if (!$order) {
             abort(404);
         }
 

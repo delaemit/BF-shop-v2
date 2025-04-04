@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::table('visits', function (Blueprint $table) {
+        Schema::table('visits', function (Blueprint $table): void {
             $table->integer('channel_id')->unsigned()->nullable()->after('visitor_id');
 
             $table->foreign('channel_id')->references('id')->on('channels')->onDelete('cascade');
@@ -19,7 +20,7 @@ return new class extends Migration
 
         $firstChannelId = DB::table('channels')->value('id');
 
-        if (! $firstChannelId) {
+        if (!$firstChannelId) {
             return;
         }
 
@@ -31,7 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('visits', function (Blueprint $table) {
+        Schema::table('visits', function (Blueprint $table): void {
             $table->dropForeign(['channel_id']);
             $table->dropColumn('channel_id');
         });

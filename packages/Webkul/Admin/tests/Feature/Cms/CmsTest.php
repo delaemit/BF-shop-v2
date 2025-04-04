@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Arr;
 use Webkul\CMS\Models\Page;
 use Webkul\CMS\Models\PageTranslation;
@@ -72,13 +74,13 @@ it('should store newly created cms pages', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.cms.store'), $data = [
-        'url_key'          => fake()->slug(),
-        'page_title'       => fake()->title(),
-        'html_content'     => substr(fake()->paragraph(), 0, 50),
-        'meta_title'       => fake()->title(),
-        'meta_keywords'    => fake()->word(),
+        'url_key' => fake()->slug(),
+        'page_title' => fake()->title(),
+        'html_content' => substr(fake()->paragraph(), 0, 50),
+        'meta_title' => fake()->title(),
+        'meta_keywords' => fake()->word(),
         'meta_description' => fake()->paragraph(3),
-        'channels'         => [
+        'channels' => [
             'value' => 1,
         ],
     ])
@@ -133,8 +135,8 @@ it('should update the cms page', function () {
 
     putJson(route('admin.cms.update', $cms->id), [
         $localeCode => $data = [
-            'url_key'      => $cms->url_key,
-            'page_title'   => fake()->word(),
+            'url_key' => $cms->url_key,
+            'page_title' => fake()->word(),
             'html_content' => substr(fake()->paragraph(), 0, 50),
         ],
 
@@ -150,8 +152,8 @@ it('should update the cms page', function () {
     $this->assertModelWise([
         PageTranslation::class => [
             [
-                'url_key'      => $data['url_key'],
-                'page_title'   => $data['page_title'],
+                'url_key' => $data['url_key'],
+                'page_title' => $data['page_title'],
                 'html_content' => $data['html_content'],
             ],
         ],

@@ -1,6 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'name'    => 'Webkul Bagisto Checkout',
+    'name' => 'Webkul Bagisto Checkout',
     'version' => core()->version(),
 ];

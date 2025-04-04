@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Http\Middleware;
 
 use Closure;
@@ -13,16 +15,19 @@ class CanInstall
     /**
      * Handles Requests for Installer middleware.
      *
+     * @param Request $request
+     * @param Closure $next
+     *
      * @return void
      */
     public function handle(Request $request, Closure $next)
     {
         if (Str::contains($request->getPathInfo(), '/install')) {
-            if ($this->isAlreadyInstalled() && ! $request->ajax()) {
+            if ($this->isAlreadyInstalled() && !$request->ajax()) {
                 return redirect()->route('shop.home.index');
             }
         } else {
-            if (! $this->isAlreadyInstalled()) {
+            if (!$this->isAlreadyInstalled()) {
                 return redirect()->route('installer.index');
             }
         }

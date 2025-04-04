@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Category\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -74,7 +76,7 @@ class Category extends TranslatableModel implements CategoryContract
     {
         return $this->belongsToMany(AttributeProxy::modelClass(), 'category_filterable_attributes')
             ->with([
-                'options' => function ($query) {
+                'options' => function ($query): void {
                     $query->orderBy('sort_order');
                 },
                 'translations',
@@ -103,7 +105,7 @@ class Category extends TranslatableModel implements CategoryContract
      */
     public function getLogoUrlAttribute()
     {
-        if (! $this->logo_path) {
+        if (!$this->logo_path) {
             return;
         }
 
@@ -117,7 +119,7 @@ class Category extends TranslatableModel implements CategoryContract
      */
     public function getBannerUrlAttribute()
     {
-        if (! $this->banner_path) {
+        if (!$this->banner_path) {
             return;
         }
 
@@ -134,6 +136,8 @@ class Category extends TranslatableModel implements CategoryContract
 
     /**
      * Get fallback locale for category.
+     *
+     * @param ?string $locale
      */
     protected function getFallbackLocale(?string $locale = null): ?string
     {

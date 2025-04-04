@@ -1,18 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::table('cart_shipping_rates', function (Blueprint $table) {
+        Schema::table('cart_shipping_rates', function (Blueprint $table): void {
             $table->decimal('tax_percent', 12, 4)->default(0)->after('base_discount_amount');
             $table->decimal('tax_amount', 12, 4)->default(0)->after('tax_percent');
             $table->decimal('base_tax_amount', 12, 4)->default(0)->after('tax_amount');
@@ -24,7 +25,7 @@ return new class extends Migration
         });
 
         DB::table('cart_items')->update([
-            'price_incl_tax'      => DB::raw('price'),
+            'price_incl_tax' => DB::raw('price'),
             'base_price_incl_tax' => DB::raw('base_price'),
         ]);
     }
@@ -34,7 +35,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('cart_shipping_rates', function (Blueprint $table) {
+        Schema::table('cart_shipping_rates', function (Blueprint $table): void {
             $table->dropColumn('applied_tax_rate');
 
             $table->dropColumn('base_price_incl_tax');

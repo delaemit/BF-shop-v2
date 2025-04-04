@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Customers\Customer;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -13,14 +15,20 @@ class CartController extends Controller
 {
     /**
      * Create a new controller instance.
+     *
+     * @param CustomerRepository $customerRepository
+     * @param CartItemRepository $cartItemRepository
      */
     public function __construct(
         protected CustomerRepository $customerRepository,
         protected CartItemRepository $cartItemRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Create cart
+     *
+     * @param int $id
      */
     public function store(int $id)
     {
@@ -28,7 +36,7 @@ class CartController extends Controller
 
         try {
             $cart = Cart::createCart([
-                'customer'  => $customer,
+                'customer' => $customer,
                 'is_active' => false,
             ]);
 
@@ -42,6 +50,8 @@ class CartController extends Controller
 
     /**
      * Returns the compare items of the customer.
+     *
+     * @param int $id
      */
     public function items(int $id): JsonResource
     {
@@ -59,6 +69,8 @@ class CartController extends Controller
 
     /**
      * Removes the item from the cart if it exists.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResource
     {

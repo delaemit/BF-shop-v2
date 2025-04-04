@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Listeners;
 
 use Webkul\Product\Jobs\UpdateCreateInventoryIndex as UpdateCreateInventoryIndexJob;
@@ -9,10 +11,11 @@ class Order
     /**
      * After order is created
      *
-     * @param  \Webkul\Sale\Contracts\Order  $order
+     * @param \Webkul\Sale\Contracts\Order $order
+     *
      * @return void
      */
-    public function afterCancelOrCreate($order)
+    public function afterCancelOrCreate($order): void
     {
         $productIds = $order->all_items
             ->pluck('product_id')

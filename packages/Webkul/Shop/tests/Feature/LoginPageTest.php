@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Hash;
 use Webkul\Faker\Helpers\Customer as CustomerFaker;
 
@@ -25,7 +27,7 @@ it('should fails validation errors when email and password not provided when log
 it('should fails validation errors when email is not valid', function () {
     // Act and Assert.
     postJson(route('shop.customer.session.create'), [
-        'email'    => fake()->word(),
+        'email' => fake()->word(),
         'password' => 'shop123',
     ])
         ->assertJsonValidationErrorFor('email')
@@ -35,7 +37,7 @@ it('should fails validation errors when email is not valid', function () {
 it('should fails validation errors when password length not valid', function () {
     // Act and Assert.
     postJson(route('shop.customer.session.create'), [
-        'email'    => fake()->email(),
+        'email' => fake()->email(),
         'password' => 'shop',
     ])
         ->assertJsonValidationErrorFor('password')
@@ -44,13 +46,13 @@ it('should fails validation errors when password length not valid', function () 
 
 it('successfully logins a customer', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make($password = 'admin123'),
     ]);
 
     // Act and Assert.
     post(route('shop.customer.session.create'), [
-        'email'    => $customer->email,
+        'email' => $customer->email,
         'password' => $password,
     ])
         ->assertRedirectToRoute('shop.home.index')
@@ -61,13 +63,13 @@ it('successfully logins a customer', function () {
 
 it('fails to log in a customer if the email is invalid', function () {
     // Arrange.
-    (new CustomerFaker)->factory()->create([
+    (new CustomerFaker())->factory()->create([
         'password' => Hash::make($password = 'admin123'),
     ]);
 
     // Act and Assert.
     post(route('shop.customer.session.create'), [
-        'email'    => 'wrong@email.com',
+        'email' => 'wrong@email.com',
         'password' => $password,
     ])
         ->assertRedirectToRoute('shop.home.index')
@@ -76,11 +78,11 @@ it('fails to log in a customer if the email is invalid', function () {
 
 it('fails to log in a customer if the password is invalid', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     // Act and Assert.
     post(route('shop.customer.session.create'), [
-        'email'    => $customer->email,
+        'email' => $customer->email,
         'password' => 'WRONG_PASSWORD',
     ])
         ->assertRedirectToRoute('shop.home.index')

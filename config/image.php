@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Image Driver
@@ -16,5 +17,4 @@ return [
     */
 
     'driver' => 'gd',
-
 ];

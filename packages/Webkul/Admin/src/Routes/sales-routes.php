@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\Sales\BookingController;
 use Webkul\Admin\Http\Controllers\Sales\CartController;
@@ -9,14 +11,14 @@ use Webkul\Admin\Http\Controllers\Sales\RefundController;
 use Webkul\Admin\Http\Controllers\Sales\ShipmentController;
 use Webkul\Admin\Http\Controllers\Sales\TransactionController;
 
-/**
+/*
  * Sales routes.
  */
-Route::prefix('sales')->group(function () {
-    /**
+Route::prefix('sales')->group(function (): void {
+    /*
      * Invoices routes.
      */
-    Route::controller(InvoiceController::class)->prefix('invoices')->group(function () {
+    Route::controller(InvoiceController::class)->prefix('invoices')->group(function (): void {
         Route::get('', 'index')->name('admin.sales.invoices.index');
 
         Route::post('create/{order_id}', 'store')->name('admin.sales.invoices.store');
@@ -28,10 +30,10 @@ Route::prefix('sales')->group(function () {
         Route::get('print/{id}', 'printInvoice')->name('admin.sales.invoices.print');
     });
 
-    /**
+    /*
      * Orders routes.
      */
-    Route::controller(OrderController::class)->prefix('orders')->group(function () {
+    Route::controller(OrderController::class)->prefix('orders')->group(function (): void {
         Route::get('', 'index')->name('admin.sales.orders.index');
 
         Route::get('create/{cartId}', 'create')->name('admin.sales.orders.create');
@@ -49,10 +51,10 @@ Route::prefix('sales')->group(function () {
         Route::get('search', 'search')->name('admin.sales.orders.search');
     });
 
-    /**
+    /*
      * Refunds routes.
      */
-    Route::controller(RefundController::class)->prefix('refunds')->group(function () {
+    Route::controller(RefundController::class)->prefix('refunds')->group(function (): void {
         Route::get('', 'index')->name('admin.sales.refunds.index');
 
         Route::post('create/{order_id}', 'store')->name('admin.sales.refunds.store');
@@ -62,10 +64,10 @@ Route::prefix('sales')->group(function () {
         Route::get('view/{id}', 'view')->name('admin.sales.refunds.view');
     });
 
-    /**
+    /*
      * Shipments routes.
      */
-    Route::controller(ShipmentController::class)->prefix('shipments')->group(function () {
+    Route::controller(ShipmentController::class)->prefix('shipments')->group(function (): void {
         Route::get('', 'index')->name('admin.sales.shipments.index');
 
         Route::post('create/{order_id}', 'store')->name('admin.sales.shipments.store');
@@ -73,10 +75,10 @@ Route::prefix('sales')->group(function () {
         Route::get('view/{id}', 'view')->name('admin.sales.shipments.view');
     });
 
-    /**
+    /*
      * Transactions routes.
      */
-    Route::controller(TransactionController::class)->prefix('transactions')->group(function () {
+    Route::controller(TransactionController::class)->prefix('transactions')->group(function (): void {
         Route::get('', 'index')->name('admin.sales.transactions.index');
 
         Route::post('create', 'store')->name('admin.sales.transactions.store');
@@ -84,7 +86,7 @@ Route::prefix('sales')->group(function () {
         Route::get('view/{id}', 'view')->name('admin.sales.transactions.view');
     });
 
-    Route::controller(CartController::class)->prefix('cart')->group(function () {
+    Route::controller(CartController::class)->prefix('cart')->group(function (): void {
         Route::get('{id}', 'index')->name('admin.sales.cart.index');
 
         Route::post('create', 'store')->name('admin.sales.cart.store');
@@ -106,7 +108,7 @@ Route::prefix('sales')->group(function () {
         Route::delete('{id}/coupon', 'destroyCoupon')->name('admin.sales.cart.remove_coupon');
     });
 
-    Route::controller(BookingController::class)->prefix('bookings')->group(function () {
+    Route::controller(BookingController::class)->prefix('bookings')->group(function (): void {
         Route::get('', 'index')->name('admin.sales.bookings.index');
 
         Route::get('get', 'get')->name('admin.sales.bookings.get');

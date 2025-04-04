@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Listeners;
 
 use Illuminate\Support\Facades\Mail;
@@ -10,13 +12,14 @@ class Customer extends Base
     /**
      * After customer is created
      *
-     * @param  \Webkul\Customer\Contracts\Customer  $customer
+     * @param \Webkul\Customer\Contracts\Customer $customer
+     *
      * @return void
      */
-    public function afterCreated($customer)
+    public function afterCreated($customer): void
     {
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.customer_registration_confirmation_mail_to_admin')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.customer_registration_confirmation_mail_to_admin')) {
                 return;
             }
 

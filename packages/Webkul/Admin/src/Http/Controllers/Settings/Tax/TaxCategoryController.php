@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings\Tax;
 
 use Illuminate\Http\JsonResponse;
@@ -15,12 +17,16 @@ class TaxCategoryController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param TaxCategoryRepository $taxCategoryRepository
+     * @param TaxRateRepository $taxRateRepository
+     *
      * @return void
      */
     public function __construct(
         protected TaxCategoryRepository $taxCategoryRepository,
         protected TaxRateRepository $taxRateRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -44,10 +50,10 @@ class TaxCategoryController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'code'        => 'required|string|unique:tax_categories,code',
-            'name'        => 'required|string',
+            'code' => 'required|string|unique:tax_categories,code',
+            'name' => 'required|string',
             'description' => 'required|string',
-            'taxrates'    => 'array|required',
+            'taxrates' => 'array|required',
         ]);
 
         Event::dispatch('tax.category.create.before');
@@ -72,6 +78,8 @@ class TaxCategoryController extends Controller
 
     /**
      * Tax Category Details
+     *
+     * @param int $id
      */
     public function edit(int $id): TaxCategoryResource
     {
@@ -88,10 +96,10 @@ class TaxCategoryController extends Controller
         $id = request()->id;
 
         $this->validate(request(), [
-            'code'        => 'required|string|unique:tax_categories,code,'.$id,
-            'name'        => 'required|string',
+            'code' => 'required|string|unique:tax_categories,code,' . $id,
+            'name' => 'required|string',
             'description' => 'required|string',
-            'taxrates'    => 'array|required',
+            'taxrates' => 'array|required',
         ]);
 
         Event::dispatch('tax.category.update.before', $id);
@@ -116,13 +124,15 @@ class TaxCategoryController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         try {
             $taxCategory = $this->taxCategoryRepository->findOrFail($id);
 
-            if (! $taxCategory->tax_rates()->count()) {
+            if (!$taxCategory->tax_rates()->count()) {
                 Event::dispatch('tax.category.delete.before', $id);
 
                 $taxCategory->delete();

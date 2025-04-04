@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Repositories;
 
 use Illuminate\Http\UploadedFile;
@@ -21,6 +23,8 @@ class LocaleRepository extends Repository
     /**
      * Create.
      *
+     * @param array $attributes
+     *
      * @return mixed
      */
     public function create(array $attributes)
@@ -38,6 +42,9 @@ class LocaleRepository extends Repository
 
     /**
      * Update.
+     *
+     * @param array $attributes
+     * @param mixed $id
      *
      * @return mixed
      */
@@ -57,10 +64,11 @@ class LocaleRepository extends Repository
     /**
      * Delete.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
-    public function delete($id)
+    public function delete($id): void
     {
         Event::dispatch('core.locale.delete.before', $id);
 
@@ -76,14 +84,16 @@ class LocaleRepository extends Repository
     /**
      * Upload image.
      *
-     * @param  array  $attributes
-     * @param  \Webkul\Core\Models\Locale  $locale
+     * @param array $attributes
+     * @param \Webkul\Core\Models\Locale $locale
+     * @param mixed $localeImages
+     *
      * @return void
      */
-    public function uploadImage($localeImages, $locale)
+    public function uploadImage($localeImages, $locale): void
     {
-        if (! isset($localeImages['logo_path'])) {
-            if (! empty($localeImages['logo_path'])) {
+        if (!isset($localeImages['logo_path'])) {
+            if (!empty($localeImages['logo_path'])) {
                 Storage::delete((string) $locale->logo_path);
             }
 
@@ -98,7 +108,7 @@ class LocaleRepository extends Repository
             if ($image instanceof UploadedFile) {
                 $locale->logo_path = $image->storeAs(
                     'locales',
-                    $locale->code.'.'.$image->getClientOriginalExtension()
+                    $locale->code . '.' . $image->getClientOriginalExtension()
                 );
 
                 $locale->save();

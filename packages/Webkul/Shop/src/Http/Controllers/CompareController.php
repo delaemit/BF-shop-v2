@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 use Webkul\Attribute\Repositories\AttributeFamilyRepository;
@@ -9,9 +11,13 @@ class CompareController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param AttributeFamilyRepository $attributeFamilyRepository
+     *
      * @return void
      */
-    public function __construct(protected AttributeFamilyRepository $attributeFamilyRepository) {}
+    public function __construct(protected AttributeFamilyRepository $attributeFamilyRepository)
+    {
+    }
 
     /**
      * Address route index page.

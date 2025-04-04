@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -22,7 +24,8 @@ class DeleteCatalogRuleIndex implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  array  $productIds
+     * @param array $productIds
+     *
      * @return void
      */
     public function __construct(protected $productIds)
@@ -35,9 +38,9 @@ class DeleteCatalogRuleIndex implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        /**
+        /*
          * Reindex price index for the products associated with the catalog rule.
          */
         while (true) {
@@ -45,7 +48,7 @@ class DeleteCatalogRuleIndex implements ShouldQueue
                 ->whereIn('id', $this->productIds)
                 ->cursorPaginate(self::BATCH_SIZE);
 
-            /**
+            /*
              * TODO:
              *
              * If the 'end_other_rules' flag is set for this catalog rule,
@@ -55,7 +58,7 @@ class DeleteCatalogRuleIndex implements ShouldQueue
              */
             app(PriceIndexer::class)->reindexBatch($paginator->items());
 
-            if (! $cursor = $paginator->nextCursor()) {
+            if (!$cursor = $paginator->nextCursor()) {
                 break;
             }
 

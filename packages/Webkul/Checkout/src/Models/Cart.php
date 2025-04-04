@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Checkout\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -168,7 +170,7 @@ class Cart extends Model implements CartContract
     public function hasGuestCheckoutItems(): bool
     {
         foreach ($this->items as $item) {
-            if (! $item->product->getAttribute('guest_checkout')) {
+            if (!$item->product->getAttribute('guest_checkout')) {
                 return false;
             }
         }

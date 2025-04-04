@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -83,7 +85,7 @@ class Customer extends Authenticatable implements CustomerContract
     /**
      * Send the password reset notification.
      *
-     * @param  string  $token
+     * @param string $token
      */
     public function sendPasswordResetNotification($token): void
     {
@@ -105,7 +107,7 @@ class Customer extends Authenticatable implements CustomerContract
      */
     public function getNameAttribute(): string
     {
-        return ucfirst($this->first_name).' '.ucfirst($this->last_name);
+        return ucfirst($this->first_name) . ' ' . ucfirst($this->last_name);
     }
 
     /**
@@ -115,7 +117,7 @@ class Customer extends Authenticatable implements CustomerContract
      */
     public function image_url()
     {
-        if (! $this->image) {
+        if (!$this->image) {
             return;
         }
 
@@ -125,7 +127,7 @@ class Customer extends Authenticatable implements CustomerContract
     /**
      * Is email exists or not.
      *
-     * @param  string  $email
+     * @param string $email
      */
     public function emailExists($email): bool
     {

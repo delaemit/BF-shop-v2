@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\SearchSEO;
 
 use Illuminate\Http\JsonResponse;
@@ -15,9 +17,13 @@ class SearchTermController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param SearchTermRepository $searchTermRepository
+     *
      * @return void
      */
-    public function __construct(public SearchTermRepository $searchTermRepository) {}
+    public function __construct(public SearchTermRepository $searchTermRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,10 +45,10 @@ class SearchTermController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'term'         => 'required',
+            'term' => 'required',
             'redirect_url' => 'url:http,https',
-            'channel_id'   => 'required|exists:channels,id',
-            'locale'       => 'required|exists:locales,code',
+            'channel_id' => 'required|exists:channels,id',
+            'locale' => 'required|exists:locales,code',
         ]);
 
         Event::dispatch('marketing.search_seo.search_terms.create.before');
@@ -64,17 +70,17 @@ class SearchTermController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function update(): JsonResponse
     {
         $id = request()->id;
 
         $this->validate(request(), [
-            'term'         => 'required',
+            'term' => 'required',
             'redirect_url' => 'url:http,https',
-            'channel_id'   => 'required|exists:channels,id',
-            'locale'       => 'required|exists:locales,code',
+            'channel_id' => 'required|exists:channels,id',
+            'locale' => 'required|exists:locales,code',
         ]);
 
         Event::dispatch('marketing.search_seo.search_terms.update.before', $id);
@@ -98,7 +104,8 @@ class SearchTermController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
     public function destroy($id)
@@ -123,6 +130,8 @@ class SearchTermController extends Controller
 
     /**
      * Mass delete the search terms.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {

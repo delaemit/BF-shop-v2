@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Helpers;
 
 class ServerRequirements
@@ -45,7 +47,7 @@ class ServerRequirements
             foreach ($requirement as $item) {
                 $results['requirements'][$type][$item] = true;
 
-                if (! extension_loaded($item)) {
+                if (!\extension_loaded($item)) {
                     $results['requirements'][$type][$item] = false;
 
                     $results['errors'] = true;
@@ -59,6 +61,8 @@ class ServerRequirements
     /**
      * Check PHP version requirement.
      *
+     * @param ?string $minPhpVersion
+     *
      * @return array
      */
     public function checkPHPversion(?string $minPhpVersion = null)
@@ -70,9 +74,9 @@ class ServerRequirements
         $supported = version_compare($currentPhpVersion['version'], $minVersionPhp) >= 0;
 
         return [
-            'full'      => $currentPhpVersion['full'],
-            'current'   => $currentPhpVersion['version'],
-            'minimum'   => $minVersionPhp,
+            'full' => $currentPhpVersion['full'],
+            'current' => $currentPhpVersion['version'],
+            'minimum' => $minVersionPhp,
             'supported' => $supported,
         ];
     }
@@ -86,10 +90,10 @@ class ServerRequirements
     {
         $currentVersionFull = PHP_VERSION;
 
-        preg_match("#^\d+(\.\d+)*#", $currentVersionFull, $filtered);
+        preg_match('#^\\d+(\\.\\d+)*#', $currentVersionFull, $filtered);
 
         return [
-            'full'    => $currentVersionFull,
+            'full' => $currentVersionFull,
             'version' => $filtered[0] ?? $currentVersionFull,
         ];
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Listeners;
 
 use Illuminate\Support\Facades\Event;
@@ -13,29 +15,34 @@ class Product
      *
      * @var int
      */
-    const PERMANENT_REDIRECT_CODE = 301;
+    public const PERMANENT_REDIRECT_CODE = 301;
 
     /**
      * Create a new listener instance.
+     *
+     * @param ProductRepository $productRepository
+     * @param URLRewriteRepository $urlRewriteRepository
      *
      * @return void
      */
     public function __construct(
         protected ProductRepository $productRepository,
         protected URLRewriteRepository $urlRewriteRepository
-    ) {}
+    ) {
+    }
 
     /**
      * After product is updated
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
-    public function beforeUpdate($id)
+    public function beforeUpdate($id): void
     {
         $currentURLKey = request()->input('url_key');
 
-        if (! $currentURLKey) {
+        if (!$currentURLKey) {
             return;
         }
 
@@ -86,10 +93,10 @@ class Product
         Event::dispatch('marketing.search_seo.url_rewrites.create.before');
 
         $urlRewrite = $this->urlRewriteRepository->create([
-            'entity_type'   => 'product',
-            'request_path'  => $product->url_key,
-            'target_path'   => $currentURLKey ?? '',
-            'locale'        => app()->getLocale(),
+            'entity_type' => 'product',
+            'request_path' => $product->url_key,
+            'target_path' => $currentURLKey ?? '',
+            'locale' => app()->getLocale(),
             'redirect_type' => self::PERMANENT_REDIRECT_CODE,
         ]);
 
@@ -99,10 +106,11 @@ class Product
     /**
      * Before product is deleted
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
-    public function beforeDelete($id)
+    public function beforeDelete($id): void
     {
         $product = $this->productRepository->find($id);
 
@@ -111,7 +119,7 @@ class Product
          * if already exists for the request path
          */
         $urlRewrites = $this->urlRewriteRepository->findWhere([
-            'entity_type'  => 'product',
+            'entity_type' => 'product',
             'request_path' => $product->url_key,
         ]);
 

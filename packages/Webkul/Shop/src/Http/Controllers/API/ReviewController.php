@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\API;
 
 use Illuminate\Http\JsonResponse;
@@ -13,7 +15,18 @@ use Webkul\Shop\Http\Resources\ProductReviewResource;
 class ReviewController extends APIController
 {
     /**
+     * Using const variable for status
+     */
+    public const STATUS_APPROVED = 'approved';
+
+    public const STATUS_PENDING = 'pending';
+
+    /**
      * Create a controller instance.
+     *
+     * @param ProductRepository $productRepository
+     * @param ProductReviewRepository $productReviewRepository
+     * @param ProductReviewAttachmentRepository $productReviewAttachmentRepository
      *
      * @return void
      */
@@ -21,17 +34,13 @@ class ReviewController extends APIController
         protected ProductRepository $productRepository,
         protected ProductReviewRepository $productReviewRepository,
         protected ProductReviewAttachmentRepository $productReviewAttachmentRepository
-    ) {}
-
-    /**
-     * Using const variable for status
-     */
-    const STATUS_APPROVED = 'approved';
-
-    const STATUS_PENDING = 'pending';
+    ) {
+    }
 
     /**
      * Product listings.
+     *
+     * @param int $id
      */
     public function index(int $id): JsonResource
     {
@@ -54,14 +63,16 @@ class ReviewController extends APIController
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param int $id
      */
     public function store(int $id): JsonResource
     {
         $this->validate(request(), [
-            'title'         => 'required',
-            'comment'       => 'required',
-            'rating'        => 'required|numeric|min:1|max:5',
-            'attachments'   => 'array',
+            'title' => 'required',
+            'comment' => 'required',
+            'rating' => 'required|numeric|min:1|max:5',
+            'attachments' => 'array',
             'attachments.*' => 'file|mimetypes:image/*,video/*',
         ]);
 
@@ -71,8 +82,8 @@ class ReviewController extends APIController
             'rating',
         ]), [
             'attachments' => request()->file('attachments') ?? [],
-            'status'      => self::STATUS_PENDING,
-            'product_id'  => $id,
+            'status' => self::STATUS_PENDING,
+            'product_id' => $id,
         ]);
 
         $data['name'] = auth()->guard('customer')->user()?->name ?? request()->input('name');
@@ -89,6 +100,8 @@ class ReviewController extends APIController
 
     /**
      * Translate the specified resource in storage.
+     *
+     * @param int $reviewId
      */
     public function translate(int $reviewId): JsonResponse
     {
@@ -126,11 +139,13 @@ class ReviewController extends APIController
 
     /**
      * Censoring the Reviewer name
+     *
+     * @param string $name
      */
     private function censorReviewerName(string $name): string
     {
         return collect(explode(' ', $name))
-            ->map(fn ($part) => substr($part, 0, 1).str_repeat('*', max(strlen($part) - 1, 0)))
+            ->map(fn($part) => substr($part, 0, 1) . str_repeat('*', max(strlen($part) - 1, 0)))
             ->join(' ');
     }
 }

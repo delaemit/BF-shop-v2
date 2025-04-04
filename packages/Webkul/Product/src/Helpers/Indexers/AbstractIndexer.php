@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers;
 
 abstract class AbstractIndexer
@@ -26,7 +28,9 @@ abstract class AbstractIndexer
      *
      * @return void
      */
-    public function reindexFull() {}
+    public function reindexFull(): void
+    {
+    }
 
     /**
      * Reindex necessary products
@@ -41,10 +45,11 @@ abstract class AbstractIndexer
     /**
      * Reindex products by preparing batches
      *
-     * @param  array  $products
+     * @param array $products
+     *
      * @return void
      */
-    public function reindexRows($products)
+    public function reindexRows($products): void
     {
         $currentBatch = [];
 
@@ -62,7 +67,7 @@ abstract class AbstractIndexer
             }
         }
 
-        if (! empty($currentBatch)) {
+        if (!empty($currentBatch)) {
             $this->reindexBatch($currentBatch);
         }
     }
@@ -70,10 +75,12 @@ abstract class AbstractIndexer
     /**
      * Reindex single product
      *
-     * @param  array  $products
+     * @param array $products
+     * @param mixed $product
+     *
      * @return void
      */
-    public function reindexRow($product)
+    public function reindexRow($product): void
     {
         $this->reindexBatch([$product]);
     }

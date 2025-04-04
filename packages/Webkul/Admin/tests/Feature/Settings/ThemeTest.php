@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Http\UploadedFile;
 use Webkul\Theme\Models\ThemeCustomization;
 
@@ -53,14 +55,14 @@ it('should store the newly created theme', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.settings.themes.store'), [
-        'type'       => $type = fake()->randomElement([
+        'type' => $type = fake()->randomElement([
             'product_carousel',
             'category_carousel',
             'image_carousel',
             'footer_links',
             'services_content',
         ]),
-        'name'       => $name = fake()->name(),
+        'name' => $name = fake()->name(),
         'sort_order' => $lastThemeId,
         'channel_id' => $channelId = core()->getCurrentChannel()->id,
         'theme_code' => $themeCode = core()->getCurrentChannel()->theme,
@@ -71,9 +73,9 @@ it('should store the newly created theme', function () {
     $this->assertModelWise([
         ThemeCustomization::class => [
             [
-                'id'         => $lastThemeId,
-                'type'       => $type,
-                'name'       => $name,
+                'id' => $lastThemeId,
+                'type' => $type,
+                'name' => $name,
                 'channel_id' => $channelId,
                 'theme_code' => $themeCode,
             ],
@@ -106,11 +108,11 @@ it('should update the theme customizations', function () {
         case ThemeCustomization::PRODUCT_CAROUSEL:
             $data[app()->getLocale()] = [
                 'options' => [
-                    'title'   => fake()->title(),
+                    'title' => fake()->title(),
                     'filters' => [
-                        'sort'  => 'name-desc',
+                        'sort' => 'name-desc',
                         'limit' => '12',
-                        'new'   => '1',
+                        'new' => '1',
                     ],
                 ],
             ];
@@ -120,10 +122,10 @@ it('should update the theme customizations', function () {
         case ThemeCustomization::CATEGORY_CAROUSEL:
             $data[app()->getLocale()] = [
                 'options' => [
-                    'title'   => fake()->title(),
+                    'title' => fake()->title(),
                     'filters' => [
-                        'sort'      => 'desc',
-                        'limit'     => '10',
+                        'sort' => 'desc',
+                        'limit' => '10',
                         'parent_id' => '1',
                     ],
                 ],
@@ -136,7 +138,7 @@ it('should update the theme customizations', function () {
                 'options' => [
                     [
                         'title' => fake()->title(),
-                        'link'  => fake()->url(),
+                        'link' => fake()->url(),
                         'image' => UploadedFile::fake()->image(fake()->word().'.png', 640, 480, 'png'),
                     ],
                 ],
@@ -149,8 +151,8 @@ it('should update the theme customizations', function () {
                 'options' => [
                     'column_1' => [
                         [
-                            'url'        => fake()->url(),
-                            'title'      => fake()->title(),
+                            'url' => fake()->url(),
+                            'title' => fake()->title(),
                             'sort_order' => '1',
                         ],
                     ],
@@ -163,8 +165,8 @@ it('should update the theme customizations', function () {
             $data[app()->getLocale()] = [
                 'options' => [
                     [
-                        'title'        => fake()->title(),
-                        'description'  => fake()->paragraph(),
+                        'title' => fake()->title(),
+                        'description' => fake()->paragraph(),
                         'service_icon' => 'icon-truck',
                     ],
                 ],
@@ -191,7 +193,7 @@ it('should update the theme customizations', function () {
     $this->assertModelWise([
         ThemeCustomization::class => [
             [
-                'id'   => $theme->id,
+                'id' => $theme->id,
                 'type' => $theme->type,
                 'name' => $name,
             ],

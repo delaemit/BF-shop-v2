@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Helpers\Reporting;
 
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -16,6 +18,13 @@ class Product extends AbstractReporting
 {
     /**
      * Create a helper instance.
+     *
+     * @param ProductRepository $productRepository
+     * @param ProductInventoryRepository $productInventoryRepository
+     * @param WishlistRepository $wishlistRepository
+     * @param ProductReviewRepository $reviewRepository
+     * @param OrderItemRepository $orderItemRepository
+     * @param SearchTermRepository $searchTermRepository
      *
      * @return void
      */
@@ -39,7 +48,7 @@ class Product extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalSoldQuantities($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalSoldQuantities($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalSoldQuantities($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -47,8 +56,8 @@ class Product extends AbstractReporting
     /**
      * Returns previous sold quantities over time
      *
-     * @param  string  $period
-     * @param  bool  $includeEmpty
+     * @param string $period
+     * @param bool $includeEmpty
      */
     public function getPreviousTotalSoldQuantitiesOverTime($period = 'auto', $includeEmpty = true): array
     {
@@ -58,8 +67,8 @@ class Product extends AbstractReporting
     /**
      * Returns current sold quantities over time
      *
-     * @param  string  $period
-     * @param  bool  $includeEmpty
+     * @param string $period
+     * @param bool $includeEmpty
      */
     public function getCurrentTotalSoldQuantitiesOverTime($period = 'auto', $includeEmpty = true): array
     {
@@ -69,8 +78,8 @@ class Product extends AbstractReporting
     /**
      * Retrieves total sold quantities.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalSoldQuantities($startDate, $endDate): int
     {
@@ -91,7 +100,7 @@ class Product extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalProductsAddedToWishlist($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalProductsAddedToWishlist($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalProductsAddedToWishlist($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -99,8 +108,8 @@ class Product extends AbstractReporting
     /**
      * Returns previous products added to wishlist over time
      *
-     * @param  string  $period
-     * @param  bool  $includeEmpty
+     * @param string $period
+     * @param bool $includeEmpty
      */
     public function getPreviousTotalProductsAddedToWishlistOverTime($period = 'auto', $includeEmpty = true): array
     {
@@ -110,8 +119,8 @@ class Product extends AbstractReporting
     /**
      * Returns current products added to wishlist over time
      *
-     * @param  string  $period
-     * @param  bool  $includeEmpty
+     * @param string $period
+     * @param bool $includeEmpty
      */
     public function getCurrentTotalProductsAddedToWishlistOverTime($period = 'auto', $includeEmpty = true): array
     {
@@ -121,8 +130,8 @@ class Product extends AbstractReporting
     /**
      * Retrieves total products added to wishlist.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalProductsAddedToWishlist($startDate, $endDate): int
     {
@@ -140,7 +149,7 @@ class Product extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalReviews($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalReviews($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalReviews($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -148,8 +157,8 @@ class Product extends AbstractReporting
     /**
      * Retrieves total reviews by date
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalReviews($startDate, $endDate): int
     {
@@ -165,7 +174,7 @@ class Product extends AbstractReporting
     /**
      * Gets stock threshold.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getStockThresholdProducts($limit = null): EloquentCollection
     {
@@ -184,7 +193,7 @@ class Product extends AbstractReporting
     /**
      * Gets top-selling products by revenue.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getTopSellingProductsByRevenue($limit = null): Collection
     {
@@ -202,25 +211,21 @@ class Product extends AbstractReporting
             ->limit($limit)
             ->get();
 
-        $items = $items->map(function ($item) {
-            return [
-                'id'                => $item->product_id,
-                'name'              => $item->name,
-                'price'             => $item->product?->price,
-                'formatted_price'   => core()->formatBasePrice($item->price),
-                'revenue'           => $item->revenue,
-                'formatted_revenue' => core()->formatBasePrice($item->revenue),
-                'images'            => $item->product?->images,
-            ];
-        });
-
-        return $items;
+        return $items->map(fn($item) => [
+            'id' => $item->product_id,
+            'name' => $item->name,
+            'price' => $item->product?->price,
+            'formatted_price' => core()->formatBasePrice($item->price),
+            'revenue' => $item->revenue,
+            'formatted_revenue' => core()->formatBasePrice($item->revenue),
+            'images' => $item->product?->images,
+        ]);
     }
 
     /**
      * Gets top-selling products by quantity.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getTopSellingProductsByQuantity($limit = null): Collection
     {
@@ -238,24 +243,20 @@ class Product extends AbstractReporting
             ->limit($limit)
             ->get();
 
-        $items = $items->map(function ($item) {
-            return [
-                'id'                => $item->product_id,
-                'name'              => $item->name,
-                'price'             => $item->product?->price,
-                'formatted_price'   => core()->formatBasePrice($item->price),
-                'total_qty_ordered' => $item->total_qty_ordered,
-                'images'            => $item->product?->images,
-            ];
-        });
-
-        return $items;
+        return $items->map(fn($item) => [
+            'id' => $item->product_id,
+            'name' => $item->name,
+            'price' => $item->product?->price,
+            'formatted_price' => core()->formatBasePrice($item->price),
+            'total_qty_ordered' => $item->total_qty_ordered,
+            'images' => $item->product?->images,
+        ]);
     }
 
     /**
      * Gets products with most orders.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getProductsWithMostReviews($limit = null): EloquentCollection
     {
@@ -276,7 +277,7 @@ class Product extends AbstractReporting
             ->limit($limit)
             ->get();
 
-        $products->map(function ($product) {
+        $products->map(function ($product): void {
             $product->product_name = $product->product->name;
         });
 
@@ -286,7 +287,7 @@ class Product extends AbstractReporting
     /**
      * Gets last search terms
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getLastSearchTerms($limit = null): EloquentCollection
     {
@@ -302,7 +303,7 @@ class Product extends AbstractReporting
     /**
      * Gets top search terms
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getTopSearchTerms($limit = null): EloquentCollection
     {
@@ -317,9 +318,9 @@ class Product extends AbstractReporting
     /**
      * Returns sold quantities over time
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $period
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $period
      */
     public function getTotalSoldQuantitiesOverTime($startDate, $endDate, $period = 'auto'): array
     {
@@ -358,9 +359,9 @@ class Product extends AbstractReporting
     /**
      * Returns products added to wishlist over time
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $period
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $period
      */
     public function getTotalProductsAddedToWishlistOverTime($startDate, $endDate, $period = 'auto'): array
     {

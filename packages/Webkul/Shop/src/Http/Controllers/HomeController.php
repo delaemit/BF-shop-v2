@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 use Illuminate\Support\Facades\Mail;
@@ -12,14 +14,18 @@ class HomeController extends Controller
     /**
      * Using const variable for status
      */
-    const STATUS = 1;
+    public const STATUS = 1;
 
     /**
      * Create a new controller instance.
      *
+     * @param ThemeCustomizationRepository $themeCustomizationRepository
+     *
      * @return void
      */
-    public function __construct(protected ThemeCustomizationRepository $themeCustomizationRepository) {}
+    public function __construct(protected ThemeCustomizationRepository $themeCustomizationRepository)
+    {
+    }
 
     /**
      * Loads the home page for the storefront.
@@ -31,7 +37,7 @@ class HomeController extends Controller
         visitor()->visit();
 
         $customizations = $this->themeCustomizationRepository->orderBy('sort_order')->findWhere([
-            'status'     => self::STATUS,
+            'status' => self::STATUS,
             'channel_id' => core()->getCurrentChannel()->id,
             'theme_code' => core()->getCurrentChannel()->theme,
         ]);
@@ -61,6 +67,8 @@ class HomeController extends Controller
 
     /**
      * Summary of store.
+     *
+     * @param ContactRequest $contactRequest
      *
      * @return \Illuminate\Http\RedirectResponse
      */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Repositories;
 
 use Illuminate\Support\Facades\File;
@@ -19,6 +21,8 @@ class OrderItemRepository extends Repository
 
     /**
      * Collect totals.
+     *
+     * @param OrderItem $orderItem
      */
     public function collectTotals(OrderItem $orderItem): OrderItem
     {
@@ -77,6 +81,8 @@ class OrderItemRepository extends Repository
 
     /**
      * Manage inventory.
+     *
+     * @param OrderItem $orderItem
      */
     public function manageInventory(OrderItem $orderItem): void
     {
@@ -84,7 +90,7 @@ class OrderItemRepository extends Repository
 
         if ($orderItem->getTypeInstance()->isComposite()) {
             foreach ($orderItem->children as $child) {
-                if (! $child->product->manage_stock) {
+                if (!$child->product->manage_stock) {
                     continue;
                 }
 
@@ -97,7 +103,7 @@ class OrderItemRepository extends Repository
         }
 
         foreach ($orderItems as $item) {
-            if (! $item->product) {
+            if (!$item->product) {
                 continue;
             }
 
@@ -118,7 +124,7 @@ class OrderItemRepository extends Repository
                     ]);
                 } else {
                     $item->product->ordered_inventories()->create([
-                        'qty'        => $qty,
+                        'qty' => $qty,
                         'product_id' => $item->product_id,
                         'channel_id' => $orderItem->order->channel->id,
                     ]);
@@ -129,14 +135,16 @@ class OrderItemRepository extends Repository
 
     /**
      * Returns qty to product inventory after order cancellation.
+     *
+     * @param OrderItem $orderItem
      */
     public function returnQtyToProductInventory(OrderItem $orderItem): void
     {
-        if (! $orderItem->product) {
+        if (!$orderItem->product) {
             return;
         }
 
-        if (! $orderItem->product->manage_stock) {
+        if (!$orderItem->product->manage_stock) {
             return;
         }
 
@@ -167,6 +175,8 @@ class OrderItemRepository extends Repository
 
     /**
      * Update product ordered quantity.
+     *
+     * @param OrderItem $orderItem
      */
     public function updateProductOrderedInventories(OrderItem $orderItem): void
     {
@@ -174,7 +184,7 @@ class OrderItemRepository extends Repository
             ->where('channel_id', $orderItem->order->channel->id)
             ->first();
 
-        if (! $orderedInventory) {
+        if (!$orderedInventory) {
             return;
         }
 
@@ -193,11 +203,13 @@ class OrderItemRepository extends Repository
 
     /**
      * Manage customizable options.
+     *
+     * @param OrderItem $orderItem
      */
     public function manageCustomizableOptions(OrderItem $orderItem): void
     {
         if (
-            ! $orderItem->product->getTypeInstance()->isCustomizable()
+            !$orderItem->product->getTypeInstance()->isCustomizable()
             || (
                 $orderItem->product->getTypeInstance()->isCustomizable()
                 && empty($orderItem->additional['formatted_customizable_options'])
@@ -213,7 +225,7 @@ class OrderItemRepository extends Repository
                 if ($option['type'] === 'file') {
                     $oldPath = $option['prices'][0]['label'];
 
-                    $newPath = 'orders/'.$orderItem->order_id.'/'.File::basename($oldPath);
+                    $newPath = 'orders/' . $orderItem->order_id . '/' . File::basename($oldPath);
 
                     Storage::move($oldPath, $newPath);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Listeners;
 
 use Illuminate\Support\Facades\Mail;
@@ -11,6 +13,8 @@ class Base
      * Get the locale of the customer if somehow item name changes then the english locale will pe provided.
      *
      * @param object \Webkul\Sales\Contracts\Order|\Webkul\Sales\Contracts\Invoice|\Webkul\Sales\Contracts\Refund|\Webkul\Sales\Contracts\Shipment|\Webkul\Sales\Contracts\OrderComment
+     * @param mixed $object
+     *
      * @return string
      */
     protected function getLocale($object)
@@ -27,9 +31,12 @@ class Base
     /**
      * Prepare mail.
      *
+     * @param mixed $entity
+     * @param mixed $notification
+     *
      * @return void
      */
-    protected function prepareMail($entity, $notification)
+    protected function prepareMail($entity, $notification): void
     {
         $customerLocale = $this->getLocale($entity);
 
@@ -40,7 +47,7 @@ class Base
         try {
             Mail::queue($notification);
         } catch (\Exception $e) {
-            \Log::error('Error in Sending Email'.$e->getMessage());
+            \Log::error('Error in Sending Email' . $e->getMessage());
         }
 
         app()->setLocale($previousLocale);

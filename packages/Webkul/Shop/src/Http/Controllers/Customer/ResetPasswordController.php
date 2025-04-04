@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\Customer;
 
 use Illuminate\Auth\Events\PasswordReset;
@@ -18,16 +20,21 @@ class ResetPasswordController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CustomerRepository $customerRepository
+     *
      * @return void
      */
-    public function __construct(protected CustomerRepository $customerRepository) {}
+    public function __construct(protected CustomerRepository $customerRepository)
+    {
+    }
 
     /**
      * Display the password reset view for the given token.
      *
      * If no token is present, display the link request form.
      *
-     * @param  string|null  $token
+     * @param string|null $token
+     *
      * @return \Illuminate\View\View
      */
     public function create($token = null)
@@ -47,18 +54,18 @@ class ResetPasswordController extends Controller
     {
         try {
             $this->validate(request(), [
-                'token'    => 'required',
-                'email'    => 'required|email',
+                'token' => 'required',
+                'email' => 'required|email',
                 'password' => 'required|confirmed|min:6',
             ]);
 
             $response = $this->broker()->reset(
-                request(['email', 'password', 'password_confirmation', 'token']), function ($customer, $password) {
+                request(['email', 'password', 'password_confirmation', 'token']), function ($customer, $password): void {
                     $this->resetPassword($customer, $password);
                 }
             );
 
-            if ($response == Password::PASSWORD_RESET) {
+            if ($response === Password::PASSWORD_RESET) {
                 $customer = $this->customerRepository->findOneByField('email', request('email'));
 
                 Event::dispatch('customer.password.update.after', $customer);
@@ -81,11 +88,12 @@ class ResetPasswordController extends Controller
     /**
      * Reset the given customer password.
      *
-     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $customer
-     * @param  string  $password
+     * @param \Illuminate\Contracts\Auth\CanResetPassword $customer
+     * @param string $password
+     *
      * @return void
      */
-    protected function resetPassword($customer, $password)
+    protected function resetPassword($customer, $password): void
     {
         $customer->password = Hash::make($password);
 

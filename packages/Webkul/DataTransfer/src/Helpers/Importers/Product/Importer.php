@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Importers\Product;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -46,66 +48,66 @@ class Importer extends AbstractImporter
     /**
      * Product type simple
      */
-    const PRODUCT_TYPE_SIMPLE = 'simple';
+    public const PRODUCT_TYPE_SIMPLE = 'simple';
 
     /**
      * Product type virtual
      */
-    const PRODUCT_TYPE_VIRTUAL = 'virtual';
+    public const PRODUCT_TYPE_VIRTUAL = 'virtual';
 
     /**
      * Product type downloadable
      */
-    const PRODUCT_TYPE_DOWNLOADABLE = 'downloadable';
+    public const PRODUCT_TYPE_DOWNLOADABLE = 'downloadable';
 
     /**
      * Product type configurable
      */
-    const PRODUCT_TYPE_CONFIGURABLE = 'configurable';
+    public const PRODUCT_TYPE_CONFIGURABLE = 'configurable';
 
     /**
      * Product type bundle
      */
-    const PRODUCT_TYPE_BUNDLE = 'bundle';
+    public const PRODUCT_TYPE_BUNDLE = 'bundle';
 
     /**
      * Product type grouped
      */
-    const PRODUCT_TYPE_GROUPED = 'grouped';
+    public const PRODUCT_TYPE_GROUPED = 'grouped';
 
     /**
      * Error code for invalid product type
      */
-    const ERROR_INVALID_TYPE = 'invalid_product_type';
+    public const ERROR_INVALID_TYPE = 'invalid_product_type';
 
     /**
      * Error code for non existing SKU
      */
-    const ERROR_SKU_NOT_FOUND_FOR_DELETE = 'sku_not_found_to_delete';
+    public const ERROR_SKU_NOT_FOUND_FOR_DELETE = 'sku_not_found_to_delete';
 
     /**
      * Error code for duplicate url key
      */
-    const ERROR_DUPLICATE_URL_KEY = 'duplicated_url_key';
+    public const ERROR_DUPLICATE_URL_KEY = 'duplicated_url_key';
 
     /**
      * Error code for invalid attribute family code
      */
-    const ERROR_INVALID_ATTRIBUTE_FAMILY_CODE = 'attribute_family_code_not_found';
+    public const ERROR_INVALID_ATTRIBUTE_FAMILY_CODE = 'attribute_family_code_not_found';
 
     /**
      * Error code for super attribute code not found
      */
-    const ERROR_SUPER_ATTRIBUTE_CODE_NOT_FOUND = 'attribute_family_code_not_found';
+    public const ERROR_SUPER_ATTRIBUTE_CODE_NOT_FOUND = 'attribute_family_code_not_found';
 
     /**
      * Error message templates
      */
     protected array $messages = [
-        self::ERROR_INVALID_TYPE                   => 'data_transfer::app.importers.products.validation.errors.invalid-type',
-        self::ERROR_SKU_NOT_FOUND_FOR_DELETE       => 'data_transfer::app.importers.products.validation.errors.sku-not-found',
-        self::ERROR_DUPLICATE_URL_KEY              => 'data_transfer::app.importers.products.validation.errors.duplicate-url-key',
-        self::ERROR_INVALID_ATTRIBUTE_FAMILY_CODE  => 'data_transfer::app.importers.products.validation.errors.invalid-attribute-family',
+        self::ERROR_INVALID_TYPE => 'data_transfer::app.importers.products.validation.errors.invalid-type',
+        self::ERROR_SKU_NOT_FOUND_FOR_DELETE => 'data_transfer::app.importers.products.validation.errors.sku-not-found',
+        self::ERROR_DUPLICATE_URL_KEY => 'data_transfer::app.importers.products.validation.errors.duplicate-url-key',
+        self::ERROR_INVALID_ATTRIBUTE_FAMILY_CODE => 'data_transfer::app.importers.products.validation.errors.invalid-attribute-family',
         self::ERROR_SUPER_ATTRIBUTE_CODE_NOT_FOUND => 'data_transfer::app.importers.products.validation.errors.super-attribute-not-found',
     ];
 
@@ -198,6 +200,25 @@ class Importer extends AbstractImporter
     /**
      * Create a new helper instance.
      *
+     * @param ImportBatchRepository $importBatchRepository
+     * @param AttributeFamilyRepository $attributeFamilyRepository
+     * @param AttributeRepository $attributeRepository
+     * @param AttributeOptionRepository $attributeOptionRepository
+     * @param CategoryRepository $categoryRepository
+     * @param CustomerGroupRepository $customerGroupRepository
+     * @param ChannelRepository $channelRepository
+     * @param InventorySourceRepository $inventorySourceRepository
+     * @param ProductRepository $productRepository
+     * @param ProductFlatRepository $productFlatRepository
+     * @param ProductAttributeValueRepository $productAttributeValueRepository
+     * @param ProductImageRepository $productImageRepository
+     * @param ProductInventoryRepository $productInventoryRepository
+     * @param ProductBundleOptionRepository $productBundleOptionRepository
+     * @param ProductBundleOptionProductRepository $productBundleOptionProductRepository
+     * @param ProductCustomerGroupPriceRepository $productCustomerGroupPriceRepository
+     * @param ProductGroupedProductRepository $productGroupedProductRepository
+     * @param SKUStorage $skuStorage
+     *
      * @return void
      */
     public function __construct(
@@ -285,23 +306,26 @@ class Importer extends AbstractImporter
 
     /**
      * Validates row
+     *
+     * @param array $rowData
+     * @param int $rowNumber
      */
     public function validateRow(array $rowData, int $rowNumber): bool
     {
-        /**
+        /*
          * If row is already validated than no need for further validation
          */
         if (isset($this->validatedRows[$rowNumber])) {
-            return ! $this->errorHelper->isRowInvalid($rowNumber);
+            return !$this->errorHelper->isRowInvalid($rowNumber);
         }
 
         $this->validatedRows[$rowNumber] = true;
 
-        /**
+        /*
          * If import action is delete than no need for further validation
          */
-        if ($this->import->action == Import::ACTION_DELETE) {
-            if (! $this->isSKUExist($rowData['sku'])) {
+        if ($this->import->action === Import::ACTION_DELETE) {
+            if (!$this->isSKUExist($rowData['sku'])) {
                 $this->skipRow($rowNumber, self::ERROR_SKU_NOT_FOUND_FOR_DELETE);
 
                 return false;
@@ -310,28 +334,28 @@ class Importer extends AbstractImporter
             return true;
         }
 
-        /**
+        /*
          * Check if product type exists
          */
         if (
-            $rowData['type'] == self::PRODUCT_TYPE_DOWNLOADABLE
-            || ! config('product_types.'.$rowData['type'])
+            $rowData['type'] === self::PRODUCT_TYPE_DOWNLOADABLE
+            || !config('product_types.' . $rowData['type'])
         ) {
             $this->skipRow($rowNumber, self::ERROR_INVALID_TYPE, 'type');
 
             return false;
         }
 
-        /**
+        /*
          * Check if attribute family exists
          */
-        if (! $this->attributeFamilies->where('code', $rowData['attribute_family_code'])->first()) {
+        if (!$this->attributeFamilies->where('code', $rowData['attribute_family_code'])->first()) {
             $this->skipRow($rowNumber, self::ERROR_INVALID_ATTRIBUTE_FAMILY_CODE, 'attribute_family_code');
 
             return false;
         }
 
-        if (! isset($this->typeFamilyValidationRules[$rowData['type']][$rowData['attribute_family_code']])) {
+        if (!isset($this->typeFamilyValidationRules[$rowData['type']][$rowData['attribute_family_code']])) {
             $this->typeFamilyValidationRules[$rowData['type']][$rowData['attribute_family_code']] = $this->getValidationRules($rowData);
         }
 
@@ -350,15 +374,15 @@ class Importer extends AbstractImporter
             }
         }
 
-        /**
+        /*
          * Check if url_key is unique
          */
         if (
             empty($this->urlKeys[$rowData['url_key']])
-            || ($this->urlKeys[$rowData['url_key']]['sku'] == $rowData['sku'])
+            || ($this->urlKeys[$rowData['url_key']]['sku'] === $rowData['sku'])
         ) {
             $this->urlKeys[$rowData['url_key']] = [
-                'sku'        => $rowData['sku'],
+                'sku' => $rowData['sku'],
                 'row_number' => $rowNumber,
             ];
         } else {
@@ -383,15 +407,15 @@ class Importer extends AbstractImporter
 
         $validationRules = [];
 
-        if ($rowData['type'] == self::PRODUCT_TYPE_BUNDLE) {
+        if ($rowData['type'] === self::PRODUCT_TYPE_BUNDLE) {
             $validationRules = [
-                'bundle_options.*.name'     => 'sometimes|required',
-                'bundle_options.*.type'     => 'sometimes|required|in:select,radio,checkbox,multiselect',
+                'bundle_options.*.name' => 'sometimes|required',
+                'bundle_options.*.type' => 'sometimes|required|in:select,radio,checkbox,multiselect',
                 'bundle_options.*.required' => 'sometimes|required|boolean',
-                'bundle_options.*.sku'      => 'sometimes|required',
-                'bundle_options.*.price'    => ['sometimes', 'required', new Decimal],
-                'bundle_options.*.qty'      => 'sometimes|required|integer',
-                'bundle_options.*.default'  => 'sometimes|required|boolean',
+                'bundle_options.*.sku' => 'sometimes|required',
+                'bundle_options.*.price' => ['sometimes', 'required', new Decimal()],
+                'bundle_options.*.qty' => 'sometimes|required|integer',
+                'bundle_options.*.default' => 'sometimes|required|boolean',
             ];
 
             $options = explode('|', $rowData['bundle_options'] ?? '');
@@ -401,7 +425,7 @@ class Importer extends AbstractImporter
 
                 $optionsData['bundle_options'][] = $attributes;
             }
-        } elseif ($rowData['type'] == self::PRODUCT_TYPE_GROUPED) {
+        } elseif ($rowData['type'] === self::PRODUCT_TYPE_GROUPED) {
             $validationRules = [
                 'associated_skus.*.sku' => 'sometimes|required',
                 'associated_skus.*.qty' => 'sometimes|required|integer',
@@ -417,7 +441,7 @@ class Importer extends AbstractImporter
                     'qty' => $qty ?? null,
                 ];
             }
-        } elseif ($rowData['type'] == self::PRODUCT_TYPE_CONFIGURABLE) {
+        } elseif ($rowData['type'] === self::PRODUCT_TYPE_CONFIGURABLE) {
             $validationRules = [
                 'configurable_variants.*.sku' => 'sometimes|required',
             ];
@@ -435,9 +459,9 @@ class Importer extends AbstractImporter
              */
             $validationRules = [
                 'customer_group_prices.*.group' => 'sometimes|required',
-                'customer_group_prices.*.qty'   => 'sometimes|required|integer',
-                'customer_group_prices.*.type'  => 'sometimes|required|in:fixed,discount',
-                'customer_group_prices.*.price' => ['sometimes', 'required', new Decimal],
+                'customer_group_prices.*.qty' => 'sometimes|required|integer',
+                'customer_group_prices.*.type' => 'sometimes|required|in:fixed,discount',
+                'customer_group_prices.*.price' => ['sometimes', 'required', new Decimal()],
             ];
 
             $customerGroupPrices = explode('|', $rowData['customer_group_prices'] ?? '');
@@ -449,7 +473,7 @@ class Importer extends AbstractImporter
             }
         }
 
-        if (! empty($optionsData)) {
+        if (!empty($optionsData)) {
             $validator = Validator::make($optionsData, $validationRules);
 
             if ($validator->fails()) {
@@ -463,14 +487,14 @@ class Importer extends AbstractImporter
             }
         }
 
-        /**
+        /*
          * Check if configurable super attribute exists in the attribute family
          *
          * Below is the example of configurable_variants
          *
          * sku=SP-005,color=Yellow,size=M|sku=SP-006,color=Yellow,size=L|sku=SP-007,color=Green,size=M|sku=SP-008,color=Green,size=L
          */
-        if ($rowData['type'] == self::PRODUCT_TYPE_CONFIGURABLE) {
+        if ($rowData['type'] === self::PRODUCT_TYPE_CONFIGURABLE) {
             $variants = explode('|', $rowData['configurable_variants'] ?? '');
 
             $familyAttributes = $this->getProductTypeFamilyAttributes($rowData['type'], $rowData['attribute_family_code']);
@@ -481,7 +505,7 @@ class Importer extends AbstractImporter
                 $configurableVariants = Arr::except($variantAttributes, 'sku');
 
                 foreach ($configurableVariants as $superAttribute => $optionLabel) {
-                    if (! $familyAttributes->where('code', $superAttribute)->first()) {
+                    if (!$familyAttributes->where('code', $superAttribute)->first()) {
                         $this->skipRow(
                             $rowNumber,
                             self::ERROR_SUPER_ATTRIBUTE_CODE_NOT_FOUND,
@@ -497,56 +521,58 @@ class Importer extends AbstractImporter
             }
         }
 
-        return ! $this->errorHelper->isRowInvalid($rowNumber);
+        return !$this->errorHelper->isRowInvalid($rowNumber);
     }
 
     /**
      * Prepare validation rules
+     *
+     * @param array $rowData
      */
     public function getValidationRules(array $rowData): array
     {
         $rules = [
-            'sku'                => ['required', new Slug],
-            'url_key'            => ['required'],
+            'sku' => ['required', new Slug()],
+            'url_key' => ['required'],
             'special_price_from' => ['nullable', 'date'],
-            'special_price_to'   => ['nullable', 'date', 'after_or_equal:special_price_from'],
-            'special_price'      => ['nullable', new Decimal, 'lt:price'],
+            'special_price_to' => ['nullable', 'date', 'after_or_equal:special_price_from'],
+            'special_price' => ['nullable', new Decimal(), 'lt:price'],
         ];
 
         $attributes = $this->getProductTypeFamilyAttributes($rowData['type'], $rowData['attribute_family_code']);
 
         foreach ($attributes as $attribute) {
-            if (in_array($attribute->code, ['sku', 'url_key'])) {
+            if (in_array($attribute->code, ['sku', 'url_key'], true)) {
                 continue;
             }
 
             $validations = [];
 
-            if (! isset($rules[$attribute->code])) {
+            if (!isset($rules[$attribute->code])) {
                 $validations[] = $attribute->is_required ? 'required' : 'nullable';
             } else {
                 $validations = $rules[$attribute->code];
             }
 
             if (
-                $attribute->type == 'text'
+                $attribute->type === 'text'
                 && $attribute->validation
             ) {
                 if ($attribute->validation === 'decimal') {
-                    $validations[] = new Decimal;
+                    $validations[] = new Decimal();
                 } elseif ($attribute->validation === 'regex') {
-                    $validations[] = 'regex:'.$attribute->regex;
+                    $validations[] = 'regex:' . $attribute->regex;
                 } else {
                     $validations[] = $attribute->validation;
                 }
             }
 
-            if ($attribute->type == 'price') {
-                $validations[] = new Decimal;
+            if ($attribute->type === 'price') {
+                $validations[] = new Decimal();
             }
 
             if ($attribute->is_unique) {
-                array_push($validations, function ($field, $value, $fail) use ($attribute, $rowData) {
+                $validations[] = function ($field, $value, $fail) use ($attribute, $rowData): void {
                     $product = $this->skuStorage->get($rowData['sku']);
 
                     $count = $this->productAttributeValueRepository
@@ -558,7 +584,7 @@ class Importer extends AbstractImporter
                     if ($count) {
                         $fail(__('admin::app.catalog.products.index.already-taken', ['name' => ':attribute']));
                     }
-                });
+                };
             }
 
             $rules[$attribute->code] = $validations;
@@ -602,12 +628,14 @@ class Importer extends AbstractImporter
 
     /**
      * Start the import process
+     *
+     * @param ImportBatchContract $batch
      */
     public function importBatch(ImportBatchContract $batch): bool
     {
         Event::dispatch('data_transfer.imports.batch.import.before', $batch);
 
-        if ($batch->import->action == Import::ACTION_DELETE) {
+        if ($batch->import->action === Import::ACTION_DELETE) {
             $this->deleteProducts($batch);
         } else {
             $this->saveProductsData($batch);
@@ -619,7 +647,7 @@ class Importer extends AbstractImporter
         $batch = $this->importBatchRepository->update([
             'state' => Import::STATE_PROCESSED,
 
-            'summary'      => [
+            'summary' => [
                 'created' => $this->getCreatedItemsCount(),
                 'updated' => $this->getUpdatedItemsCount(),
                 'deleted' => $this->getDeletedItemsCount(),
@@ -633,12 +661,14 @@ class Importer extends AbstractImporter
 
     /**
      * Start the products linking process
+     *
+     * @param ImportBatchContract $batch
      */
     public function linkBatch(ImportBatchContract $batch): bool
     {
         Event::dispatch('data_transfer.imports.batch.linking.before', $batch);
 
-        /**
+        /*
          * Load SKU storage with batch skus
          */
         $this->skuStorage->load(Arr::pluck($batch->data, 'sku'));
@@ -652,22 +682,22 @@ class Importer extends AbstractImporter
         $links = [];
 
         foreach ($batch->data as $rowData) {
-            /**
+            /*
              * Prepare configurable variants
              */
             $this->prepareConfigurableVariants($rowData, $configurableVariants);
 
-            /**
+            /*
              * Prepare products association for grouped product
              */
             $this->prepareGroupAssociations($rowData, $groupAssociations);
 
-            /**
+            /*
              * Prepare bundle options
              */
             $this->prepareBundleOptions($rowData, $bundleOptions);
 
-            /**
+            /*
              * Prepare products association for related, cross sell and up sell
              */
             $this->prepareLinks($rowData, $links);
@@ -681,7 +711,7 @@ class Importer extends AbstractImporter
 
         $this->saveLinks($links);
 
-        /**
+        /*
          * Update import batch summary
          */
         $this->importBatchRepository->update([
@@ -695,12 +725,14 @@ class Importer extends AbstractImporter
 
     /**
      * Start the products indexing process
+     *
+     * @param ImportBatchContract $batch
      */
     public function indexBatch(ImportBatchContract $batch): bool
     {
         Event::dispatch('data_transfer.imports.batch.indexing.before', $batch);
 
-        /**
+        /*
          * Load SKU storage with batch skus
          */
         $this->skuStorage->load(Arr::pluck($batch->data, 'sku'));
@@ -768,7 +800,6 @@ class Importer extends AbstractImporter
                     ];
 
                     break;
-
                 case self::PRODUCT_TYPE_CONFIGURABLE:
                     $productIdsToIndex = [
                         ...$productIdsToIndex,
@@ -789,7 +820,6 @@ class Importer extends AbstractImporter
                     ];
 
                     break;
-
                 case self::PRODUCT_TYPE_BUNDLE:
                     $productIdsToIndex = [
                         ...$productIdsToIndex,
@@ -812,7 +842,6 @@ class Importer extends AbstractImporter
                     ];
 
                     break;
-
                 case self::PRODUCT_TYPE_GROUPED:
                     $productIdsToIndex = [
                         ...$productIdsToIndex,
@@ -845,7 +874,7 @@ class Importer extends AbstractImporter
             new UpdateCreateElasticSearchIndexJob($productIdsToIndex),
         ])->onConnection('sync')->dispatch();
 
-        /**
+        /*
          * Update import batch summary
          */
         $this->importBatchRepository->update([
@@ -859,10 +888,12 @@ class Importer extends AbstractImporter
 
     /**
      * Delete products from current batch
+     *
+     * @param ImportBatchContract $batch
      */
     protected function deleteProducts(ImportBatchContract $batch): bool
     {
-        /**
+        /*
          * Load SKU storage with batch skus
          */
         $this->skuStorage->load(Arr::pluck($batch->data, 'sku'));
@@ -870,7 +901,7 @@ class Importer extends AbstractImporter
         $idsToDelete = [];
 
         foreach ($batch->data as $rowData) {
-            if (! $this->isSKUExist($rowData['sku'])) {
+            if (!$this->isSKUExist($rowData['sku'])) {
                 continue;
             }
 
@@ -885,13 +916,13 @@ class Importer extends AbstractImporter
 
         $this->productRepository->deleteWhere([['id', 'IN', $idsToDelete]]);
 
-        /**
+        /*
          * Remove product images from the storage
          */
         foreach ($idsToDelete as $id) {
             $imageDirectory = $this->productImageRepository->getProductDirectory((object) ['id' => $id]);
 
-            if (! Storage::exists($imageDirectory)) {
+            if (!Storage::exists($imageDirectory)) {
                 continue;
             }
 
@@ -905,10 +936,12 @@ class Importer extends AbstractImporter
 
     /**
      * Save products from current batch
+     *
+     * @param ImportBatchContract $batch
      */
     protected function saveProductsData(ImportBatchContract $batch): bool
     {
-        /**
+        /*
          * Load SKU storage with batch skus
          */
         $this->skuStorage->load(Arr::pluck($batch->data, 'sku'));
@@ -930,42 +963,42 @@ class Importer extends AbstractImporter
         $flatData = [];
 
         foreach ($batch->data as $rowData) {
-            /**
+            /*
              * Prepare products for import
              */
             $this->prepareProducts($rowData, $products);
 
-            /**
+            /*
              * Prepare product channels to attach with products
              */
             $this->prepareChannels($rowData, $channels);
 
-            /**
+            /*
              * Prepare customer group prices
              */
             $this->prepareCustomerGroupPrices($rowData, $customerGroupPrices);
 
-            /**
+            /*
              * Prepare product categories to attach with products
              */
             $this->prepareCategories($rowData, $categories);
 
-            /**
+            /*
              * Prepare products attribute values
              */
             $this->prepareAttributeValues($rowData, $attributeValues);
 
-            /**
+            /*
              * Prepare products inventories for every inventory source
              */
             $this->prepareInventories($rowData, $inventories);
 
-            /**
+            /*
              * Prepare products images
              */
             $this->prepareImages($rowData, $imagesData);
 
-            /**
+            /*
              * Prepare products data for product_flat table
              */
             $this->prepareFlatData($rowData, $flatData);
@@ -992,6 +1025,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare products from current batch
+     *
+     * @param array $rowData
+     * @param array $products
      */
     public function prepareProducts(array $rowData, array &$products): void
     {
@@ -1001,27 +1037,29 @@ class Importer extends AbstractImporter
 
         if ($this->isSKUExist($rowData['sku'])) {
             $products['update'][$rowData['sku']] = [
-                'type'                => $rowData['type'],
-                'sku'                 => $rowData['sku'],
+                'type' => $rowData['type'],
+                'sku' => $rowData['sku'],
                 'attribute_family_id' => $attributeFamilyId,
             ];
         } else {
             $products['insert'][$rowData['sku']] = [
-                'type'                => $rowData['type'],
-                'sku'                 => $rowData['sku'],
+                'type' => $rowData['type'],
+                'sku' => $rowData['sku'],
                 'attribute_family_id' => $attributeFamilyId,
-                'created_at'          => $rowData['created_at'] ?? now(),
-                'updated_at'          => $rowData['updated_at'] ?? now(),
+                'created_at' => $rowData['created_at'] ?? now(),
+                'updated_at' => $rowData['updated_at'] ?? now(),
             ];
         }
     }
 
     /**
      * Save products from current batch
+     *
+     * @param array $products
      */
     public function saveProducts(array $products): void
     {
-        if (! empty($products['update'])) {
+        if (!empty($products['update'])) {
             $this->updatedItemsCount += count($products['update']);
 
             $this->productRepository->upsert(
@@ -1030,7 +1068,7 @@ class Importer extends AbstractImporter
             );
         }
 
-        if (! empty($products['insert'])) {
+        if (!empty($products['insert'])) {
             $this->createdItemsCount += count($products['insert']);
 
             $this->productRepository->insert($products['insert']);
@@ -1051,8 +1089,8 @@ class Importer extends AbstractImporter
 
             foreach ($newProducts as $product) {
                 $this->skuStorage->set($product->sku, [
-                    'id'                  => $product->id,
-                    'type'                => $product->type,
+                    'id' => $product->id,
+                    'type' => $product->type,
                     'attribute_family_id' => $product->attribute_family_id,
                 ]);
             }
@@ -1061,6 +1099,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare customer group prices from current batch
+     *
+     * @param array $rowData
+     * @param array $customerGroupPrices
      */
     public function prepareCustomerGroupPrices(array $rowData, array &$customerGroupPrices): void
     {
@@ -1076,9 +1117,9 @@ class Importer extends AbstractImporter
             parse_str(str_replace(',', '&', $price), $attributes);
 
             $customerGroupPrices[$rowData['sku']][] = [
-                'qty'               => $attributes['qty'],
-                'value_type'        => $attributes['type'],
-                'value'             => $attributes['price'],
+                'qty' => $attributes['qty'],
+                'value_type' => $attributes['type'],
+                'value' => $attributes['price'],
                 'customer_group_id' => $customerGroups->where('code', $attributes['group'])->first()?->id,
             ];
         }
@@ -1086,6 +1127,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save customer group prices from current batch
+     *
+     * @param array $customerGroupPrices
      */
     public function saveCustomerGroupPrices(array $customerGroupPrices): void
     {
@@ -1112,6 +1155,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare categories from current batch
+     *
+     * @param array $rowData
+     * @param array $categories
      */
     public function prepareCategories(array $rowData, array &$categories): void
     {
@@ -1119,7 +1165,7 @@ class Importer extends AbstractImporter
             return;
         }
 
-        /**
+        /*
          * Reset the sku categories data to prevent
          * data duplication in case of multiple locales
          */
@@ -1149,6 +1195,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save categories from current batch
+     *
+     * @param array $categories
      */
     public function saveCategories(array $categories): void
     {
@@ -1163,7 +1211,7 @@ class Importer extends AbstractImporter
 
             foreach ($categoryIds as $categoryId) {
                 $productCategories[] = [
-                    'product_id'  => $product['id'],
+                    'product_id' => $product['id'],
                     'category_id' => $categoryId,
                 ];
             }
@@ -1180,6 +1228,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare products channels data
+     *
+     * @param array $rowData
+     * @param array $channels
      */
     public function prepareChannels(array $rowData, array &$channels): void
     {
@@ -1191,6 +1242,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save channels from current batch
+     *
+     * @param array $channels
      */
     public function saveChannels(array $channels): void
     {
@@ -1218,6 +1271,9 @@ class Importer extends AbstractImporter
 
     /**
      * Save products from current batch
+     *
+     * @param array $rowData
+     * @param array $attributeValues
      */
     public function prepareAttributeValues(array $rowData, array &$attributeValues): void
     {
@@ -1232,23 +1288,25 @@ class Importer extends AbstractImporter
 
             $attribute = $familyAttributes->where('code', $attributeCode)->first();
 
-            if (! $attribute) {
+            if (!$attribute) {
                 continue;
             }
 
             $attributeTypeValues = array_fill_keys(array_values($attribute->attributeTypeFields), null);
 
             $attributeValues[$rowData['sku']][] = array_merge($attributeTypeValues, [
-                'attribute_id'          => $attribute->id,
+                'attribute_id' => $attribute->id,
                 $attribute->column_name => $value,
-                'channel'               => $attribute->value_per_channel ? $rowData['channel'] : null,
-                'locale'                => $attribute->value_per_locale ? $rowData['locale'] : null,
+                'channel' => $attribute->value_per_channel ? $rowData['channel'] : null,
+                'locale' => $attribute->value_per_locale ? $rowData['locale'] : null,
             ]);
         }
     }
 
     /**
      * Save products from current batch
+     *
+     * @param array $attributeValues
      */
     public function saveAttributeValues(array $attributeValues): void
     {
@@ -1276,6 +1334,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare inventories from current batch
+     *
+     * @param array $rowData
+     * @param array $inventories
      */
     public function prepareInventories(array $rowData, array &$inventories): void
     {
@@ -1283,7 +1344,7 @@ class Importer extends AbstractImporter
             return;
         }
 
-        /**
+        /*
          * Reset the sku inventories data to prevent
          * data duplication in case of multiple locales
          */
@@ -1296,13 +1357,15 @@ class Importer extends AbstractImporter
 
             $inventories[$rowData['sku']][] = [
                 'source' => $inventorySource,
-                'qty'    => $qty,
+                'qty' => $qty,
             ];
         }
     }
 
     /**
      * Save inventories from current batch
+     *
+     * @param array $inventories
      */
     public function saveInventories(array $inventories): void
     {
@@ -1321,15 +1384,15 @@ class Importer extends AbstractImporter
             foreach ($skuInventories as $inventory) {
                 $inventorySource = $inventorySources->where('code', $inventory['source'])->first();
 
-                if (! $inventorySource) {
+                if (!$inventorySource) {
                     continue;
                 }
 
                 $productInventories[] = [
                     'inventory_source_id' => $inventorySource->id,
-                    'product_id'          => $product['id'],
-                    'qty'                 => $inventory['qty'],
-                    'vendor_id'           => 0,
+                    'product_id' => $product['id'],
+                    'qty' => $inventory['qty'],
+                    'vendor_id' => 0,
                 ];
             }
         }
@@ -1346,6 +1409,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare images from current batch
+     *
+     * @param array $rowData
+     * @param array $imagesData
      */
     public function prepareImages(array $rowData, array &$imagesData): void
     {
@@ -1353,14 +1419,14 @@ class Importer extends AbstractImporter
             return;
         }
 
-        /**
+        /*
          * Skip the image upload if product is already created
          */
         if ($this->skuStorage->has($rowData['sku'])) {
             return;
         }
 
-        /**
+        /*
          * Reset the sku images data to prevent
          * data duplication in case of multiple locales
          */
@@ -1369,9 +1435,9 @@ class Importer extends AbstractImporter
         $imageNames = array_map('trim', explode(',', $rowData['images']));
 
         foreach ($imageNames as $key => $image) {
-            $path = 'import/'.$this->import->images_directory_path.'/'.$image;
+            $path = 'import/' . $this->import->images_directory_path . '/' . $image;
 
-            if (! Storage::disk('local')->has($path)) {
+            if (!Storage::disk('local')->has($path)) {
                 continue;
             }
 
@@ -1384,6 +1450,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save images from current batch
+     *
+     * @param array $imagesData
      */
     public function saveImages(array $imagesData): void
     {
@@ -1399,17 +1467,17 @@ class Importer extends AbstractImporter
             foreach ($images as $key => $image) {
                 $file = new UploadedFile($image['path'], $image['name']);
 
-                $image = (new ImageManager)->make($file)->encode('webp');
+                $image = (new ImageManager())->make($file)->encode('webp');
 
                 $imageDirectory = $this->productImageRepository->getProductDirectory((object) $product);
 
-                $path = $imageDirectory.'/'.Str::random(40).'.webp';
+                $path = $imageDirectory . '/' . Str::random(40) . '.webp';
 
                 $productImages[] = [
-                    'type'       => 'images',
-                    'path'       => $path,
+                    'type' => 'images',
+                    'path' => $path,
                     'product_id' => $product['id'],
-                    'position'   => $key + 1,
+                    'position' => $key + 1,
                 ];
 
                 Storage::put($path, $image);
@@ -1421,6 +1489,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare products flat data
+     *
+     * @param array $rowData
+     * @param array $flatData
      */
     public function prepareFlatData(array $rowData, array &$flatData): void
     {
@@ -1431,7 +1502,7 @@ class Importer extends AbstractImporter
         $data = [];
 
         foreach ($flatColumns as $column) {
-            if (in_array($column, ['id', 'created_at', 'updated_at'])) {
+            if (in_array($column, ['id', 'created_at', 'updated_at'], true)) {
                 continue;
             }
 
@@ -1439,7 +1510,7 @@ class Importer extends AbstractImporter
         }
 
         $data = array_merge($data, [
-            'locale'  => $rowData['locale'],
+            'locale' => $rowData['locale'],
             'channel' => $rowData['channel'],
         ]);
 
@@ -1448,6 +1519,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save products flat data
+     *
+     * @param array $flatData
      */
     public function saveFlatData(array &$flatData): void
     {
@@ -1457,7 +1530,7 @@ class Importer extends AbstractImporter
             $product = $this->skuStorage->get($attributes['sku']);
 
             $products[] = array_merge($attributes, [
-                'product_id'          => $product['id'],
+                'product_id' => $product['id'],
                 'attribute_family_id' => $product['attribute_family_id'],
             ]);
         }
@@ -1474,11 +1547,14 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare configurable variants
+     *
+     * @param array $rowData
+     * @param array $configurableVariants
      */
     public function prepareConfigurableVariants(array $rowData, array &$configurableVariants): void
     {
         if (
-            $rowData['type'] != self::PRODUCT_TYPE_CONFIGURABLE
+            $rowData['type'] !== self::PRODUCT_TYPE_CONFIGURABLE
             && empty($rowData['configurable_variants'])
         ) {
             return;
@@ -1495,6 +1571,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save configurable variants from current batch
+     *
+     * @param array $configurableVariants
      */
     public function saveConfigurableVariants(array $configurableVariants): void
     {
@@ -1504,7 +1582,7 @@ class Importer extends AbstractImporter
 
         $variantSkus = array_map('array_keys', $configurableVariants);
 
-        /**
+        /*
          * Load not loaded SKUs to the sku storage
          */
         $this->loadUnloadedSKUs(array_unique(Arr::flatten($variantSkus)));
@@ -1524,7 +1602,7 @@ class Importer extends AbstractImporter
                 $variant = $this->skuStorage->get($variantSku);
 
                 $parentAssociations[] = [
-                    'sku'       => $variantSku,
+                    'sku' => $variantSku,
                     'parent_id' => $product['id'],
                 ];
 
@@ -1538,11 +1616,11 @@ class Importer extends AbstractImporter
                     $attributeTypeValues = array_fill_keys(array_values($attribute->attributeTypeFields), null);
 
                     $attributeTypeValues = array_merge($attributeTypeValues, [
-                        'product_id'            => $variant['id'],
-                        'attribute_id'          => $attribute->id,
+                        'product_id' => $variant['id'],
+                        'attribute_id' => $attribute->id,
                         $attribute->column_name => $attributeOption->id,
-                        'channel'               => null,
-                        'locale'                => null,
+                        'channel' => null,
+                        'locale' => null,
                     ]);
 
                     $attributeTypeValues['unique_id'] = implode('|', array_filter([
@@ -1562,18 +1640,18 @@ class Importer extends AbstractImporter
                 $attribute = $this->attributes->where('code', $attributeCode)->first();
 
                 $superAttributes[] = [
-                    'product_id'   => $product['id'],
+                    'product_id' => $product['id'],
                     'attribute_id' => $attribute->id,
                 ];
             }
         }
 
-        /**
+        /*
          * Save the variants parent associations
          */
         $this->productRepository->upsert($parentAssociations, 'sku');
 
-        /**
+        /*
          * Save super attributes associations for configurable products
          */
         DB::table('product_super_attributes')->upsert(
@@ -1584,7 +1662,7 @@ class Importer extends AbstractImporter
             ],
         );
 
-        /**
+        /*
          * Save variants super attributes option values
          */
         $this->productAttributeValueRepository->upsert($superAttributeValues, 'unique_id');
@@ -1592,11 +1670,14 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare group associations
+     *
+     * @param array $rowData
+     * @param array $groupAssociations
      */
     public function prepareGroupAssociations(array $rowData, array &$groupAssociations): void
     {
         if (
-            $rowData['type'] != self::PRODUCT_TYPE_GROUPED
+            $rowData['type'] !== self::PRODUCT_TYPE_GROUPED
             && empty($rowData['associated_skus'])
         ) {
             return;
@@ -1613,6 +1694,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save links from current batch
+     *
+     * @param array $groupAssociations
      */
     public function saveGroupAssociations(array $groupAssociations): void
     {
@@ -1622,7 +1705,7 @@ class Importer extends AbstractImporter
 
         $associatedSkus = array_map('array_keys', $groupAssociations);
 
-        /**
+        /*
          * Load not loaded SKUs to the sku storage
          */
         $this->loadUnloadedSKUs(array_unique(Arr::flatten($associatedSkus)));
@@ -1637,14 +1720,14 @@ class Importer extends AbstractImporter
             foreach ($associatedSkus as $associatedSku => $qty) {
                 $associatedProduct = $this->skuStorage->get($associatedSku);
 
-                if (! $associatedProduct) {
+                if (!$associatedProduct) {
                     continue;
                 }
 
                 $associatedProducts[] = [
-                    'qty'                   => $qty,
-                    'sort_order'            => $sortOrder++,
-                    'product_id'            => $product['id'],
+                    'qty' => $qty,
+                    'sort_order' => $sortOrder++,
+                    'product_id' => $product['id'],
                     'associated_product_id' => $associatedProduct['id'],
                 ];
             }
@@ -1661,11 +1744,14 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare bundle options from current batch
+     *
+     * @param array $rowData
+     * @param array $bundleOptions
      */
     public function prepareBundleOptions(array $rowData, array &$bundleOptions): void
     {
         if (
-            $rowData['type'] != self::PRODUCT_TYPE_BUNDLE
+            $rowData['type'] !== self::PRODUCT_TYPE_BUNDLE
             && empty($rowData['bundle_options'])
         ) {
             return;
@@ -1678,18 +1764,18 @@ class Importer extends AbstractImporter
         foreach ($options as $option) {
             parse_str(str_replace(',', '&', $option), $attributes);
 
-            if (! isset($bundleOptions[$rowData['sku']][$rowData['locale']][$attributes['name']])) {
+            if (!isset($bundleOptions[$rowData['sku']][$rowData['locale']][$attributes['name']])) {
                 $productSortOrder = 0;
 
                 $bundleOptions[$rowData['sku']][$rowData['locale']][$attributes['name']]['attributes'] = [
-                    'type'        => $attributes['type'],
+                    'type' => $attributes['type'],
                     'is_required' => $attributes['required'],
-                    'sort_order'  => $optionSortOrder++,
+                    'sort_order' => $optionSortOrder++,
                 ];
             }
 
             $bundleOptions[$rowData['sku']][$rowData['locale']][$attributes['name']]['skus'][$attributes['sku']] = [
-                'qty'        => $attributes['qty'],
+                'qty' => $attributes['qty'],
                 'is_default' => $attributes['default'],
                 'sort_order' => $productSortOrder++,
             ];
@@ -1698,6 +1784,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save bundle options from current batch
+     *
+     * @param array $bundleOptions
      */
     public function saveBundleOptions(array &$bundleOptions): void
     {
@@ -1711,7 +1799,7 @@ class Importer extends AbstractImporter
             $associatedSkus = array_merge($associatedSkus, array_keys($options));
         }
 
-        /**
+        /*
          * Load not loaded SKUs to the sku storage
          */
         $this->loadUnloadedSKUs(array_unique(Arr::flatten($associatedSkus)));
@@ -1732,20 +1820,20 @@ class Importer extends AbstractImporter
                     ->where('label', $optionName)
                     ->first();
 
-                if (! $bundleOption) {
+                if (!$bundleOption) {
                     $bundleOption = $this->productBundleOptionRepository->create([
-                        'product_id'  => $product['id'],
-                        'type'        => $option['attributes']['type'],
+                        'product_id' => $product['id'],
+                        'type' => $option['attributes']['type'],
                         'is_required' => $option['attributes']['is_required'],
-                        'sort_order'  => $option['attributes']['sort_order'],
+                        'sort_order' => $option['attributes']['sort_order'],
                     ]);
                 } else {
                     $upsertData['options'][] = [
-                        'id'          => $bundleOption->id,
-                        'product_id'  => $product['id'],
-                        'type'        => $option['attributes']['type'],
+                        'id' => $bundleOption->id,
+                        'product_id' => $product['id'],
+                        'type' => $option['attributes']['type'],
                         'is_required' => $option['attributes']['is_required'],
-                        'sort_order'  => $option['attributes']['sort_order'],
+                        'sort_order' => $option['attributes']['sort_order'],
                     ];
                 }
 
@@ -1756,15 +1844,15 @@ class Importer extends AbstractImporter
 
                     $upsertData['products'][] = [
                         'product_bundle_option_id' => $bundleOption->id,
-                        'product_id'               => $associatedProduct['id'],
-                        'qty'                      => $optionProduct['qty'],
-                        'is_default'               => $optionProduct['is_default'],
-                        'sort_order'               => $optionProduct['sort_order'],
+                        'product_id' => $associatedProduct['id'],
+                        'qty' => $optionProduct['qty'],
+                        'is_default' => $optionProduct['is_default'],
+                        'sort_order' => $optionProduct['sort_order'],
                     ];
                 }
             }
 
-            /**
+            /*
              * Prepare translation for bundle options
              */
             foreach ($localeOptions as $locale => $options) {
@@ -1773,24 +1861,24 @@ class Importer extends AbstractImporter
                 foreach ($options as $optionName => $option) {
                     $bundleOptionId = $createdUpdatedOptionIds[$key++] ?? null;
 
-                    if (! $bundleOptionId) {
+                    if (!$bundleOptionId) {
                         continue;
                     }
 
                     $upsertData['translations'][] = [
                         'product_bundle_option_id' => $bundleOptionId,
-                        'label'                    => $optionName,
-                        'locale'                   => $locale,
+                        'label' => $optionName,
+                        'locale' => $locale,
                     ];
                 }
             }
         }
 
-        if (! empty($upsertData['options'])) {
+        if (!empty($upsertData['options'])) {
             $this->productBundleOptionRepository->upsert($upsertData['options'], 'id');
         }
 
-        if (! empty($upsertData['products'])) {
+        if (!empty($upsertData['products'])) {
             DB::table('product_bundle_option_translations')->upsert(
                 $upsertData['translations'],
                 [
@@ -1801,7 +1889,7 @@ class Importer extends AbstractImporter
             );
         }
 
-        if (! empty($upsertData['products'])) {
+        if (!empty($upsertData['products'])) {
             $this->productBundleOptionProductRepository->upsert(
                 $upsertData['products'],
                 [
@@ -1814,27 +1902,30 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare links from current batch
+     *
+     * @param array $rowData
+     * @param array $links
      */
     public function prepareLinks(array $rowData, array &$links): void
     {
         $linkTableMapping = [
-            'related'    => 'product_relations',
+            'related' => 'product_relations',
             'cross_sell' => 'product_cross_sells',
-            'up_sell'    => 'product_up_sells',
+            'up_sell' => 'product_up_sells',
         ];
 
         foreach ($linkTableMapping as $type => $table) {
-            if (empty($rowData[$type.'_skus'])) {
+            if (empty($rowData[$type . '_skus'])) {
                 continue;
             }
 
-            /**
+            /*
              * Reset the sku links data to prevent
              * data duplication in case of multiple locales
              */
             $links[$table][$rowData['sku']] = [];
 
-            foreach (explode(',', $rowData[$type.'_skus'] ?? '') as $sku) {
+            foreach (explode(',', $rowData[$type . '_skus'] ?? '') as $sku) {
                 $links[$table][$rowData['sku']][] = $sku;
             }
         }
@@ -1842,10 +1933,12 @@ class Importer extends AbstractImporter
 
     /**
      * Save links from current batch
+     *
+     * @param array $links
      */
     public function saveLinks(array $links): void
     {
-        /**
+        /*
          * Load not loaded SKUs to the sku storage
          */
         $this->loadUnloadedSKUs(array_unique(Arr::flatten($links)));
@@ -1859,13 +1952,13 @@ class Importer extends AbstractImporter
                 foreach ($linkedSkus as $linkedSku) {
                     $linkedProduct = $this->skuStorage->get($linkedSku);
 
-                    if (! $linkedProduct) {
+                    if (!$linkedProduct) {
                         continue;
                     }
 
                     $productLinks[] = [
                         'parent_id' => $product['id'],
-                        'child_id'  => $linkedProduct['id'],
+                        'child_id' => $linkedProduct['id'],
                     ];
                 }
             }
@@ -1882,6 +1975,8 @@ class Importer extends AbstractImporter
 
     /**
      * Returns existing bundled options of current batch
+     *
+     * @param array $bundleOptions
      */
     public function getExistingBundleOptions(array $bundleOptions): mixed
     {
@@ -1894,7 +1989,7 @@ class Importer extends AbstractImporter
 
             foreach ($localeOptions as $locale => $options) {
                 foreach ($options as $optionName => $option) {
-                    $queryBuilder->orWhere(function ($query) use ($product, $optionName, $locale) {
+                    $queryBuilder->orWhere(function ($query) use ($product, $optionName, $locale): void {
                         $query->where('product_bundle_options.product_id', $product['id'])
                             ->where('product_bundle_option_translations.label', $optionName)
                             ->where('product_bundle_option_translations.locale', $locale);
@@ -1908,6 +2003,8 @@ class Importer extends AbstractImporter
 
     /**
      * Returns super attributes options of current batch
+     *
+     * @param array $variants
      */
     public function getSuperAttributeOptions(array $variants): mixed
     {
@@ -1918,6 +2015,8 @@ class Importer extends AbstractImporter
 
     /**
      * Save links
+     *
+     * @param array $skus
      */
     public function loadUnloadedSKUs(array $skus): void
     {
@@ -1931,16 +2030,19 @@ class Importer extends AbstractImporter
             $notLoadedSkus[] = $sku;
         }
 
-        /**
+        /*
          * Load not loaded SKUs to the sku storage
          */
-        if (! empty($notLoadedSkus)) {
+        if (!empty($notLoadedSkus)) {
             $this->skuStorage->load($notLoadedSkus);
         }
     }
 
     /**
      * Retrieve product type family attributes
+     *
+     * @param string $type
+     * @param string $attributeFamilyCode
      */
     public function getProductTypeFamilyAttributes(string $type, string $attributeFamilyCode): mixed
     {
@@ -1951,7 +2053,7 @@ class Importer extends AbstractImporter
         $attributeFamily = $this->attributeFamilies->where('code', $attributeFamilyCode)->first();
 
         $product = ProductModel::make([
-            'type'                => $type,
+            'type' => $type,
             'attribute_family_id' => $attributeFamily->id,
         ]);
 
@@ -1963,7 +2065,7 @@ class Importer extends AbstractImporter
      */
     public function getCustomerGroups(): mixed
     {
-        if (! empty($this->customerGroups)) {
+        if (!empty($this->customerGroups)) {
             return $this->customerGroups;
         }
 
@@ -1975,7 +2077,7 @@ class Importer extends AbstractImporter
      */
     public function getChannels(): mixed
     {
-        if (! empty($this->channels)) {
+        if (!empty($this->channels)) {
             return $this->channels;
         }
 
@@ -1987,7 +2089,7 @@ class Importer extends AbstractImporter
      */
     protected function getProductFlatColumns(): array
     {
-        if (! empty($this->productFlatColumns)) {
+        if (!empty($this->productFlatColumns)) {
             return $this->productFlatColumns;
         }
 
@@ -1996,6 +2098,8 @@ class Importer extends AbstractImporter
 
     /**
      * Check if SKU exists
+     *
+     * @param string $sku
      */
     public function isSKUExist(string $sku): bool
     {
@@ -2004,14 +2108,16 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare row data to save into the database
+     *
+     * @param array $rowData
      */
     protected function prepareRowForDb(array $rowData): array
     {
         $rowData = parent::prepareRowForDb($rowData);
 
-        $rowData['locale'] = $rowData['locale'] ?? app()->getLocale();
+        $rowData['locale'] ??= app()->getLocale();
 
-        $rowData['channel'] = $rowData['channel'] ?? core()->getDefaultChannelCode();
+        $rowData['channel'] ??= core()->getDefaultChannelCode();
 
         return $rowData;
     }

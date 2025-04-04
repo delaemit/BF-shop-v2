@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Customers;
 
 use Illuminate\Http\JsonResponse;
@@ -44,12 +46,17 @@ class CustomerController extends Controller
 
     /**
      * Create a new controller instance.
+     *
+     * @param CustomerRepository $customerRepository
+     * @param CustomerGroupRepository $customerGroupRepository
+     * @param CustomerNoteRepository $customerNoteRepository
      */
     public function __construct(
         protected CustomerRepository $customerRepository,
         protected CustomerGroupRepository $customerGroupRepository,
         protected CustomerNoteRepository $customerNoteRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -73,22 +80,22 @@ class CustomerController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'first_name'    => 'string|required',
-            'last_name'     => 'string|required',
-            'gender'        => 'required',
-            'email'         => 'required|unique:customers,email',
+            'first_name' => 'string|required',
+            'last_name' => 'string|required',
+            'gender' => 'required',
+            'email' => 'required|unique:customers,email',
             'date_of_birth' => 'date|before:today',
-            'phone'         => 'unique:customers,phone',
+            'phone' => 'unique:customers,phone',
         ]);
 
-        $password = rand(100000, 10000000);
+        $password = random_int(100000, 10000000);
 
         Event::dispatch('customer.registration.before');
 
         $data = array_merge([
-            'password'    => bcrypt($password),
+            'password' => bcrypt($password),
             'is_verified' => 1,
-            'channel_id'  => core()->getCurrentChannel()->id,
+            'channel_id' => core()->getCurrentChannel()->id,
         ], request()->only([
             'first_name',
             'last_name',
@@ -121,7 +128,7 @@ class CustomerController extends Controller
         Event::dispatch('customer.registration.after', $customer);
 
         return new JsonResponse([
-            'data'    => $customer,
+            'data' => $customer,
             'message' => trans('admin::app.customers.customers.index.create.create-success'),
         ]);
     }
@@ -129,17 +136,19 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(int $id)
     {
         $this->validate(request(), [
-            'first_name'    => 'string|required',
-            'last_name'     => 'string|required',
-            'gender'        => 'required',
-            'email'         => 'required|unique:customers,email,'.$id,
+            'first_name' => 'string|required',
+            'last_name' => 'string|required',
+            'gender' => 'required',
+            'email' => 'required|unique:customers,email,' . $id,
             'date_of_birth' => 'date|before:today',
-            'phone'         => 'unique:customers,phone,'.$id,
+            'phone' => 'unique:customers,phone,' . $id,
         ]);
 
         $data = request()->only([
@@ -166,9 +175,9 @@ class CustomerController extends Controller
 
         return new JsonResponse([
             'message' => trans('admin::app.customers.customers.update-success'),
-            'data'    => [
+            'data' => [
                 'customer' => $customer->fresh(),
-                'group'    => $customer->group,
+                'group' => $customer->group,
             ],
         ]);
     }
@@ -176,18 +185,19 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(int $id)
     {
         $customer = $this->customerRepository->findorFail($id);
 
-        if (! $customer) {
+        if (!$customer) {
             return response()->json(['message' => trans('admin::app.customers.customers.delete-failed')], 400);
         }
 
-        if (! $this->customerRepository->haveActiveOrders($customer)) {
-
+        if (!$this->customerRepository->haveActiveOrders($customer)) {
             $this->customerRepository->delete($id);
 
             session()->flash('success', trans('admin::app.customers.customers.delete-success'));
@@ -202,6 +212,8 @@ class CustomerController extends Controller
 
     /**
      * Login as customer
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -219,6 +231,8 @@ class CustomerController extends Controller
     /**
      * To store the response of the note.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeNotes(int $id)
@@ -230,8 +244,8 @@ class CustomerController extends Controller
         Event::dispatch('customer.note.create.before', $id);
 
         $customerNote = $this->customerNoteRepository->create([
-            'customer_id'       => $id,
-            'note'              => request()->input('note'),
+            'customer_id' => $id,
+            'note' => request()->input('note'),
             'customer_notified' => request()->input('customer_notified', 0),
         ]);
 
@@ -244,6 +258,8 @@ class CustomerController extends Controller
 
     /**
      * View all details of customer.
+     *
+     * @param int $id
      */
     public function show(int $id)
     {
@@ -255,10 +271,8 @@ class CustomerController extends Controller
             switch (request()->query('type')) {
                 case self::ORDERS:
                     return datagrid(OrderDataGrid::class)->process();
-
                 case self::INVOICES:
                     return datagrid(InvoiceDataGrid::class)->process();
-
                 case self::REVIEWS:
                     return datagrid(ReviewDataGrid::class)->process();
             }
@@ -274,17 +288,17 @@ class CustomerController extends Controller
      */
     public function search()
     {
-        $customers = $this->customerRepository->scopeQuery(function ($query) {
-            return $query->where('email', 'like', '%'.urldecode(request()->input('query')).'%')
-                ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.urldecode(request()->input('query')).'%')
-                ->orderBy('created_at', 'desc');
-        })->paginate(self::COUNT);
+        $customers = $this->customerRepository->scopeQuery(fn($query) => $query->where('email', 'like', '%' . urldecode(request()->input('query')) . '%')
+            ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%' . urldecode(request()->input('query')) . '%')
+            ->orderBy('created_at', 'desc'))->paginate(self::COUNT);
 
         return response()->json($customers);
     }
 
     /**
      * To mass update the customer.
+     *
+     * @param MassUpdateRequest $massUpdateRequest
      */
     public function massUpdate(MassUpdateRequest $massUpdateRequest): JsonResponse
     {
@@ -307,13 +321,15 @@ class CustomerController extends Controller
 
     /**
      * To mass delete the customer.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {
         $customers = $this->customerRepository->findWhereIn('id', $massDestroyRequest->input('indices'));
 
         try {
-            /**
+            /*
              * Ensure that customers do not have any active orders before performing deletion.
              */
             foreach ($customers as $customer) {
@@ -322,7 +338,7 @@ class CustomerController extends Controller
                 }
             }
 
-            /**
+            /*
              * After ensuring that they have no active orders delete the corresponding customer.
              */
             foreach ($customers as $customer) {

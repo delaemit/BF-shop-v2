@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataGrid\ColumnTypes;
 
 use Webkul\DataGrid\Column;
@@ -11,6 +13,8 @@ class Boolean extends Column
 {
     /**
      * Set filterable type.
+     *
+     * @param ?string $filterableType
      */
     public function setFilterableType(?string $filterableType): void
     {
@@ -21,7 +25,7 @@ class Boolean extends Column
             throw new InvalidColumnException('Boolean filters will only work with `dropdown` type. Either remove the `filterable_type` or set it to `dropdown`.');
         }
 
-        if (! $filterableType) {
+        if (!$filterableType) {
             $filterableType = FilterTypeEnum::DROPDOWN->value;
         }
 
@@ -30,6 +34,8 @@ class Boolean extends Column
 
     /**
      * Set filterable options.
+     *
+     * @param mixed $filterableOptions
      */
     public function setFilterableOptions(mixed $filterableOptions): void
     {
@@ -51,10 +57,13 @@ class Boolean extends Column
 
     /**
      * Process filter.
+     *
+     * @param mixed $queryBuilder
+     * @param mixed $requestedValues
      */
     public function processFilter($queryBuilder, $requestedValues): mixed
     {
-        return $queryBuilder->where(function ($scopeQueryBuilder) use ($requestedValues) {
+        return $queryBuilder->where(function ($scopeQueryBuilder) use ($requestedValues): void {
             if (is_string($requestedValues)) {
                 $scopeQueryBuilder->orWhere($this->columnName, $requestedValues);
             } elseif (is_array($requestedValues)) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Sales;
 
 use Webkul\Admin\DataGrids\Sales\OrderRefundDataGrid;
@@ -14,13 +16,18 @@ class RefundController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param OrderRepository $orderRepository
+     * @param OrderItemRepository $orderItemRepository
+     * @param RefundRepository $refundRepository
+     *
      * @return void
      */
     public function __construct(
         protected OrderRepository $orderRepository,
         protected OrderItemRepository $orderItemRepository,
         protected RefundRepository $refundRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,6 +46,8 @@ class RefundController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param int $orderId
+     *
      * @return \Illuminate\View\View
      */
     public function create(int $orderId)
@@ -51,33 +60,35 @@ class RefundController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param int $orderId
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(int $orderId)
     {
         $order = $this->orderRepository->findOrFail($orderId);
 
-        if (! $order->canRefund()) {
+        if (!$order->canRefund()) {
             session()->flash('error', trans('admin::app.sales.refunds.create.creation-error'));
 
             return redirect()->back();
         }
 
         $this->validate(request(), [
-            'refund.items'   => 'array',
+            'refund.items' => 'array',
             'refund.items.*' => 'required|numeric|min:0',
         ]);
 
         $data = request()->all();
 
-        if (! isset($data['refund']['shipping'])) {
+        if (!isset($data['refund']['shipping'])) {
             $data['refund']['shipping'] = 0;
         }
 
         try {
             $totals = $this->refundRepository->getOrderItemsRefundSummary($data['refund'], $orderId);
 
-            if (! $totals) {
+            if (!$totals) {
                 throw new InvalidRefundQuantityException(trans('admin::app.sales.refunds.create.invalid-qty'));
             }
         } catch (InvalidRefundQuantityException $invalidRefundQuantityException) {
@@ -90,7 +101,7 @@ class RefundController extends Controller
 
         $refundAmount = $totals['grand_total']['price'] - $totals['shipping']['price'] + $data['refund']['shipping'] + $data['refund']['adjustment_refund'] - $data['refund']['adjustment_fee'];
 
-        if (! $refundAmount) {
+        if (!$refundAmount) {
             session()->flash('error', trans('admin::app.sales.refunds.create.invalid-refund-amount-error'));
 
             return redirect()->back();
@@ -114,6 +125,8 @@ class RefundController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param int $orderId
+     *
      * @return \Illuminate\Http\JsonResponse|mixed
      */
     public function updateTotals(int $orderId)
@@ -132,7 +145,8 @@ class RefundController extends Controller
     /**
      * Show the view for the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function view($id)

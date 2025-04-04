@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer;
 
 use Webkul\Customer\Contracts\Captcha as CaptchaContract;
@@ -94,14 +96,16 @@ class Captcha implements CaptchaContract
 
     /**
      * Validate response.
+     *
+     * @param mixed $response
      */
     public function validateResponse($response): bool
     {
-        $client = new \GuzzleHttp\Client;
+        $client = new \GuzzleHttp\Client();
 
         $response = $client->post($this->getSiteVerifyEndpoint(), [
             'query' => [
-                'secret'   => $this->secretKey,
+                'secret' => $this->secretKey,
                 'response' => $response,
             ],
         ]);
@@ -111,6 +115,8 @@ class Captcha implements CaptchaContract
 
     /**
      * Get or merge existing validations with your captcha validations.
+     *
+     * @param mixed $rules
      */
     public function getValidations($rules = []): array
     {
@@ -121,13 +127,15 @@ class Captcha implements CaptchaContract
 
     /**
      * Get or merge existing validation messages with your captcha validation messages.
+     *
+     * @param mixed $messages
      */
     public function getValidationMessages($messages = []): array
     {
         return $this->isActive()
             ? array_merge($messages, [
                 'g-recaptcha-response.required' => trans('customer::app.validations.captcha.required'),
-                'g-recaptcha-response.captcha'  => trans('customer::app.validations.captcha.captcha'),
+                'g-recaptcha-response.captcha' => trans('customer::app.validations.captcha.captcha'),
             ])
             : $messages;
     }
@@ -138,13 +146,15 @@ class Captcha implements CaptchaContract
     protected function getAttributes(): array
     {
         return [
-            'class'        => 'g-recaptcha',
+            'class' => 'g-recaptcha',
             'data-sitekey' => $this->siteKey,
         ];
     }
 
     /**
      * Build attributes.
+     *
+     * @param array $attributes
      */
     protected function buildHTMLAttributes(array $attributes): string
     {

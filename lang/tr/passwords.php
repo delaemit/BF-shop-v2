@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,10 +15,10 @@ return [
     |
     */
 
-    'reset'     => 'Şifreniz sıfırlandı.',
-    'sent'      => 'Şifre sıfırlama bağlantınızı e-posta ile gönderdik.',
+    'reset' => 'Şifreniz sıfırlandı.',
+    'sent' => 'Şifre sıfırlama bağlantınızı e-posta ile gönderdik.',
     'throttled' => 'Tekrar denemeden önce lütfen bekleyin.',
-    'token'     => 'Bu şifre sıfırlama belirteci geçersiz.',
-    'user'      => 'Bu e-posta adresiyle bir kullanıcı bulamıyoruz.',
+    'token' => 'Bu şifre sıfırlama belirteci geçersiz.',
+    'user' => 'Bu e-posta adresiyle bir kullanıcı bulamıyoruz.',
 
 ];

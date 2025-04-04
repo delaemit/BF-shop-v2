@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Database\Seeders\User;
 
 use Illuminate\Database\Seeder;
@@ -10,10 +12,11 @@ class RolesTableSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * @param  array  $parameters
+     * @param array $parameters
+     *
      * @return void
      */
-    public function run($parameters = [])
+    public function run($parameters = []): void
     {
         DB::table('admins')->delete();
 
@@ -22,9 +25,9 @@ class RolesTableSeeder extends Seeder
         $defaultLocale = $parameters['default_locale'] ?? config('app.locale');
 
         DB::table('roles')->insert([
-            'id'              => 1,
-            'name'            => trans('installer::app.seeders.user.roles.name', [], $defaultLocale),
-            'description'     => trans('installer::app.seeders.user.roles.description', [], $defaultLocale),
+            'id' => 1,
+            'name' => trans('installer::app.seeders.user.roles.name', [], $defaultLocale),
+            'description' => trans('installer::app.seeders.user.roles.description', [], $defaultLocale),
             'permission_type' => 'all',
         ]);
     }

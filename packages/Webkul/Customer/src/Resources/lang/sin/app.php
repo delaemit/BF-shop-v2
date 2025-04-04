@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'validations' => [
         'captcha' => [
-            'captcha'  => 'දෝෂයක් සිටියා! නැවත උත්සාහ කරන්න.',
+            'captcha' => 'දෝෂයක් සිටියා! නැවත උත්සාහ කරන්න.',
             'required' => 'CAPTCHA තෝරන්න',
         ],
 

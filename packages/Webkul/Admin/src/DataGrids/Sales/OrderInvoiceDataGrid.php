@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Sales;
 
 use Illuminate\Support\Facades\DB;
@@ -40,54 +42,54 @@ class OrderInvoiceDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'increment_id',
-            'label'      => trans('admin::app.sales.invoices.index.datagrid.id'),
-            'type'       => 'string',
+            'index' => 'increment_id',
+            'label' => trans('admin::app.sales.invoices.index.datagrid.id'),
+            'type' => 'string',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'order_id',
-            'label'      => trans('admin::app.sales.invoices.index.datagrid.order-id'),
-            'type'       => 'string',
+            'index' => 'order_id',
+            'label' => trans('admin::app.sales.invoices.index.datagrid.order-id'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'base_grand_total',
-            'label'      => trans('admin::app.sales.invoices.index.datagrid.grand-total'),
-            'type'       => 'string',
+            'index' => 'base_grand_total',
+            'label' => trans('admin::app.sales.invoices.index.datagrid.grand-total'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($row) {
-                return core()->formatBasePrice($row->base_grand_total);
-            },
+            'sortable' => true,
+            'closure' => fn($row) => core()->formatBasePrice($row->base_grand_total),
         ]);
 
         $this->addColumn([
-            'index'      => 'state',
-            'label'      => trans('admin::app.sales.invoices.index.datagrid.status'),
-            'type'       => 'string',
+            'index' => 'state',
+            'label' => trans('admin::app.sales.invoices.index.datagrid.status'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($value) {
-                if ($value->state == 'paid') {
-                    return '<p class="label-active">'.trans('admin::app.sales.invoices.index.datagrid.paid').'</p>';
-                } elseif (
-                    $value->state == 'pending'
-                    || $value->state == 'pending_payment'
+            'sortable' => true,
+            'closure' => function ($value) {
+                if ($value->state === 'paid') {
+                    return '<p class="label-active">' . trans('admin::app.sales.invoices.index.datagrid.paid') . '</p>';
+                }
+                if (
+                    $value->state === 'pending'
+                    || $value->state === 'pending_payment'
                 ) {
-                    return '<p class="label-pending">'.trans('admin::app.sales.invoices.index.datagrid.pending').'</p>';
-                } elseif ($value->state == 'overdue') {
-                    return '<p class="label-cancel">'.trans('admin::app.sales.invoices.index.datagrid.overdue').'</p>';
+                    return '<p class="label-pending">' . trans('admin::app.sales.invoices.index.datagrid.pending') . '</p>';
+                }
+                if ($value->state === 'overdue') {
+                    return '<p class="label-cancel">' . trans('admin::app.sales.invoices.index.datagrid.overdue') . '</p>';
                 }
 
                 return $value->state;
@@ -95,13 +97,13 @@ class OrderInvoiceDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index'           => 'created_at',
-            'label'           => trans('admin::app.sales.invoices.index.datagrid.invoice-date'),
-            'type'            => 'date',
-            'searchable'      => true,
-            'filterable'      => true,
+            'index' => 'created_at',
+            'label' => trans('admin::app.sales.invoices.index.datagrid.invoice-date'),
+            'type' => 'date',
+            'searchable' => true,
+            'filterable' => true,
             'filterable_type' => 'date_range',
-            'sortable'        => true,
+            'sortable' => true,
         ]);
     }
 
@@ -110,16 +112,14 @@ class OrderInvoiceDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('sales.invoices.view')) {
             $this->addAction([
-                'icon'   => 'icon-view',
-                'title'  => trans('admin::app.sales.invoices.index.datagrid.view'),
+                'icon' => 'icon-view',
+                'title' => trans('admin::app.sales.invoices.index.datagrid.view'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.sales.invoices.view', $row->id);
-                },
+                'url' => fn($row) => route('admin.sales.invoices.view', $row->id),
             ]);
         }
     }

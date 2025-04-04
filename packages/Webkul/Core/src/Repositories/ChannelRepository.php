@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Repositories;
 
 use Illuminate\Support\Facades\Storage;
@@ -18,11 +20,12 @@ class ChannelRepository extends Repository
     /**
      * Create.
      *
+     * @param array $data
+     *
      * @return \Webkul\Core\Contracts\Channel
      */
     public function create(array $data)
     {
-
         $model = $this->getModel();
 
         foreach (core()->getAllLocales() as $locale) {
@@ -51,7 +54,9 @@ class ChannelRepository extends Repository
     /**
      * Update.
      *
-     * @param  int  $id
+     * @param int $id
+     * @param array $data
+     *
      * @return \Webkul\Core\Contracts\Channel
      */
     public function update(array $data, $id)
@@ -74,20 +79,21 @@ class ChannelRepository extends Repository
     /**
      * Upload images.
      *
-     * @param  array  $data
-     * @param  \Webkul\Core\Contracts\Channel  $channel
-     * @param  string  $type
+     * @param array $data
+     * @param \Webkul\Core\Contracts\Channel $channel
+     * @param string $type
+     *
      * @return void
      */
-    public function uploadImages($data, $channel, $type = 'logo')
+    public function uploadImages($data, $channel, $type = 'logo'): void
     {
         if (request()->hasFile($type)) {
-            $channel->{$type} = current(request()->file($type))->store('channel/'.$channel->id);
+            $channel->{$type} = current(request()->file($type))->store('channel/' . $channel->id);
 
             $channel->save();
         } else {
-            if (! isset($data[$type])) {
-                if (! empty($data[$type])) {
+            if (!isset($data[$type])) {
+                if (!empty($data[$type])) {
                     Storage::delete($channel->{$type});
                 }
 

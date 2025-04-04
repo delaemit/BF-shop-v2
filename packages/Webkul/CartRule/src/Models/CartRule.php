@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CartRule\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -118,7 +120,7 @@ class CartRule extends Model implements CartRuleContract
     {
         $coupon = $this->coupon_code()->first();
 
-        if (! $coupon) {
+        if (!$coupon) {
             return;
         }
 

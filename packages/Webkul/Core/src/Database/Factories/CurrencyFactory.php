@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,10 +23,10 @@ class CurrencyFactory extends Factory
     public function definition(): array
     {
         return [
-            'code'              => $this->faker->unique()->currencyCode,
-            'name'              => $this->faker->word,
-            'decimal'           => 2,
-            'group_separator'   => ',',
+            'code' => $this->faker->unique()->currencyCode,
+            'name' => $this->faker->word,
+            'decimal' => 2,
+            'group_separator' => ',',
             'decimal_separator' => '.',
             'currency_position' => CurrencyPositionEnum::LEFT->value,
         ];

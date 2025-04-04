@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shipping\Carriers;
 
 use Webkul\Checkout\Facades\Cart;
@@ -24,11 +26,11 @@ class FlatRate extends AbstractShipping
     /**
      * Calculate rate for flatrate.
      *
-     * @return \Webkul\Checkout\Models\CartShippingRate|false
+     * @return false|\Webkul\Checkout\Models\CartShippingRate
      */
     public function calculate()
     {
-        if (! $this->isAvailable()) {
+        if (!$this->isAvailable()) {
             return false;
         }
 
@@ -42,7 +44,7 @@ class FlatRate extends AbstractShipping
     {
         $cart = Cart::getCart();
 
-        $cartShippingRate = new CartShippingRate;
+        $cartShippingRate = new CartShippingRate();
 
         $cartShippingRate->carrier = $this->getCode();
         $cartShippingRate->carrier_title = $this->getConfigData('title');
@@ -52,7 +54,7 @@ class FlatRate extends AbstractShipping
         $cartShippingRate->price = 0;
         $cartShippingRate->base_price = 0;
 
-        if ($this->getConfigData('type') == 'per_unit') {
+        if ($this->getConfigData('type') === 'per_unit') {
             foreach ($cart->items as $item) {
                 if ($item->getTypeInstance()->isStockable()) {
                     $cartShippingRate->price += core()->convertPrice($this->getConfigData('default_rate')) * $item->quantity;

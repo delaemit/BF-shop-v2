@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Traits;
 
 use Illuminate\Support\Facades\Mail;
@@ -42,7 +44,7 @@ trait InvoiceReminder
      *
      * @return void
      */
-    public function sendInvoiceReminder()
+    public function sendInvoiceReminder(): void
     {
         if ($this->hasOverdueRemindersLimit()) {
             $limit = $this->getOverdueRemindersLimit();
@@ -71,13 +73,15 @@ trait InvoiceReminder
 
     /**
      * Scope a query to include only the overdue invoices and at the limit of reminders.
+     *
+     * @param mixed $query
      */
     public function scopeInOverdueAndRemindersLimit($query)
     {
         $query->where('state', '=', 'overdue');
 
         // Filter by next_reminder_date
-        $query->where(function ($query) {
+        $query->where(function ($query): void {
             $query->where('next_reminder_at', '<=', now())
                 ->orWhereNull('next_reminder_at');
         });

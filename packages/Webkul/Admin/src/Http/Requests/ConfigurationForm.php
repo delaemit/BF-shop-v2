@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,7 +35,7 @@ class ConfigurationForm extends FormRequest
                 $key = "{$data['key']}.{$field['name']}";
 
                 // Check delete key exist in the request
-                if (! $this->has("{$key}.delete")) {
+                if (!$this->has("{$key}.delete")) {
                     return [$key => $this->getValidationRules($field['validation'] ?? 'nullable')];
                 }
 
@@ -45,7 +47,8 @@ class ConfigurationForm extends FormRequest
     /**
      * Transform validation rules into an array and map custom validation rules
      *
-     * @param  string|array  $validation
+     * @param array|string $validation
+     *
      * @return array
      */
     protected function getValidationRules($validation)
@@ -54,10 +57,10 @@ class ConfigurationForm extends FormRequest
 
         return array_map(function ($rule) {
             return match ($rule) {
-                'phone'    => new PhoneNumber,
-                'postcode' => new PostCode,
-                'decimal'  => new Decimal,
-                default    => $rule,
+                'phone' => new PhoneNumber(),
+                'postcode' => new PostCode(),
+                'decimal' => new Decimal(),
+                default => $rule,
             };
         }, $validations);
     }

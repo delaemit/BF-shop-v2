@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
@@ -18,13 +20,14 @@ class VatIdRule implements Rule
      *
      * @see https://raw.githubusercontent.com/danielebarbaro/laravel-vat-eu-validator/master/src/VatValidator.php
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed $value
+     *
      * @return bool
      */
     public function passes($attribute, $value)
     {
-        $validator = new VatValidator;
+        $validator = new VatValidator();
 
         return empty($value) || $validator->validate($value);
     }

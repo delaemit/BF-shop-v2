@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'failed'   => 'Bu kimlik bilgileri kayıtlarımızla uyuşmuyor.',
+    'failed' => 'Bu kimlik bilgileri kayıtlarımızla uyuşmuyor.',
     'password' => 'Sağlanan şifre yanlış.',
     'throttle' => 'Çok fazla giriş denemesi. Lütfen :seconds saniye sonra tekrar deneyin.',
 

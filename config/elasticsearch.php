@@ -1,13 +1,14 @@
 <?php
 
-return [
+declare(strict_types=1);
 
-    /**
+return [
+    /*
      * Here you can specify the connection to use when building a client.
      */
     'connection' => 'default',
 
-    /**
+    /*
      * These are the available connections parameters that you can use to connect
      */
     'connections' => [
@@ -16,11 +17,11 @@ return [
                 env('ELASTICSEARCH_HOST', 'http://localhost:9200'),
             ],
 
-            'user'   => env('ELASTICSEARCH_USER', null),
-            'pass'   => env('ELASTICSEARCH_PASS', null),
+            'user' => env('ELASTICSEARCH_USER', null),
+            'pass' => env('ELASTICSEARCH_PASS', null),
         ],
 
-        /**
+        /*
          * You can connect with API key authentication by setting the `api` key
          * instead of the `user` and `pass` keys.
          */
@@ -29,25 +30,25 @@ return [
                 env('ELASTICSEARCH_HOST', null),
             ],
 
-            'key'   => env('ELASTICSEARCH_API_KEY', null),
+            'key' => env('ELASTICSEARCH_API_KEY', null),
         ],
 
-        /**
+        /*
          * You can connect to Elastic Cloud with the Cloud ID using the `cloud` key.
          */
         'cloud' => [
-            'id'      => env('ELASTICSEARCH_CLOUD_ID', null),
+            'id' => env('ELASTICSEARCH_CLOUD_ID', null),
 
-            /**
+            /*
              * If you are authenticating with API KEY then set user and pass as null
              */
             'api_key' => env('ELASTICSEARCH_API_KEY', null),
 
-            /**
+            /*
              * If you are authenticating with username and password then set api_key as null
              */
-            'user'    => env('ELASTICSEARCH_USER', null),
-            'pass'    => env('ELASTICSEARCH_PASS', null),
+            'user' => env('ELASTICSEARCH_USER', null),
+            'pass' => env('ELASTICSEARCH_PASS', null),
         ],
     ],
 

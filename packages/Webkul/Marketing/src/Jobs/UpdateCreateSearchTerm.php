@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -17,7 +19,8 @@ class UpdateCreateSearchTerm implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return void
      */
     public function __construct(protected $data)
@@ -30,14 +33,14 @@ class UpdateCreateSearchTerm implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app(SearchTermRepository::class)->updateOrCreate([
-            'term'       => $this->data['term'],
+            'term' => $this->data['term'],
             'channel_id' => $this->data['channel_id'],
-            'locale'     => $this->data['locale'],
+            'locale' => $this->data['locale'],
         ], [
-            'uses'    => DB::raw('uses + 1'),
+            'uses' => DB::raw('uses + 1'),
             'results' => $this->data['results'],
         ]);
     }

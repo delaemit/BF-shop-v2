@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Str;
@@ -16,11 +18,12 @@ class ProductBundleOptionProductRepository extends Repository
     }
 
     /**
-     * @param  array  $data
-     * @param  \Webkul\Product\Contracts\ProductBundleOption  $productBundleOption
+     * @param array $data
+     * @param \Webkul\Product\Contracts\ProductBundleOption $productBundleOption
+     *
      * @return void
      */
-    public function saveBundleOptionProducts($data, $productBundleOption)
+    public function saveBundleOptionProducts($data, $productBundleOption): void
     {
         $previousBundleOptionProductIds = $productBundleOption->bundle_option_products()->pluck('id');
 
@@ -37,7 +40,7 @@ class ProductBundleOptionProductRepository extends Repository
                      * existing option product otherwise we will create a new option product.
                      */
                     $bundleOptionProduct = $this->firstWhere([
-                        'product_id'               => $bundleOptionProductInputs['product_id'],
+                        'product_id' => $bundleOptionProductInputs['product_id'],
                         'product_bundle_option_id' => $productBundleOption->id,
                     ]);
 
@@ -46,7 +49,7 @@ class ProductBundleOptionProductRepository extends Repository
                             'product_bundle_option_id' => $productBundleOption->id,
                         ], $bundleOptionProductInputs));
 
-                        /**
+                        /*
                          * Remove the option product id from the previous option product ids array so that we
                          * can delete the option product which is not in the updated option products.
                          */
@@ -59,7 +62,7 @@ class ProductBundleOptionProductRepository extends Repository
                         ], $bundleOptionProductInputs));
                     }
                 } else {
-                    /**
+                    /*
                      * Remove the option product id from the previous option product ids array so that we
                      * can delete the option product which is not in the updated option products.
                      */
@@ -72,7 +75,7 @@ class ProductBundleOptionProductRepository extends Repository
             }
         }
 
-        /**
+        /*
          * Delete the option products which are not in the updated option products.
          */
         foreach ($previousBundleOptionProductIds as $previousBundleOptionProductId) {
@@ -81,19 +84,20 @@ class ProductBundleOptionProductRepository extends Repository
     }
 
     /**
-     * @param  array  $data
+     * @param array $data
+     *
      * @return void|null
      */
     public function setIsDefaultFlag(&$data)
     {
-        if (! count($data['products'])) {
+        if (!count($data['products'])) {
             return;
         }
 
         $haveIsDefaultFlag = false;
 
         foreach ($data['products'] as $key => $product) {
-            if (! empty($product['is_default'])) {
+            if (!empty($product['is_default'])) {
                 $haveIsDefaultFlag = true;
             } else {
                 $data['products'][$key]['is_default'] = 0;
@@ -101,7 +105,7 @@ class ProductBundleOptionProductRepository extends Repository
         }
 
         if (
-            ! $haveIsDefaultFlag
+            !$haveIsDefaultFlag
             && $data['is_required']
         ) {
             $data['products'][key($data['products'])]['is_default'] = 1;

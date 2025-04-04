@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Checkout\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -15,7 +17,8 @@ class CartItemRepository extends Repository
     }
 
     /**
-     * @param  int  $cartItemId
+     * @param int $cartItemId
+     *
      * @return int
      */
     public function getProduct($cartItemId)

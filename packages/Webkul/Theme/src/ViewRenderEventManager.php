@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme;
 
 use Illuminate\Support\Facades\Event;
@@ -23,8 +25,9 @@ class ViewRenderEventManager
     /**
      * Fires event for rendering template
      *
-     * @param  string  $eventName
-     * @param  array|null  $params
+     * @param string $eventName
+     * @param array|null $params
+     *
      * @return string
      */
     public function handleRenderEvent($eventName, $params = null)
@@ -49,6 +52,8 @@ class ViewRenderEventManager
     /**
      *  get param
      *
+     * @param mixed $name
+     *
      * @return mixed
      */
     public function getParam($name)
@@ -59,12 +64,13 @@ class ViewRenderEventManager
     /**
      * Add templates for render
      *
-     * @param  string  $template
+     * @param string $template
+     *
      * @return void
      */
-    public function addTemplate($template)
+    public function addTemplate($template): void
     {
-        array_push($this->templates, $template);
+        $this->templates[] = $template;
     }
 
     /**

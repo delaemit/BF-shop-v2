@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Tax\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,8 +22,8 @@ class TaxCategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'code'        => $this->faker->uuid,
-            'name'        => $this->faker->words(2, true),
+            'code' => $this->faker->uuid,
+            'name' => $this->faker->words(2, true),
             'description' => $this->faker->sentence(10),
         ];
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +22,7 @@ class ProductGroupedProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'qty'        => rand(10, 50),
+            'qty' => random_int(10, 50),
             'sort_order' => 0,
         ];
     }

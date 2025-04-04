@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Shop\Http\Controllers\CartController;
 use Webkul\Shop\Http\Controllers\OnepageController;
 
-/**
+/*
  * Cart routes.
  */
-Route::controller(CartController::class)->prefix('checkout/cart')->group(function () {
+Route::controller(CartController::class)->prefix('checkout/cart')->group(function (): void {
     Route::get('', 'index')->name('shop.checkout.cart.index');
 });
 
-Route::controller(OnepageController::class)->prefix('checkout/onepage')->group(function () {
+Route::controller(OnepageController::class)->prefix('checkout/onepage')->group(function (): void {
     Route::get('', 'index')->name('shop.checkout.onepage.index');
 
     Route::get('success', 'success')->name('shop.checkout.onepage.success');

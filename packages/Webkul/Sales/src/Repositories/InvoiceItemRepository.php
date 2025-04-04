@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Repositories;
 
 use Illuminate\Support\Facades\Event;
@@ -16,16 +18,17 @@ class InvoiceItemRepository extends Repository
     }
 
     /**
-     * @param  array  $data
+     * @param array $data
+     *
      * @return void
      */
-    public function updateProductInventory($data)
+    public function updateProductInventory($data): void
     {
-        if (! $data['product']) {
+        if (!$data['product']) {
             return;
         }
 
-        if (! $data['product']->manage_stock) {
+        if (!$data['product']->manage_stock) {
             return;
         }
 
@@ -52,11 +55,10 @@ class InvoiceItemRepository extends Repository
                 $inventory->update(['qty' => $inventory->qty - $data['qty']]);
 
                 break;
-            } else {
-                $data['qty'] -= $inventory->qty;
-
-                $inventory->update(['qty' => 0]);
             }
+            $data['qty'] -= $inventory->qty;
+
+            $inventory->update(['qty' => 0]);
         }
 
         Event::dispatch('catalog.product.update.after', $data['product']);

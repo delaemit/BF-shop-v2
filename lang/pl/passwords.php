@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,10 +15,10 @@ return [
     |
     */
 
-    'reset'     => 'Twoje hasło zostało zresetowane.',
-    'sent'      => 'Wysłaliśmy link do resetowania hasła na Twój adres e-mail.',
+    'reset' => 'Twoje hasło zostało zresetowane.',
+    'sent' => 'Wysłaliśmy link do resetowania hasła na Twój adres e-mail.',
     'throttled' => 'Proszę poczekać przed ponowną próbą.',
-    'token'     => 'Ten token resetowania hasła jest nieprawidłowy.',
-    'user'      => 'Nie możemy znaleźć użytkownika o podanym adresie e-mail.',
+    'token' => 'Ten token resetowania hasła jest nieprawidłowy.',
+    'user' => 'Nie możemy znaleźć użytkownika o podanym adresie e-mail.',
 
 ];

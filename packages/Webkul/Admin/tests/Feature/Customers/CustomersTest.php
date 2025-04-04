@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Webkul\Admin\Mail\Customer\NewCustomerNotification;
@@ -26,7 +28,7 @@ it('should returns the customers page', function () {
 
 it('should return listing items of customers', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -44,7 +46,7 @@ it('should return listing items of customers', function () {
 
 it('should return the view page of customer', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -79,9 +81,9 @@ it('should create a new customer', function () {
 
     postJson(route('admin.customers.customers.store'), $data = [
         'first_name' => fake()->firstName(),
-        'last_name'  => fake()->lastName(),
-        'gender'     => fake()->randomElement(['male', 'female', 'other']),
-        'email'      => fake()->email(),
+        'last_name' => fake()->lastName(),
+        'gender' => fake()->randomElement(['male', 'female', 'other']),
+        'email' => fake()->email(),
     ])
         ->assertOk()
         ->assertSeeText(trans('admin::app.customers.customers.index.create.create-success'));
@@ -90,9 +92,9 @@ it('should create a new customer', function () {
         Customer::class => [
             [
                 'first_name' => $data['first_name'],
-                'last_name'  => $data['last_name'],
-                'gender'     => $data['gender'],
-                'email'      => $data['email'],
+                'last_name' => $data['last_name'],
+                'gender' => $data['gender'],
+                'email' => $data['email'],
             ],
         ],
     ]);
@@ -103,7 +105,7 @@ it('should create a new customer and send notification to the customer', functio
     Mail::fake();
 
     CoreConfig::factory()->create([
-        'code'  => 'emails.general.notifications.emails.general.notifications.customer_account_credentials',
+        'code' => 'emails.general.notifications.emails.general.notifications.customer_account_credentials',
         'value' => 1,
     ]);
 
@@ -112,9 +114,9 @@ it('should create a new customer and send notification to the customer', functio
 
     postJson(route('admin.customers.customers.store'), $data = [
         'first_name' => fake()->firstName(),
-        'last_name'  => fake()->lastName(),
-        'gender'     => fake()->randomElement(['male', 'female', 'other']),
-        'email'      => fake()->email(),
+        'last_name' => fake()->lastName(),
+        'gender' => fake()->randomElement(['male', 'female', 'other']),
+        'email' => fake()->email(),
     ])
         ->assertOk()
         ->assertSeeText(trans('admin::app.customers.customers.index.create.create-success'));
@@ -123,9 +125,9 @@ it('should create a new customer and send notification to the customer', functio
         Customer::class => [
             [
                 'first_name' => $data['first_name'],
-                'last_name'  => $data['last_name'],
-                'gender'     => $data['gender'],
-                'email'      => $data['email'],
+                'last_name' => $data['last_name'],
+                'gender' => $data['gender'],
+                'email' => $data['email'],
             ],
         ],
     ]);
@@ -135,7 +137,7 @@ it('should create a new customer and send notification to the customer', functio
 
 it('should search the customers for mega search', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -153,7 +155,7 @@ it('should search the customers for mega search', function () {
 
 it('should login the customer from the admin panel', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -167,7 +169,7 @@ it('should login the customer from the admin panel', function () {
 
 it('should fail the validation with errors for notes', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -181,7 +183,7 @@ it('should fail the validation with errors for notes', function () {
 
 it('should store the notes for the customer', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -207,7 +209,7 @@ it('should store the notes for the customer and send email to the customer', fun
     // Arrange.
     Mail::fake();
 
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -215,7 +217,7 @@ it('should store the notes for the customer and send email to the customer', fun
     $this->loginAsAdmin();
 
     postJson(route('admin.customer.note.store', $customer->id), [
-        'note'              => $note = substr(fake()->paragraph(), 0, 50),
+        'note' => $note = substr(fake()->paragraph(), 0, 50),
         'customer_notified' => 1,
     ])
         ->assertRedirect(route('admin.customers.customers.view', $customer->id))
@@ -236,7 +238,7 @@ it('should store the notes for the customer and send email to the customer', fun
 
 it('should fail the validation with errors when certain inputs are not provided when update in customer', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -253,7 +255,7 @@ it('should fail the validation with errors when certain inputs are not provided 
 
 it('should update the the existing customer', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -262,9 +264,9 @@ it('should update the the existing customer', function () {
 
     putJson(route('admin.customers.customers.update', $customer->id), $data = [
         'first_name' => fake()->firstName(),
-        'last_name'  => $customer->last_name,
-        'gender'     => $customer->gender,
-        'email'      => fake()->email(),
+        'last_name' => $customer->last_name,
+        'gender' => $customer->gender,
+        'email' => fake()->email(),
     ])
         ->assertOk()
         ->assertJsonPath('message', trans('admin::app.customers.customers.update-success'));
@@ -273,9 +275,9 @@ it('should update the the existing customer', function () {
         Customer::class => [
             [
                 'first_name' => $data['first_name'],
-                'last_name'  => $customer->last_name,
-                'gender'     => $customer->gender,
-                'email'      => $data['email'],
+                'last_name' => $customer->last_name,
+                'gender' => $customer->gender,
+                'email' => $data['email'],
             ],
         ],
     ]);
@@ -283,7 +285,7 @@ it('should update the the existing customer', function () {
 
 it('should mass delete the customers', function () {
     // Arrange.
-    $customers = (new CustomerFaker)->factory()->count(2)->create([
+    $customers = (new CustomerFaker())->factory()->count(2)->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -305,7 +307,7 @@ it('should mass delete the customers', function () {
 
 it('should mass update the customers', function () {
     // Arrange.
-    $customers = (new CustomerFaker)->factory()->count(2)->create([
+    $customers = (new CustomerFaker())->factory()->count(2)->create([
         'password' => Hash::make('admin123'),
     ]);
 
@@ -314,7 +316,7 @@ it('should mass update the customers', function () {
 
     postJson(route('admin.customers.customers.mass_update'), [
         'indices' => $customers->pluck('id')->toArray(),
-        'value'   => 1,
+        'value' => 1,
     ])
         ->assertOk()
         ->assertSeeText(trans('admin::app.customers.customers.index.datagrid.update-success'));
@@ -323,7 +325,7 @@ it('should mass update the customers', function () {
         $this->assertModelWise([
             Customer::class => [
                 [
-                    'id'     => $customer->id,
+                    'id' => $customer->id,
                     'status' => 1,
                 ],
             ],
@@ -333,7 +335,7 @@ it('should mass update the customers', function () {
 
 it('should delete a specific customer', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create([
+    $customer = (new CustomerFaker())->factory()->create([
         'password' => Hash::make('admin123'),
     ]);
 

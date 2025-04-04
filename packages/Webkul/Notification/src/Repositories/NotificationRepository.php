@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Notification\Repositories;
 
 use Illuminate\Support\Facades\DB;
@@ -17,18 +19,20 @@ class NotificationRepository extends Repository
 
     /**
      * Return Filtered Notification resources.
+     *
+     * @param array $params
      */
     public function getParamsData(array $params): array
     {
         $query = $this->model->with('order');
 
-        if (isset($params['status']) && $params['status'] != 'All') {
-            $query->whereHas('order', function ($q) use ($params) {
+        if (isset($params['status']) && $params['status'] !== 'All') {
+            $query->whereHas('order', function ($q) use ($params): void {
                 $q->where(['status' => $params['status']]);
             });
         }
 
-        if (isset($params['read']) && isset($params['limit'])) {
+        if (isset($params['read'], $params['limit'])) {
             $query->where('read', $params['read'])->limit($params['limit']);
         } elseif (isset($params['limit'])) {
             $query->limit($params['limit']);
@@ -46,6 +50,8 @@ class NotificationRepository extends Repository
 
     /**
      * Return Notification resources.
+     *
+     * @param array $params
      *
      * @return array
      */

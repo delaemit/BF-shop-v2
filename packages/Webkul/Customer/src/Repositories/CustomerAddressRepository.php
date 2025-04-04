@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -17,10 +19,12 @@ class CustomerAddressRepository extends Repository
 
     /**
      * Create a new customer address.
+     *
+     * @param array $data
      */
     public function create(array $data)
     {
-        if (! empty($data['default_address'])) {
+        if (!empty($data['default_address'])) {
             $this->model->where('customer_id', $data['customer_id'])
                 ->where('default_address', 1)
                 ->update(['default_address' => 0]);

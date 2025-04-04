@@ -1,27 +1,41 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Sources;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use SimpleXMLElement;
-use XMLReader;
 
 class XML extends AbstractSource
 {
+    /**
+     * Close file handle.
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        if (!is_object($this->reader)) {
+            return;
+        }
+
+        $this->reader->close();
+    }
+
     /**
      * Initialize.
      */
     public function initialize(): void
     {
-        $this->reader = new XMLReader;
+        $this->reader = new \XMLReader();
 
         $this->reader->open(Storage::disk('private')->path($this->filePath));
 
         while (
             $this->reader->read()
-            && ! $this->reader->attributeCount
+            && !$this->reader->attributeCount
         );
 
         $this->columnNames = $this->getColumnNames();
@@ -62,7 +76,7 @@ class XML extends AbstractSource
 
         while (
             $this->reader->read()
-            && ! $this->reader->attributeCount
+            && !$this->reader->attributeCount
         );
 
         return $rowData;
@@ -83,7 +97,7 @@ class XML extends AbstractSource
 
         while (
             $this->reader->read()
-            && ! $this->reader->attributeCount
+            && !$this->reader->attributeCount
         );
 
         $this->next();
@@ -91,6 +105,8 @@ class XML extends AbstractSource
 
     /**
      * Generate error report.
+     *
+     * @param array $errors
      */
     public function generateErrorReport(array $errors): string
     {
@@ -100,7 +116,7 @@ class XML extends AbstractSource
 
         $parentElement = Str::pluralStudly($this->reader->name);
 
-        $writer = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><'.$parentElement.'></'.$parentElement.'>');
+        $writer = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $parentElement . '></' . $parentElement . '>');
 
         while ($this->valid()) {
             try {
@@ -113,7 +129,7 @@ class XML extends AbstractSource
 
             $rowErrors = $errors[$this->getCurrentRowNumber()] ?? [];
 
-            if (! empty($rowErrors)) {
+            if (!empty($rowErrors)) {
                 $rowErrors = Arr::pluck($rowErrors, 'message');
             }
 
@@ -133,19 +149,5 @@ class XML extends AbstractSource
         $writer->saveXML(Storage::disk('private')->path($this->errorFilePath()));
 
         return $this->errorFilePath();
-    }
-
-    /**
-     * Close file handle.
-     *
-     * @return void
-     */
-    public function __destruct()
-    {
-        if (! is_object($this->reader)) {
-            return;
-        }
-
-        $this->reader->close();
     }
 }

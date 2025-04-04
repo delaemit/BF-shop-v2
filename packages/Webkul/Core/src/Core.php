@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core;
 
 use Carbon\Carbon;
@@ -24,7 +26,7 @@ class Core
      *
      * @var string
      */
-    const BAGISTO_VERSION = '2.3.0';
+    public const BAGISTO_VERSION = '2.3.0';
 
     /**
      * Current Channel.
@@ -92,6 +94,15 @@ class Core
     /**
      * Create a new instance.
      *
+     * @param ChannelRepository $channelRepository
+     * @param CurrencyRepository $currencyRepository
+     * @param ExchangeRateRepository $exchangeRateRepository
+     * @param CountryRepository $countryRepository
+     * @param CountryStateRepository $countryStateRepository
+     * @param LocaleRepository $localeRepository
+     * @param CustomerGroupRepository $customerGroupRepository
+     * @param TaxCategoryRepository $taxCategoryRepository
+     *
      * @return void
      */
     public function __construct(
@@ -103,7 +114,8 @@ class Core
         protected LocaleRepository $localeRepository,
         protected CustomerGroupRepository $customerGroupRepository,
         protected TaxCategoryRepository $taxCategoryRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Get the version number of the Bagisto.
@@ -128,11 +140,13 @@ class Core
     /**
      * Returns current channel models.
      *
+     * @param ?string $hostname
+     *
      * @return \Webkul\Core\Contracts\Channel
      */
     public function getCurrentChannel(?string $hostname = null)
     {
-        if (! $hostname) {
+        if (!$hostname) {
             $hostname = request()->getHttpHost();
         }
 
@@ -142,11 +156,11 @@ class Core
 
         $this->currentChannel = $this->channelRepository->findWhereIn('hostname', [
             $hostname,
-            'http://'.$hostname,
-            'https://'.$hostname,
+            'http://' . $hostname,
+            'https://' . $hostname,
         ])->first();
 
-        if (! $this->currentChannel) {
+        if (!$this->currentChannel) {
             $this->currentChannel = $this->channelRepository->first();
         }
 
@@ -155,6 +169,8 @@ class Core
 
     /**
      * Set the current channel.
+     *
+     * @param Channel $channel
      */
     public function setCurrentChannel(Channel $channel): void
     {
@@ -193,6 +209,8 @@ class Core
 
     /**
      * Set the default channel.
+     *
+     * @param Channel $channel
      */
     public function setDefaultChannel(Channel $channel): void
     {
@@ -234,14 +252,15 @@ class Core
     /**
      * Get channel code from request.
      *
-     * @param  bool  $fallback  optional
+     * @param bool $fallback optional
+     *
      * @return string
      */
     public function getRequestedChannelCode($fallback = true)
     {
         $channelCode = request()->get('channel');
 
-        if (! $fallback) {
+        if (!$fallback) {
             return $channelCode;
         }
 
@@ -250,6 +269,8 @@ class Core
 
     /**
      * Returns the channel name.
+     *
+     * @param mixed $channel
      */
     public function getChannelName($channel): string
     {
@@ -279,7 +300,7 @@ class Core
 
         $this->currentLocale = $this->localeRepository->findOneByField('code', app()->getLocale());
 
-        if (! $this->currentLocale) {
+        if (!$this->currentLocale) {
             $this->currentLocale = $this->localeRepository->findOneByField('code', config('app.fallback_locale'));
         }
 
@@ -306,15 +327,16 @@ class Core
      * Get locale code from request. Here if you want to use admin locale,
      * you can pass it as an argument.
      *
-     * @param  string  $localeKey  optional
-     * @param  bool  $fallback  optional
+     * @param string $localeKey optional
+     * @param bool $fallback optional
+     *
      * @return string
      */
     public function getRequestedLocaleCode($localeKey = 'locale', $fallback = true)
     {
         $localeCode = request()->get($localeKey);
 
-        if (! $fallback) {
+        if (!$fallback) {
             return $localeCode;
         }
 
@@ -363,7 +385,7 @@ class Core
 
         $this->baseCurrency = $this->currencyRepository->findOneByField('code', config('app.currency'));
 
-        if (! $this->baseCurrency) {
+        if (!$this->baseCurrency) {
             $this->baseCurrency = $this->currencyRepository->first();
         }
 
@@ -403,10 +425,11 @@ class Core
     /**
      * Set currency.
      *
-     * @param  string  $currencyCode
+     * @param string $currencyCode
+     *
      * @return void
      */
-    public function setCurrentCurrency($currencyCode)
+    public function setCurrentCurrency($currencyCode): void
     {
         $this->currentCurrency = $this->currencyRepository->findOneByField('code', $currencyCode);
 
@@ -446,6 +469,8 @@ class Core
     /**
      * Returns exchange rates.
      *
+     * @param mixed $targetCurrencyId
+     *
      * @return object
      */
     public function getExchangeRate($targetCurrencyId)
@@ -462,23 +487,24 @@ class Core
     /**
      * Converts price.
      *
-     * @param  float  $amount
-     * @param  string  $targetCurrencyCode
+     * @param float $amount
+     * @param string $targetCurrencyCode
+     *
      * @return string
      */
     public function convertPrice($amount, $targetCurrencyCode = null)
     {
-        $targetCurrency = ! $targetCurrencyCode
+        $targetCurrency = !$targetCurrencyCode
             ? $this->getCurrentCurrency()
             : $this->currencyRepository->findOneByField('code', $targetCurrencyCode);
 
-        if (! $targetCurrency) {
+        if (!$targetCurrency) {
             return $amount;
         }
 
         $exchangeRate = $this->getExchangeRate($targetCurrency->id);
 
-        if (! $exchangeRate) {
+        if (!$exchangeRate) {
             return $amount;
         }
 
@@ -488,17 +514,18 @@ class Core
     /**
      * Converts to base price.
      *
-     * @param  float  $amount
-     * @param  string  $targetCurrencyCode
+     * @param float $amount
+     * @param string $targetCurrencyCode
+     *
      * @return string
      */
     public function convertToBasePrice($amount, $targetCurrencyCode = null)
     {
-        $targetCurrency = ! $targetCurrencyCode
+        $targetCurrency = !$targetCurrencyCode
             ? $this->getCurrentCurrency()
             : $this->currencyRepository->findOneByField('code', $targetCurrencyCode);
 
-        if (! $targetCurrency) {
+        if (!$targetCurrency) {
             return $amount;
         }
 
@@ -508,7 +535,7 @@ class Core
 
         if (
             $exchangeRate === null
-            || ! $exchangeRate->rate
+            || !$exchangeRate->rate
         ) {
             return $amount;
         }
@@ -519,7 +546,9 @@ class Core
     /**
      * Format and convert price with currency symbol.
      *
-     * @param  float  $price
+     * @param float $price
+     * @param mixed $amount
+     *
      * @return string
      */
     public function currency($amount = 0)
@@ -533,6 +562,9 @@ class Core
 
     /**
      * Format price.
+     *
+     * @param ?float $price
+     * @param ?string $currencyCode
      */
     public function formatPrice(?float $price, ?string $currencyCode = null): string
     {
@@ -549,6 +581,8 @@ class Core
 
     /**
      * Format price with base currency symbol.
+     *
+     * @param ?float $price
      */
     public function formatBasePrice(?float $price): string
     {
@@ -564,9 +598,10 @@ class Core
     /**
      * Checks if current date of the given channel (in the channel timezone) is within the range.
      *
-     * @param  int|string|\Webkul\Core\Contracts\Channel  $channel
-     * @param  string|null  $dateFrom
-     * @param  string|null  $dateTo
+     * @param int|string|\Webkul\Core\Contracts\Channel $channel
+     * @param string|null $dateFrom
+     * @param string|null $dateTo
+     *
      * @return bool
      */
     public function isChannelDateInInterval($dateFrom = null, $dateTo = null)
@@ -584,12 +619,12 @@ class Core
         }
 
         if (
-            ! $this->is_empty_date($dateFrom)
+            !$this->is_empty_date($dateFrom)
             && $channelTimeStamp < $fromTimeStamp
         ) {
             $result = false;
         } elseif (
-            ! $this->is_empty_date($dateTo)
+            !$this->is_empty_date($dateTo)
             && $channelTimeStamp > $toTimeStamp
         ) {
             $result = false;
@@ -603,7 +638,8 @@ class Core
     /**
      * Get channel timestamp, timestamp will be builded with channel timezone settings.
      *
-     * @param  \Webkul\Core\Contracts\Channel  $channel
+     * @param \Webkul\Core\Contracts\Channel $channel
+     *
      * @return int
      */
     public function channelTimeStamp($channel)
@@ -624,7 +660,8 @@ class Core
     /**
      * Check whether sql date is empty.
      *
-     * @param  string  $date
+     * @param string $date
+     *
      * @return bool
      */
     public function is_empty_date($date)
@@ -635,8 +672,9 @@ class Core
     /**
      * Format date using current channel.
      *
-     * @param  \Illuminate\Support\Carbon|string|null  $date
-     * @param  string  $format
+     * @param \Illuminate\Support\Carbon|string|null $date
+     * @param string $format
+     *
      * @return string
      */
     public function formatDate($date = null, $format = 'd-m-Y H:i:s')
@@ -658,6 +696,10 @@ class Core
 
     /**
      * Retrieve information from payment configuration.
+     *
+     * @param string $field
+     * @param ?string $currentChannelCode
+     * @param ?string $currentLocaleCode
      */
     public function getConfigData(string $field, ?string $currentChannelCode = null, ?string $currentLocaleCode = null): mixed
     {
@@ -677,7 +719,8 @@ class Core
     /**
      * Returns country name by code.
      *
-     * @param  string  $code
+     * @param string $code
+     *
      * @return string
      */
     public function country_name($code)
@@ -690,7 +733,8 @@ class Core
     /**
      * Retrieve all country states.
      *
-     * @param  string  $countryCode
+     * @param string $countryCode
+     *
      * @return \Illuminate\Support\Collection
      */
     public function states($countryCode)
@@ -717,6 +761,9 @@ class Core
     /**
      * Retrieve all grouped states by country code.
      *
+     * @param mixed|null $countryCode
+     * @param mixed|null $stateCode
+     *
      * @return \Illuminate\Support\Collection
      */
     public function findStateByCountryCode($countryCode = null, $stateCode = null)
@@ -727,9 +774,8 @@ class Core
 
         if (count($collection)) {
             return $collection->first();
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -779,29 +825,30 @@ class Core
     /**
      * Week range.
      *
-     * @param  string  $date
-     * @param  int  $day
+     * @param string $date
+     * @param int $day
+     *
      * @return string
      */
     public function xWeekRange($date, $day)
     {
         $ts = strtotime($date);
 
-        if (! $day) {
-            $start = (date('D', $ts) == 'Sun') ? $ts : strtotime('last sunday', $ts);
+        if (!$day) {
+            $start = (date('D', $ts) === 'Sun') ? $ts : strtotime('last sunday', $ts);
 
             return date('Y-m-d', $start);
-        } else {
-            $end = (date('D', $ts) == 'Sat') ? $ts : strtotime('next saturday', $ts);
-
-            return date('Y-m-d', $end);
         }
+        $end = (date('D', $ts) === 'Sat') ? $ts : strtotime('next saturday', $ts);
+
+        return date('Y-m-d', $end);
     }
 
     /**
      * Get config field.
      *
-     * @param  string  $fieldName
+     * @param string $fieldName
+     *
      * @return array
      */
     public function getConfigField($fieldName)
@@ -812,13 +859,15 @@ class Core
     /**
      * Convert empty strings to null.
      *
-     * @param  array  $array1
+     * @param array $array1
+     * @param mixed $array
+     *
      * @return array
      */
     public function convertEmptyStringsToNull($array)
     {
         foreach ($array as $key => $value) {
-            if ($value == '' || $value == 'null') {
+            if ($value === '' || $value === 'null') {
                 $array[$key] = null;
             }
         }
@@ -829,7 +878,8 @@ class Core
     /**
      * Create singleton object through single facade.
      *
-     * @param  string  $className
+     * @param string $className
+     *
      * @return object
      */
     public function getSingletonInstance($className)
@@ -843,6 +893,8 @@ class Core
 
     /**
      * Returns a string as selector part for identifying elements in views.
+     *
+     * @param float $taxRate
      */
     public static function taxRateAsIdentifier(float $taxRate): string
     {
@@ -852,7 +904,9 @@ class Core
     /**
      * Create singleton object through single facade.
      *
-     * @param  string  $className
+     * @param string $className
+     * @param mixed $id
+     *
      * @return object
      */
     public function getTaxCategoryById($id)
@@ -880,7 +934,7 @@ class Core
         $senderEmail = $this->getConfigData('emails.configure.email_settings.shop_email_from') ?: config('mail.from.address');
 
         return [
-            'name'  => $senderName,
+            'name' => $senderName,
             'email' => $senderEmail,
         ];
     }
@@ -900,7 +954,7 @@ class Core
             ?: config('mail.admin.address');
 
         return [
-            'name'  => $adminName,
+            'name' => $adminName,
             'email' => $adminEmail,
         ];
     }
@@ -920,7 +974,7 @@ class Core
             ?: config('mail.contact.address');
 
         return [
-            'name'  => $contactName,
+            'name' => $contactName,
             'email' => $contactEmail,
         ];
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Middleware;
 
 use Closure;
@@ -10,14 +12,20 @@ class Currency
     /**
      * Create a middleware instance.
      *
+     * @param CurrencyRepository $currencyRepository
+     *
      * @return void
      */
-    public function __construct(protected CurrencyRepository $currencyRepository) {}
+    public function __construct(protected CurrencyRepository $currencyRepository)
+    {
+    }
 
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     * @param Closure $next
+     *
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -25,11 +33,11 @@ class Currency
         $currencies = core()->getCurrentChannel()->currencies->pluck('code')->toArray();
         $currencyCode = core()->getRequestedLocaleCode('currency', false);
 
-        if (! $currencyCode || ! in_array($currencyCode, $currencies)) {
+        if (!$currencyCode || !in_array($currencyCode, $currencies)) {
             $currencyCode = session()->get('currency');
         }
 
-        if (! $currencyCode || ! in_array($currencyCode, $currencies)) {
+        if (!$currencyCode || !in_array($currencyCode, $currencies)) {
             $currencyCode = core()->getCurrentChannel()->base_currency->code;
         }
 

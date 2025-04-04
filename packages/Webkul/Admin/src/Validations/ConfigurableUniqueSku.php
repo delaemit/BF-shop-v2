@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Validations;
 
 use Illuminate\Contracts\Validation\Rule;
@@ -10,17 +12,19 @@ class ConfigurableUniqueSku implements Rule
     /**
      * Constructor.
      *
-     * @param  array  $currentIds
+     * @param array $currentIds
      */
     public function __construct(
         protected $currentIds = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed $value
+     *
      * @return bool
      */
     public function passes($attribute, $value)
@@ -49,7 +53,7 @@ class ConfigurableUniqueSku implements Rule
 
         $productRepository = app(ProductRepository::class);
 
-        /**
+        /*
          * First we will check sku in all the products except the
          * current variant ids.
          */
@@ -61,10 +65,10 @@ class ConfigurableUniqueSku implements Rule
             return false;
         }
 
-        /**
+        /*
          * Once, we don't found any sku in all the products then
          * we will check uniqueness in the current requested variant's skus.
          */
-        return ! (count($requestedSkus) !== count(array_unique($requestedSkus)));
+        return !(count($requestedSkus) !== count(array_unique($requestedSkus)));
     }
 }

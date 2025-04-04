@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Checkout\Listeners;
 
 use Webkul\Checkout\Facades\Cart;
@@ -8,6 +10,8 @@ class CustomerEventsHandler
 {
     /**
      * Handle Customer login events.
+     *
+     * @param mixed $customer
      */
     public function onCustomerLogin($customer)
     {
@@ -23,7 +27,8 @@ class CustomerEventsHandler
     /**
      * Register the listeners for the subscriber.
      *
-     * @param  \Illuminate\Events\Dispatcher  $events
+     * @param \Illuminate\Events\Dispatcher $events
+     *
      * @return void
      */
     public function subscribe($events)

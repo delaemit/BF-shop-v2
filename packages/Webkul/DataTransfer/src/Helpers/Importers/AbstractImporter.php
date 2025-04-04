@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Importers;
 
 use Illuminate\Support\Facades\Bus;
@@ -52,20 +54,20 @@ abstract class AbstractImporter
      */
     public const ERROR_CODE_COLUMNS_NUMBER = 'wrong_columns_number';
 
+    public const BATCH_SIZE = 100;
+
     /**
      * Error message templates.
      */
     protected array $errorMessages = [
-        self::ERROR_CODE_SYSTEM_EXCEPTION    => 'data_transfer::app.validation.errors.system',
-        self::ERROR_CODE_COLUMN_NOT_FOUND    => 'data_transfer::app.validation.errors.column-not-found',
+        self::ERROR_CODE_SYSTEM_EXCEPTION => 'data_transfer::app.validation.errors.system',
+        self::ERROR_CODE_COLUMN_NOT_FOUND => 'data_transfer::app.validation.errors.column-not-found',
         self::ERROR_CODE_COLUMN_EMPTY_HEADER => 'data_transfer::app.validation.errors.column-empty-headers',
         self::ERROR_CODE_COLUMN_NAME_INVALID => 'data_transfer::app.validation.errors.column-name-invalid',
-        self::ERROR_CODE_INVALID_ATTRIBUTE   => 'data_transfer::app.validation.errors.invalid-attribute',
-        self::ERROR_CODE_WRONG_QUOTES        => 'data_transfer::app.validation.errors.wrong-quotes',
-        self::ERROR_CODE_COLUMNS_NUMBER      => 'data_transfer::app.validation.errors.column-numbers',
+        self::ERROR_CODE_INVALID_ATTRIBUTE => 'data_transfer::app.validation.errors.invalid-attribute',
+        self::ERROR_CODE_WRONG_QUOTES => 'data_transfer::app.validation.errors.wrong-quotes',
+        self::ERROR_CODE_COLUMNS_NUMBER => 'data_transfer::app.validation.errors.column-numbers',
     ];
-
-    public const BATCH_SIZE = 100;
 
     /**
      * Is linking required
@@ -129,17 +131,26 @@ abstract class AbstractImporter
     /**
      * Create a new helper instance.
      *
+     * @param ImportBatchRepository $importBatchRepository
+     *
      * @return void
      */
-    public function __construct(protected ImportBatchRepository $importBatchRepository) {}
+    public function __construct(protected ImportBatchRepository $importBatchRepository)
+    {
+    }
 
     /**
      * Validate data row
+     *
+     * @param array $rowData
+     * @param int $rowNumber
      */
     abstract public function validateRow(array $rowData, int $rowNumber): bool;
 
     /**
      * Import data rows
+     *
+     * @param ImportBatchContract $importBatchContract
      */
     abstract public function importBatch(ImportBatchContract $importBatchContract): bool;
 
@@ -155,6 +166,8 @@ abstract class AbstractImporter
 
     /**
      * Import instance.
+     *
+     * @param ImportContract $import
      */
     public function setImport(ImportContract $import): self
     {
@@ -166,7 +179,8 @@ abstract class AbstractImporter
     /**
      * Import instance.
      *
-     * @param  \Webkul\DataTransfer\Helpers\Source  $errorHelper
+     * @param \Webkul\DataTransfer\Helpers\Source $errorHelper
+     * @param mixed $source
      */
     public function setSource($source)
     {
@@ -178,7 +192,7 @@ abstract class AbstractImporter
     /**
      * Import instance.
      *
-     * @param  \Webkul\DataTransfer\Helpers\Error  $errorHelper
+     * @param \Webkul\DataTransfer\Helpers\Error $errorHelper
      */
     public function setErrorHelper($errorHelper): self
     {
@@ -218,28 +232,28 @@ abstract class AbstractImporter
 
         $absentColumns = array_diff($this->permanentAttributes, $this->getSource()->getColumnNames());
 
-        if (! empty($absentColumns)) {
+        if (!empty($absentColumns)) {
             $errors[self::ERROR_CODE_COLUMN_NOT_FOUND] = $absentColumns;
         }
 
         foreach ($this->getSource()->getColumnNames() as $columnNumber => $columnName) {
             if (empty($columnName)) {
                 $errors[self::ERROR_CODE_COLUMN_EMPTY_HEADER][] = $columnNumber + 1;
-            } elseif (! preg_match('/^[a-z][a-z0-9_]*$/', $columnName)) {
+            } elseif (!preg_match('/^[a-z][a-z0-9_]*$/', $columnName)) {
                 $errors[self::ERROR_CODE_COLUMN_NAME_INVALID][] = $columnName;
-            } elseif (! in_array($columnName, $this->getValidColumnNames())) {
+            } elseif (!in_array($columnName, $this->getValidColumnNames(), true)) {
                 $errors[self::ERROR_CODE_INVALID_ATTRIBUTE][] = $columnName;
             }
         }
 
-        /**
+        /*
          * Add Columns Errors
          */
         foreach ($errors as $errorCode => $error) {
             $this->addErrors($errorCode, $error);
         }
 
-        if (! $this->errorHelper->getErrorsCount()) {
+        if (!$this->errorHelper->getErrorsCount()) {
             $this->saveValidatedBatches();
         }
 
@@ -257,7 +271,7 @@ abstract class AbstractImporter
 
         $source->rewind();
 
-        /**
+        /*
          * Clean previous saved batches
          */
         $this->importBatchRepository->deleteWhere([
@@ -269,12 +283,12 @@ abstract class AbstractImporter
             || count($batchRows)
         ) {
             if (
-                count($batchRows) == self::BATCH_SIZE
-                || ! $source->valid()
+                count($batchRows) === self::BATCH_SIZE
+                || !$source->valid()
             ) {
                 $this->importBatchRepository->create([
                     'import_id' => $this->import->id,
-                    'data'      => $batchRows,
+                    'data' => $batchRows,
                 ]);
 
                 $batchRows = [];
@@ -298,6 +312,8 @@ abstract class AbstractImporter
 
     /**
      * Start the import process
+     *
+     * @param ?ImportBatchContract $importBatch
      */
     public function importData(?ImportBatchContract $importBatch = null): bool
     {
@@ -323,13 +339,13 @@ abstract class AbstractImporter
 
         $chain[] = Bus::batch($typeBatches['import']);
 
-        if (! empty($typeBatches['link'])) {
+        if (!empty($typeBatches['link'])) {
             $chain[] = new LinkingJob($this->import);
 
             $chain[] = Bus::batch($typeBatches['link']);
         }
 
-        if (! empty($typeBatches['index'])) {
+        if (!empty($typeBatches['index'])) {
             $chain[] = new IndexingJob($this->import);
 
             $chain[] = Bus::batch($typeBatches['index']);
@@ -344,6 +360,8 @@ abstract class AbstractImporter
 
     /**
      * Link resource data.
+     *
+     * @param ImportBatchContract $importBatch
      */
     public function linkData(ImportBatchContract $importBatch): bool
     {
@@ -354,6 +372,8 @@ abstract class AbstractImporter
 
     /**
      * Index resource data.
+     *
+     * @param ImportBatchContract $importBatch
      */
     public function indexData(ImportBatchContract $importBatch): bool
     {
@@ -364,6 +384,9 @@ abstract class AbstractImporter
 
     /**
      * Add errors to error aggregator
+     *
+     * @param string $code
+     * @param mixed $errors
      */
     protected function addErrors(string $code, mixed $errors): void
     {
@@ -377,9 +400,11 @@ abstract class AbstractImporter
     /**
      * Add row as skipped
      *
-     * @param  int|null  $rowNumber
-     * @param  string|null  $columnName
-     * @param  string|null  $errorMessage
+     * @param int|null $rowNumber
+     * @param string|null $columnName
+     * @param string|null $errorMessage
+     * @param string $errorCode
+     *
      * @return $this
      */
     protected function skipRow($rowNumber, string $errorCode, $columnName = null, $errorMessage = null): self
@@ -398,14 +423,12 @@ abstract class AbstractImporter
 
     /**
      * Prepare row data to save into the database
+     *
+     * @param array $rowData
      */
     protected function prepareRowForDb(array $rowData): array
     {
-        $rowData = array_map(function ($value) {
-            return $value === '' ? null : $value;
-        }, $rowData);
-
-        return $rowData;
+        return array_map(fn($value) => $value === '' ? null : $value, $rowData);
     }
 
     /**
@@ -445,7 +468,7 @@ abstract class AbstractImporter
      */
     public function isLinkingRequired(): bool
     {
-        if ($this->import->action == Import::ACTION_DELETE) {
+        if ($this->import->action === Import::ACTION_DELETE) {
             return false;
         }
 
@@ -457,7 +480,7 @@ abstract class AbstractImporter
      */
     public function isIndexingRequired(): bool
     {
-        if ($this->import->action == Import::ACTION_DELETE) {
+        if ($this->import->action === Import::ACTION_DELETE) {
             return false;
         }
 

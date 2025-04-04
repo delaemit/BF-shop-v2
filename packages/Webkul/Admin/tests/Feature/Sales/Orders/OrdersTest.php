@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Arr;
 use Webkul\Checkout\Models\Cart;
 use Webkul\Checkout\Models\CartAddress;
@@ -24,7 +26,7 @@ use function Pest\Laravel\putJson;
 
 it('should search the customers via email or name', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
@@ -44,16 +46,16 @@ it('should search the customers via email or name', function () {
 
 it('should create the customer if none exists when creating an order', function () {
     // Arrange.
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     // Act and Assert.
@@ -114,16 +116,16 @@ it('should add product to the cart after search the product', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     // Act and Assert.
@@ -131,7 +133,7 @@ it('should add product to the cart after search the product', function () {
 
     $response = postJson(route('admin.sales.cart.items.store', $cart->id), $data = [
         'product_id' => $product->id,
-        'quantity'   => rand(1, 10),
+        'quantity' => rand(1, 10),
     ])
         ->assertOk()
         ->assertJsonPath('data.id', $cart->id)
@@ -147,13 +149,13 @@ it('should add product to the cart after search the product', function () {
     $this->assertModelWise([
         CartItem::class => [
             [
-                'cart_id'    => $cart->id,
+                'cart_id' => $cart->id,
                 'product_id' => $data['product_id'],
-                'sku'        => $product->sku,
-                'type'       => $product->type,
-                'name'       => $product->name,
-                'price'      => $product->price,
-                'total'      => $price,
+                'sku' => $product->sku,
+                'type' => $product->type,
+                'name' => $product->name,
+                'price' => $product->price,
+                'total' => $price,
             ],
         ],
     ]);
@@ -175,40 +177,40 @@ it('should update the cart item after add product to the cart', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     $cartItem = CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($product->price),
-        'base_price'        => $product->price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => ($product->price) * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($product->price),
+        'base_price' => $product->price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => ($product->price) * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     // Act and Assert.
@@ -235,20 +237,20 @@ it('should update the cart item after add product to the cart', function () {
             [
                 'customer_id' => $customer->id,
                 'items_count' => 1,
-                'items_qty'   => number_format($qty, 4),
+                'items_qty' => number_format($qty, 4),
             ],
         ],
 
         CartItem::class => [
             [
-                'id'         => $cartItem->id,
-                'cart_id'    => $cart->id,
+                'id' => $cartItem->id,
+                'cart_id' => $cart->id,
                 'product_id' => $product->id,
-                'sku'        => $product->sku,
-                'type'       => $product->type,
-                'name'       => $product->name,
-                'price'      => $product->price,
-                'total'      => $product->price * $qty,
+                'sku' => $product->sku,
+                'type' => $product->type,
+                'name' => $product->name,
+                'price' => $product->price,
+                'total' => $product->price * $qty,
             ],
         ],
     ]);
@@ -270,40 +272,40 @@ it('should fails the validation error if billing and shipping address is not pro
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($product->price),
-        'base_price'        => $product->price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => ($product->price) * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($product->price),
+        'base_price' => $product->price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => ($product->price) * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     cart()->setCart($cart);
@@ -314,7 +316,7 @@ it('should fails the validation error if billing and shipping address is not pro
     $this->loginAsAdmin();
 
     postJson(route('admin.sales.cart.addresses.store', $cart->id), [
-        'billing'  => [],
+        'billing' => [],
         'shipping' => [],
     ])
         ->assertJsonValidationErrorFor('billing.first_name')
@@ -348,40 +350,40 @@ it('should add billing address after add item to the cart', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($product->price),
-        'base_price'        => $product->price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => ($product->price) * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($product->price),
+        'base_price' => $product->price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => ($product->price) * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     $customerAddress = CustomerAddress::factory()->create()->toArray();
@@ -397,7 +399,7 @@ it('should add billing address after add item to the cart', function () {
         'billing' => $billingAddress = [
             ...$customerAddress,
             'use_for_shipping' => 1,
-            'address'          => [fake()->address()],
+            'address' => [fake()->address()],
         ],
     ])
         ->assertOk()
@@ -425,9 +427,9 @@ it('should add billing address after add item to the cart', function () {
     $this->assertModelWise([
         CartAddress::class => [
             [
-                'address'          => implode("\n", $billingAddress['address']),
-                'address_type'     => CartAddress::ADDRESS_TYPE_BILLING,
-                'cart_id'          => $cart->id,
+                'address' => implode("\n", $billingAddress['address']),
+                'address_type' => CartAddress::ADDRESS_TYPE_BILLING,
+                'cart_id' => $cart->id,
                 'use_for_shipping' => $billingAddress['use_for_shipping'],
                 ...Arr::only($billingAddress, ['first_name', 'last_name', 'company_name', 'city', 'state', 'country', 'email', 'postcode', 'phone']),
             ],
@@ -435,9 +437,9 @@ it('should add billing address after add item to the cart', function () {
 
         CartAddress::class => [
             [
-                'address'      => implode("\n", $billingAddress['address']),
+                'address' => implode("\n", $billingAddress['address']),
                 'address_type' => CartAddress::ADDRESS_TYPE_SHIPPING,
-                'cart_id'      => $cart->id,
+                'cart_id' => $cart->id,
                 ...Arr::only($billingAddress, ['first_name', 'last_name', 'company_name', 'city', 'state', 'country', 'email', 'postcode', 'phone']),
             ],
         ],
@@ -460,40 +462,40 @@ it('should add billing and shipping address after add item to the cart', functio
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($product->price),
-        'base_price'        => $product->price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => ($product->price) * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($product->price),
+        'base_price' => $product->price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => ($product->price) * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     $customerAddress = CustomerAddress::factory()->create()->toArray();
@@ -509,12 +511,12 @@ it('should add billing and shipping address after add item to the cart', functio
         'billing' => $billingAddress = [
             ...$customerAddress,
             'use_for_shipping' => 0,
-            'address'          => [fake()->address()],
+            'address' => [fake()->address()],
         ],
 
         'shipping' => $shippingAddress = [
             ...$customerAddress,
-            'address'          => [fake()->address()],
+            'address' => [fake()->address()],
         ],
     ])
         ->assertOk()
@@ -542,9 +544,9 @@ it('should add billing and shipping address after add item to the cart', functio
     $this->assertModelWise([
         CartAddress::class => [
             [
-                'address'          => implode("\n", $billingAddress['address']),
-                'address_type'     => CartAddress::ADDRESS_TYPE_BILLING,
-                'cart_id'          => $cart->id,
+                'address' => implode("\n", $billingAddress['address']),
+                'address_type' => CartAddress::ADDRESS_TYPE_BILLING,
+                'cart_id' => $cart->id,
                 'use_for_shipping' => $billingAddress['use_for_shipping'],
                 ...Arr::only($billingAddress, ['first_name', 'last_name', 'company_name', 'city', 'state', 'country', 'email', 'postcode', 'phone']),
             ],
@@ -552,9 +554,9 @@ it('should add billing and shipping address after add item to the cart', functio
 
         CartAddress::class => [
             [
-                'address'      => implode("\n", $shippingAddress['address']),
+                'address' => implode("\n", $shippingAddress['address']),
                 'address_type' => CartAddress::ADDRESS_TYPE_SHIPPING,
-                'cart_id'      => $cart->id,
+                'cart_id' => $cart->id,
                 ...Arr::only($shippingAddress, ['first_name', 'last_name', 'company_name', 'city', 'state', 'country', 'email', 'postcode', 'phone']),
             ],
         ],
@@ -565,7 +567,7 @@ it('should the shipping rates after storing address', function () {
     // Arrange.
     $product = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
+            5 => 'new',
             26 => 'guest_checkout',
         ],
 
@@ -582,51 +584,51 @@ it('should the shipping rates after storing address', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($price = $product->price),
-        'base_price'        => $price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => $price * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($price = $product->price),
+        'base_price' => $price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => $price * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_Id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_Id' => $customer->id,
         'address_type' => CartAddress::ADDRESS_TYPE_BILLING,
     ]);
 
     CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_Id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_Id' => $customer->id,
         'address_type' => CartAddress::ADDRESS_TYPE_SHIPPING,
     ]);
 
@@ -661,7 +663,7 @@ it('should store the payment method after storing the shipping method', function
     // Arrange.
     $product = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
+            5 => 'new',
             26 => 'guest_checkout',
         ],
 
@@ -678,50 +680,50 @@ it('should store the payment method after storing the shipping method', function
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'is_active'           => 0,
-        'items_count'         => null,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'is_active' => 0,
+        'items_count' => null,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     $cartItem = CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($price = $product->price),
-        'base_price'        => $price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => $price * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($price = $product->price),
+        'base_price' => $price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => $price * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     $cartBillingAddress = CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
         'address_type' => CartAddress::ADDRESS_TYPE_BILLING,
     ]);
 
     $cartShippingAddress = CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
+        'cart_id' => $cart->id,
         'address_type' => CartAddress::ADDRESS_TYPE_SHIPPING,
     ]);
 
@@ -732,10 +734,10 @@ it('should store the payment method after storing the shipping method', function
 
     $response = postJson(route('admin.sales.cart.payment_methods.store', $cart->id), [
         'payment' => [
-            'description'  => 'Cash On Delivery',
-            'method'       => 'cashondelivery',
+            'description' => 'Cash On Delivery',
+            'method' => 'cashondelivery',
             'method_title' => 'Cash On Delivery',
-            'sort'         => 1,
+            'sort' => 1,
         ],
     ])
         ->assertJsonPath('cart.id', $cart->id)
@@ -804,7 +806,7 @@ it('should place order via admin', function () {
     // Arrange.
     $product = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
+            5 => 'new',
             26 => 'guest_checkout',
         ],
 
@@ -821,66 +823,66 @@ it('should place order via admin', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
-        'shipping_method'     => 'free_free',
-        'is_active'           => 0,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
+        'shipping_method' => 'free_free',
+        'is_active' => 0,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($price = $product->price),
-        'base_price'        => $price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => $price * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($price = $product->price),
+        'base_price' => $price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => $price * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
+        'cart_id' => $cart->id,
         'address_type' => CartAddress::ADDRESS_TYPE_BILLING,
     ]);
 
     $cartShippingAddress = CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
+        'cart_id' => $cart->id,
         'address_type' => CartAddress::ADDRESS_TYPE_SHIPPING,
     ]);
 
     CartPayment::factory()->create([
-        'cart_id'      => $cart->id,
-        'method'       => $paymentMethod = 'cashondelivery',
+        'cart_id' => $cart->id,
+        'method' => $paymentMethod = 'cashondelivery',
         'method_title' => core()->getConfigData('sales.payment_methods.'.$paymentMethod.'.title'),
     ]);
 
     CartShippingRate::factory()->create([
-        'carrier'            => 'free',
-        'carrier_title'      => 'Free shipping',
-        'method'             => 'free_free',
-        'method_title'       => 'Free Shipping',
+        'carrier' => 'free',
+        'carrier_title' => 'Free shipping',
+        'method' => 'free_free',
+        'method_title' => 'Free Shipping',
         'method_description' => 'Free Shipping',
-        'cart_address_id'    => $cartShippingAddress->id,
-        'cart_id'            => $cart->id,
+        'cart_address_id' => $cartShippingAddress->id,
+        'cart_id' => $cart->id,
     ]);
 
     cart()->setCart($cart);
@@ -916,14 +918,14 @@ it('should lists the all wishlist items related to the customer', function () {
         ->count(5)
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $wishlists = [];
 
     foreach ($products as $product) {
         $wishlists[] = Wishlist::factory()->create([
-            'channel_id'  => core()->getDefaultChannel()->id,
-            'product_id'  => $product->id,
+            'channel_id' => core()->getDefaultChannel()->id,
+            'product_id' => $product->id,
             'customer_id' => $customer->id,
         ]);
     }
@@ -960,11 +962,11 @@ it('should remove item from the wishlist', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $wishlist = Wishlist::factory()->create([
-        'channel_id'  => core()->getDefaultChannel()->id,
-        'product_id'  => $product->id,
+        'channel_id' => core()->getDefaultChannel()->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -998,19 +1000,19 @@ it('should add a simple product wishlisted item to the cart', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
     ]);
 
     $wishlist = Wishlist::factory()->create([
-        'channel_id'  => core()->getDefaultChannel()->id,
-        'product_id'  => $product->id,
+        'channel_id' => core()->getDefaultChannel()->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -1022,7 +1024,7 @@ it('should add a simple product wishlisted item to the cart', function () {
             'item_id' => $wishlist->id,
         ],
         'product_id' => $product->id,
-        'quantity'   => 1,
+        'quantity' => 1,
     ])
         ->assertJsonPath('data.customer_id', $customer->id)
         ->assertJsonPath('data.items_count', 1)
@@ -1060,19 +1062,19 @@ it('should add a configurable product wishlisted item to the cart', function () 
         ->getConfigurableProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
     ]);
 
     $wishlist = Wishlist::factory()->create([
-        'channel_id'  => core()->getDefaultChannel()->id,
-        'product_id'  => $product->id,
+        'channel_id' => core()->getDefaultChannel()->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -1086,11 +1088,11 @@ it('should add a configurable product wishlisted item to the cart', function () 
             'item_id' => $wishlist->id,
         ],
         'selected_configurable_option' => $childProduct->id,
-        'product_id'                   => $product->id,
-        'is_buy_now'                   => '0',
-        'rating'                       => '0',
-        'quantity'                     => '1',
-        'super_attribute'              => [
+        'product_id' => $product->id,
+        'is_buy_now' => '0',
+        'rating' => '0',
+        'quantity' => '1',
+        'super_attribute' => [
             23 => '1',
             24 => '7',
         ],
@@ -1132,13 +1134,13 @@ it('should return all the compare items related to the customer', function () {
         ->count(5)
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $compares = [];
 
     foreach ($products as $product) {
         $compares[] = CompareItem::factory()->create([
-            'product_id'  => $product->id,
+            'product_id' => $product->id,
             'customer_id' => $customer->id,
         ]);
     }
@@ -1175,10 +1177,10 @@ it('should remove compare items from the compared list item', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $compare = CompareItem::factory()->create([
-        'product_id'  => $product->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -1190,8 +1192,8 @@ it('should remove compare items from the compared list item', function () {
     ]);
 
     $this->assertDatabaseMissing('compare_items', [
-        'id'          => $compare->id,
-        'product_id'  => $compare->product_id,
+        'id' => $compare->id,
+        'product_id' => $compare->product_id,
         'customer_id' => $compare->customer_id,
     ]);
 });
@@ -1212,18 +1214,18 @@ it('show add a simple product to the cart from compared items', function () {
         ->getSimpleProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
     ]);
 
     $compare = CompareItem::factory()->create([
-        'product_id'  => $product->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -1235,7 +1237,7 @@ it('show add a simple product to the cart from compared items', function () {
             'item_id' => $compare->id,
         ],
         'product_id' => $product->id,
-        'quantity'   => 1,
+        'quantity' => 1,
     ])
         ->assertJsonPath('data.customer_id', $customer->id)
         ->assertJsonPath('data.items_count', 1)
@@ -1273,18 +1275,18 @@ it('show add a configurable product to the cart from compared items', function (
         ->getConfigurableProductFactory()
         ->create();
 
-    $customer = (new CustomerFaker)->factory()->create();
+    $customer = (new CustomerFaker())->factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
     ]);
 
     $compare = CompareItem::factory()->create([
-        'product_id'  => $product->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -1298,11 +1300,11 @@ it('show add a configurable product to the cart from compared items', function (
             'item_id' => $compare->id,
         ],
         'selected_configurable_option' => $childProduct->id,
-        'product_id'                   => $product->id,
-        'is_buy_now'                   => '0',
-        'rating'                       => '0',
-        'quantity'                     => '1',
-        'super_attribute'              => [
+        'product_id' => $product->id,
+        'is_buy_now' => '0',
+        'rating' => '0',
+        'quantity' => '1',
+        'super_attribute' => [
             23 => '1',
             24 => '7',
         ],
@@ -1346,95 +1348,95 @@ it('should return the list of the recent orders', function () {
     $customer = Customer::factory()->create();
 
     $cart = Cart::factory()->create([
-        'customer_id'         => $customer->id,
+        'customer_id' => $customer->id,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
-        'customer_email'      => $customer->email,
-        'is_guest'            => 0,
+        'customer_last_name' => $customer->last_name,
+        'customer_email' => $customer->email,
+        'is_guest' => 0,
     ]);
 
     $additional = [
         'product_id' => $product->id,
-        'rating'     => '0',
+        'rating' => '0',
         'is_buy_now' => '0',
-        'quantity'   => '1',
+        'quantity' => '1',
     ];
 
     CartItem::factory()->create([
-        'cart_id'           => $cart->id,
-        'product_id'        => $product->id,
-        'sku'               => $product->sku,
-        'quantity'          => $additional['quantity'],
-        'name'              => $product->name,
-        'price'             => $convertedPrice = core()->convertPrice($price = $product->price),
-        'base_price'        => $price,
-        'total'             => $convertedPrice * $additional['quantity'],
-        'base_total'        => $price * $additional['quantity'],
-        'weight'            => $product->weight ?? 0,
-        'total_weight'      => ($product->weight ?? 0) * $additional['quantity'],
+        'cart_id' => $cart->id,
+        'product_id' => $product->id,
+        'sku' => $product->sku,
+        'quantity' => $additional['quantity'],
+        'name' => $product->name,
+        'price' => $convertedPrice = core()->convertPrice($price = $product->price),
+        'base_price' => $price,
+        'total' => $convertedPrice * $additional['quantity'],
+        'base_total' => $price * $additional['quantity'],
+        'weight' => $product->weight ?? 0,
+        'total_weight' => ($product->weight ?? 0) * $additional['quantity'],
         'base_total_weight' => ($product->weight ?? 0) * $additional['quantity'],
-        'type'              => $product->type,
-        'additional'        => $additional,
+        'type' => $product->type,
+        'additional' => $additional,
     ]);
 
     CustomerAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
         'address_type' => CustomerAddress::ADDRESS_TYPE,
     ]);
 
     CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
         'address_type' => CartAddress::ADDRESS_TYPE_BILLING,
     ]);
 
     $cartShippingAddress = CartAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
         'address_type' => CartAddress::ADDRESS_TYPE_SHIPPING,
     ]);
 
     CartPayment::factory()->create([
-        'cart_id'      => $cart->id,
-        'method'       => $paymentMethod = 'cashondelivery',
+        'cart_id' => $cart->id,
+        'method' => $paymentMethod = 'cashondelivery',
         'method_title' => core()->getConfigData('sales.payment_methods.'.$paymentMethod.'.title'),
     ]);
 
     CartShippingRate::factory()->create([
-        'carrier'            => 'free',
-        'carrier_title'      => 'Free shipping',
-        'method'             => 'free_free',
-        'method_title'       => 'Free Shipping',
+        'carrier' => 'free',
+        'carrier_title' => 'Free shipping',
+        'method' => 'free_free',
+        'method_title' => 'Free Shipping',
         'method_description' => 'Free Shipping',
-        'cart_address_id'    => $cartShippingAddress->id,
+        'cart_address_id' => $cartShippingAddress->id,
     ]);
 
     $order = Order::factory()->create([
-        'cart_id'             => $cart->id,
-        'customer_id'         => $customer->id,
-        'customer_email'      => $customer->email,
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
+        'customer_email' => $customer->email,
         'customer_first_name' => $customer->first_name,
-        'customer_last_name'  => $customer->last_name,
+        'customer_last_name' => $customer->last_name,
     ]);
 
     OrderItem::factory()->create([
         'product_id' => $product->id,
-        'order_id'   => $order->id,
-        'sku'        => $product->sku,
-        'type'       => $product->type,
-        'name'       => $product->name,
+        'order_id' => $order->id,
+        'sku' => $product->sku,
+        'type' => $product->type,
+        'name' => $product->name,
     ]);
 
     OrderAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
         'address_type' => OrderAddress::ADDRESS_TYPE_BILLING,
     ]);
 
     OrderAddress::factory()->create([
-        'cart_id'      => $cart->id,
-        'customer_id'  => $customer->id,
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
         'address_type' => OrderAddress::ADDRESS_TYPE_SHIPPING,
     ]);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Mail;
 
 use Illuminate\Bus\Queueable;
@@ -14,11 +16,11 @@ class Mailable extends BaseMailable implements ShouldQueue
     /**
      * Add the sender to the message.
      *
-     * @param  \Illuminate\Mail\Message  $message
+     * @param \Illuminate\Mail\Message $message
      */
-    protected function buildFrom($message): Mailable
+    protected function buildFrom($message): self
     {
-        ! empty($this->from)
+        !empty($this->from)
             ? $message->from($this->from[0]['address'], $this->from[0]['name'])
             : $message->from(core()->getSenderEmailDetails()['email'], core()->getSenderEmailDetails()['name']);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Listeners;
 
 use Webkul\Shop\Mail\Order\InvoicedNotification;
@@ -9,13 +11,14 @@ class Invoice extends Base
     /**
      * After order is created
      *
-     * @param  \Webkul\Sale\Contracts\Invoice  $invoice
+     * @param \Webkul\Sale\Contracts\Invoice $invoice
+     *
      * @return void
      */
-    public function afterCreated($invoice)
+    public function afterCreated($invoice): void
     {
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.new_invoice')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.new_invoice')) {
                 return;
             }
 

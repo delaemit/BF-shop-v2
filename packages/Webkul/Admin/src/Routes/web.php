@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -7,7 +9,7 @@ use Illuminate\Support\Facades\Route;
  */
 require 'auth-routes.php';
 
-Route::group(['middleware' => ['admin'], 'prefix' => config('app.admin_url')], function () {
+Route::group(['middleware' => ['admin'], 'prefix' => config('app.admin_url')], function (): void {
     /**
      * Sales routes.
      */

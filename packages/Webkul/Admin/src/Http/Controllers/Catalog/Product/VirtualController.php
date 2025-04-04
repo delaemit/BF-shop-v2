@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Catalog\Product;
 
 use Illuminate\Http\JsonResponse;
@@ -10,13 +12,18 @@ class VirtualController extends Controller
 {
     /**
      * Create a new controller instance.
+     *
+     * @param ProductRepository $productRepository
      */
     public function __construct(
         protected ProductRepository $productRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * Returns the customizable options of the product.
+     *
+     * @param int $id
      */
     public function customizableOptions(int $id): JsonResponse
     {

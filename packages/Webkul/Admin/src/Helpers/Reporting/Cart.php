@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Helpers\Reporting;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -11,6 +13,9 @@ class Cart extends AbstractReporting
 {
     /**
      * Create a helper instance.
+     *
+     * @param CartRepository $cartRepository
+     * @param CartItemRepository $cartItemRepository
      *
      * @return void
      */
@@ -30,7 +35,7 @@ class Cart extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalCarts($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalCarts($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalCarts($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -42,7 +47,7 @@ class Cart extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalCarts(now()->subDay()->startOfDay(), now()->subDay()->endOfDay()),
-            'current'  => $current = $this->getTotalCarts(now()->today(), now()->endOfDay()),
+            'current' => $current = $this->getTotalCarts(now()->today(), now()->endOfDay()),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -55,10 +60,10 @@ class Cart extends AbstractReporting
     public function getTotalAbandonedSalesProgress()
     {
         return [
-            'previous'        => $previous = $this->getTotalAbandonedSales($this->lastStartDate, $this->lastEndDate),
-            'current'         => $current = $this->getTotalAbandonedSales($this->startDate, $this->endDate),
+            'previous' => $previous = $this->getTotalAbandonedSales($this->lastStartDate, $this->lastEndDate),
+            'current' => $current = $this->getTotalAbandonedSales($this->startDate, $this->endDate),
             'formatted_total' => core()->formatBasePrice($current),
-            'progress'        => $this->getPercentageChange($previous, $current),
+            'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
 
@@ -71,7 +76,7 @@ class Cart extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalAbandonedCarts($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalAbandonedCarts($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalAbandonedCarts($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -85,7 +90,7 @@ class Cart extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalAbandonedCartRate($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalAbandonedCartRate($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalAbandonedCartRate($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -93,8 +98,8 @@ class Cart extends AbstractReporting
     /**
      * Retrieves total carts
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalCarts($startDate, $endDate): int
     {
@@ -108,8 +113,8 @@ class Cart extends AbstractReporting
     /**
      * Retrieves total abandoned carts
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalAbandonedCarts($startDate, $endDate): int
     {
@@ -124,14 +129,14 @@ class Cart extends AbstractReporting
     /**
      * Retrieves total abandoned cart rate
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalAbandonedCartRate($startDate, $endDate): float
     {
         $totalCarts = $this->getTotalCarts($startDate, $endDate);
 
-        if (! $totalCarts) {
+        if (!$totalCarts) {
             return 0;
         }
 
@@ -141,8 +146,8 @@ class Cart extends AbstractReporting
     /**
      * Retrieves total abandoned sales
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalAbandonedSales($startDate, $endDate): int
     {
@@ -157,7 +162,7 @@ class Cart extends AbstractReporting
     /**
      * Retrieves abandoned cart products
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getAbandonedCartProducts($limit = null): Collection
     {
@@ -193,8 +198,9 @@ class Cart extends AbstractReporting
     /**
      * Retrieves total unique cart users
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     *
      * @return array
      */
     public function getTotalUniqueCartsUsers($startDate, $endDate): int

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Str;
@@ -19,11 +21,12 @@ class ProductCustomizableOptionPriceRepository extends Repository
     /**
      * Save customizable option prices.
      *
-     * @param  array  $data
-     * @param  \Webkul\Product\Contracts\ProductCustomizableOption  $productCustomizableOption
+     * @param array $data
+     * @param \Webkul\Product\Contracts\ProductCustomizableOption $productCustomizableOption
+     *
      * @return void
      */
-    public function saveCustomizableOptionPrices($data, $productCustomizableOption)
+    public function saveCustomizableOptionPrices($data, $productCustomizableOption): void
     {
         $previousCustomizableOptionPriceIds = $productCustomizableOption->customizable_option_prices()->pluck('id');
 

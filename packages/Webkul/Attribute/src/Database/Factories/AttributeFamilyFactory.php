@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,10 +24,10 @@ class AttributeFamilyFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'            => $this->faker->word(),
-            'code'            => $this->faker->word(),
+            'name' => $this->faker->word(),
+            'code' => $this->faker->word(),
             'is_user_defined' => random_int(0, 1),
-            'status'          => 0,
+            'status' => 0,
         ];
     }
 }

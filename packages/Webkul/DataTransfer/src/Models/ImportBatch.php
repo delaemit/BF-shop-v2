@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +35,7 @@ class ImportBatch extends Model implements ImportBatchContract
      */
     protected $casts = [
         'summary' => 'array',
-        'data'    => 'array',
+        'data' => 'array',
     ];
 
     /**

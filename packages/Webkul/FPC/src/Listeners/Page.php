@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\FPC\Listeners;
 
 use Spatie\ResponseCache\Facades\ResponseCache;
@@ -10,31 +12,37 @@ class Page
     /**
      * Create a new listener instance.
      *
+     * @param PageRepository $pageRepository
+     *
      * @return void
      */
-    public function __construct(protected PageRepository $pageRepository) {}
+    public function __construct(protected PageRepository $pageRepository)
+    {
+    }
 
     /**
      * After page update
      *
-     * @param  \Webkul\CMS\Contracts\Page  $page
+     * @param \Webkul\CMS\Contracts\Page $page
+     *
      * @return void
      */
-    public function afterUpdate($page)
+    public function afterUpdate($page): void
     {
-        ResponseCache::forget('/page/'.$page->url_key);
+        ResponseCache::forget('/page/' . $page->url_key);
     }
 
     /**
      * Before page delete
      *
-     * @param  int  $pageId
+     * @param int $pageId
+     *
      * @return void
      */
-    public function beforeDelete($pageId)
+    public function beforeDelete($pageId): void
     {
         $page = $this->pageRepository->find($pageId);
 
-        ResponseCache::forget('/page/'.$page->url_key);
+        ResponseCache::forget('/page/' . $page->url_key);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Paypal\Http\Controllers;
 
 use Webkul\Checkout\Facades\Cart;
@@ -13,13 +15,18 @@ class SmartButtonController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param SmartButton $smartButton
+     * @param OrderRepository $orderRepository
+     * @param InvoiceRepository $invoiceRepository
+     *
      * @return void
      */
     public function __construct(
         protected SmartButton $smartButton,
         protected OrderRepository $orderRepository,
         protected InvoiceRepository $invoiceRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Paypal order creation for approval of client.
@@ -65,19 +72,19 @@ class SmartButtonController extends Controller
         $data = [
             'intent' => 'CAPTURE',
 
-            'payer'  => [
+            'payer' => [
                 'name' => [
                     'given_name' => $cart->billing_address->first_name,
-                    'surname'    => $cart->billing_address->last_name,
+                    'surname' => $cart->billing_address->last_name,
                 ],
 
                 'address' => [
                     'address_line_1' => current($billingAddressLines),
                     'address_line_2' => last($billingAddressLines),
-                    'admin_area_2'   => $cart->billing_address->city,
-                    'admin_area_1'   => $cart->billing_address->state,
-                    'postal_code'    => $cart->billing_address->postcode,
-                    'country_code'   => $cart->billing_address->country,
+                    'admin_area_2' => $cart->billing_address->city,
+                    'admin_area_1' => $cart->billing_address->state,
+                    'postal_code' => $cart->billing_address->postcode,
+                    'country_code' => $cart->billing_address->country,
                 ],
 
                 'email_address' => $cart->billing_address->email,
@@ -89,41 +96,41 @@ class SmartButtonController extends Controller
 
             'purchase_units' => [
                 [
-                    'amount'   => [
-                        'value'         => $this->smartButton->formatCurrencyValue((float) $cart->sub_total + $cart->tax_total + ($cart->selected_shipping_rate ? $cart->selected_shipping_rate->price : 0) - $cart->discount_amount),
+                    'amount' => [
+                        'value' => $this->smartButton->formatCurrencyValue((float) $cart->sub_total + $cart->tax_total + ($cart->selected_shipping_rate ? $cart->selected_shipping_rate->price : 0) - $cart->discount_amount),
                         'currency_code' => $cart->cart_currency_code,
 
-                        'breakdown'     => [
+                        'breakdown' => [
                             'item_total' => [
                                 'currency_code' => $cart->cart_currency_code,
-                                'value'         => $this->smartButton->formatCurrencyValue((float) $cart->sub_total),
+                                'value' => $this->smartButton->formatCurrencyValue((float) $cart->sub_total),
                             ],
 
-                            'shipping'   => [
+                            'shipping' => [
                                 'currency_code' => $cart->cart_currency_code,
-                                'value'         => $this->smartButton->formatCurrencyValue((float) ($cart->selected_shipping_rate ? $cart->selected_shipping_rate->price : 0)),
+                                'value' => $this->smartButton->formatCurrencyValue((float) ($cart->selected_shipping_rate ? $cart->selected_shipping_rate->price : 0)),
                             ],
 
-                            'tax_total'  => [
+                            'tax_total' => [
                                 'currency_code' => $cart->cart_currency_code,
-                                'value'         => $this->smartButton->formatCurrencyValue((float) $cart->tax_total),
+                                'value' => $this->smartButton->formatCurrencyValue((float) $cart->tax_total),
                             ],
 
-                            'discount'   => [
+                            'discount' => [
                                 'currency_code' => $cart->cart_currency_code,
-                                'value'         => $this->smartButton->formatCurrencyValue((float) $cart->discount_amount),
+                                'value' => $this->smartButton->formatCurrencyValue((float) $cart->discount_amount),
                             ],
                         ],
                     ],
 
-                    'items'    => $this->getLineItems($cart),
+                    'items' => $this->getLineItems($cart),
                 ],
             ],
         ];
 
-        if (! empty($cart->billing_address->phone)) {
+        if (!empty($cart->billing_address->phone)) {
             $data['payer']['phone'] = [
-                'phone_type'   => 'MOBILE',
+                'phone_type' => 'MOBILE',
 
                 'phone_number' => [
                     'national_number' => $this->smartButton->formatPhone($cart->billing_address->phone),
@@ -142,10 +149,10 @@ class SmartButtonController extends Controller
                     'address' => [
                         'address_line_1' => current($billingAddressLines),
                         'address_line_2' => last($billingAddressLines),
-                        'admin_area_2'   => $cart->shipping_address->city,
-                        'admin_area_1'   => $cart->shipping_address->state,
-                        'postal_code'    => $cart->shipping_address->postcode,
-                        'country_code'   => $cart->shipping_address->country,
+                        'admin_area_2' => $cart->shipping_address->city,
+                        'admin_area_1' => $cart->shipping_address->state,
+                        'postal_code' => $cart->shipping_address->postcode,
+                        'country_code' => $cart->shipping_address->country,
                     ],
                 ],
             ]);
@@ -157,7 +164,8 @@ class SmartButtonController extends Controller
     /**
      * Return cart items.
      *
-     * @param  string  $cart
+     * @param string $cart
+     *
      * @return array
      */
     protected function getLineItems($cart)
@@ -168,12 +176,12 @@ class SmartButtonController extends Controller
             $lineItems[] = [
                 'unit_amount' => [
                     'currency_code' => $cart->cart_currency_code,
-                    'value'         => $this->smartButton->formatCurrencyValue((float) $item->price),
+                    'value' => $this->smartButton->formatCurrencyValue((float) $item->price),
                 ],
-                'quantity'    => $item->quantity,
-                'name'        => $item->name,
-                'sku'         => $item->sku,
-                'category'    => $item->getTypeInstance()->isStockable() ? 'PHYSICAL_GOODS' : 'DIGITAL_GOODS',
+                'quantity' => $item->quantity,
+                'name' => $item->name,
+                'sku' => $item->sku,
+                'category' => $item->getTypeInstance()->isStockable() ? 'PHYSICAL_GOODS' : 'DIGITAL_GOODS',
             ];
         }
 
@@ -183,7 +191,8 @@ class SmartButtonController extends Controller
     /**
      * Return convert multiple address lines into 2 address lines.
      *
-     * @param  string  $address
+     * @param string $address
+     *
      * @return array
      */
     protected function getAddressLines($address)
@@ -246,7 +255,8 @@ class SmartButtonController extends Controller
     /**
      * Prepares order's invoice data for creation.
      *
-     * @param  \Webkul\Sales\Models\Order  $order
+     * @param \Webkul\Sales\Models\Order $order
+     *
      * @return array
      */
     protected function prepareInvoiceData($order)
@@ -263,7 +273,7 @@ class SmartButtonController extends Controller
     /**
      * Validate order before creation.
      *
-     * @return void|\Exception
+     * @return \Exception|void
      */
     protected function validateOrder()
     {
@@ -271,29 +281,29 @@ class SmartButtonController extends Controller
 
         $minimumOrderAmount = (float) core()->getConfigData('sales.order_settings.minimum_order.minimum_order_amount') ?: 0;
 
-        if (! Cart::haveMinimumOrderAmount()) {
+        if (!Cart::haveMinimumOrderAmount()) {
             throw new \Exception(trans('shop::app.checkout.cart.minimum-order-message', ['amount' => core()->currency($minimumOrderAmount)]));
         }
 
         if (
             $cart->haveStockableItems()
-            && ! $cart->shipping_address
+            && !$cart->shipping_address
         ) {
             throw new \Exception(trans('shop::app.checkout.cart.check-shipping-address'));
         }
 
-        if (! $cart->billing_address) {
+        if (!$cart->billing_address) {
             throw new \Exception(trans('shop::app.checkout.cart.check-billing-address'));
         }
 
         if (
             $cart->haveStockableItems()
-            && ! $cart->selected_shipping_rate
+            && !$cart->selected_shipping_rate
         ) {
             throw new \Exception(trans('shop::app.checkout.cart.specify-shipping-method'));
         }
 
-        if (! $cart->payment) {
+        if (!$cart->payment) {
             throw new \Exception(trans('shop::app.checkout.cart.specify-payment-method'));
         }
     }

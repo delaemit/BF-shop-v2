@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 use Illuminate\Support\Facades\Event;
@@ -10,9 +12,13 @@ class SubscriptionController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param SubscribersListRepository $subscriptionRepository
+     *
      * @return void
      */
-    public function __construct(protected SubscribersListRepository $subscriptionRepository) {}
+    public function __construct(protected SubscribersListRepository $subscriptionRepository)
+    {
+    }
 
     /**
      * Subscribes email to the email subscription list
@@ -40,11 +46,11 @@ class SubscriptionController extends Controller
         $customer = auth()->user();
 
         $subscription = $this->subscriptionRepository->create([
-            'email'         => $email,
-            'channel_id'    => core()->getCurrentChannel()->id,
+            'email' => $email,
+            'channel_id' => core()->getCurrentChannel()->id,
             'is_subscribed' => 1,
-            'token'         => uniqid(),
-            'customer_id'   => $customer->id ?? null,
+            'token' => uniqid(),
+            'customer_id' => $customer->id ?? null,
         ]);
 
         if ($customer) {
@@ -63,7 +69,8 @@ class SubscriptionController extends Controller
     /**
      * To unsubscribe from a the subscription list
      *
-     * @param  string  $token
+     * @param string $token
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($token)

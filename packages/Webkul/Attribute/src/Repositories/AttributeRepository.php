@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Repositories;
 
 use Illuminate\Container\Container;
@@ -12,6 +14,9 @@ class AttributeRepository extends Repository
 
     /**
      * Create a new repository instance.
+     *
+     * @param AttributeOptionRepository $attributeOptionRepository
+     * @param Container $container
      *
      * @return void
      */
@@ -33,6 +38,8 @@ class AttributeRepository extends Repository
     /**
      * Create attribute.
      *
+     * @param array $data
+     *
      * @return \Webkul\Attribute\Contracts\Attribute
      */
     public function create(array $data)
@@ -45,7 +52,7 @@ class AttributeRepository extends Repository
 
         $attribute = $this->model->create($data);
 
-        if (in_array($attribute->type, ['select', 'multiselect', 'checkbox'])) {
+        if (in_array($attribute->type, ['select', 'multiselect', 'checkbox'], true)) {
             foreach ($options as $optionInputs) {
                 $this->attributeOptionRepository->create(array_merge([
                     'attribute_id' => $attribute->id,
@@ -59,8 +66,10 @@ class AttributeRepository extends Repository
     /**
      * Update attribute.
      *
-     * @param  int  $id
-     * @param  string  $attribute
+     * @param int $id
+     * @param string $attribute
+     * @param array $data
+     *
      * @return \Webkul\Attribute\Contracts\Attribute
      */
     public function update(array $data, $id)
@@ -71,23 +80,23 @@ class AttributeRepository extends Repository
 
         $attribute->update($data);
 
-        if (! in_array($attribute->type, ['select', 'multiselect', 'checkbox'])) {
+        if (!in_array($attribute->type, ['select', 'multiselect', 'checkbox'], true)) {
             return $attribute;
         }
 
-        if (! isset($data['options'])) {
+        if (!isset($data['options'])) {
             return $attribute;
         }
 
         foreach ($data['options'] as $optionId => $optionInputs) {
-            $isNew = $optionInputs['isNew'] == 'true';
+            $isNew = $optionInputs['isNew'] === 'true';
 
             if ($isNew) {
                 $this->attributeOptionRepository->create(array_merge([
                     'attribute_id' => $attribute->id,
                 ], $optionInputs));
             } else {
-                $isDelete = $optionInputs['isDelete'] == 'true';
+                $isDelete = $optionInputs['isDelete'] === 'true';
 
                 if ($isDelete) {
                     $this->attributeOptionRepository->delete($optionId);
@@ -103,7 +112,8 @@ class AttributeRepository extends Repository
     /**
      * Validate user input.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return array
      */
     public function validateUserInput($data)
@@ -112,11 +122,11 @@ class AttributeRepository extends Repository
             $data['value_per_channel'] = $data['value_per_locale'] = 0;
         }
 
-        if (! in_array($data['type'], ['select', 'multiselect', 'price', 'checkbox'])) {
+        if (!in_array($data['type'], ['select', 'multiselect', 'price', 'checkbox'], true)) {
             $data['is_filterable'] = 0;
         }
 
-        if (in_array($data['type'], ['select', 'multiselect', 'boolean'])) {
+        if (in_array($data['type'], ['select', 'multiselect', 'boolean'], true)) {
             unset($data['value_per_locale']);
         }
 
@@ -136,7 +146,8 @@ class AttributeRepository extends Repository
     /**
      * Get product default attributes.
      *
-     * @param  array  $codes
+     * @param array $codes
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getProductDefaultAttributes($codes = null)
@@ -152,8 +163,8 @@ class AttributeRepository extends Repository
         ];
 
         if (
-            ! is_array($codes)
-            && ! $codes
+            !is_array($codes)
+            && !$codes
         ) {
             return $this->findWhereIn('code', [
                 'name',
@@ -168,7 +179,7 @@ class AttributeRepository extends Repository
             ], $attributeColumns);
         }
 
-        if (in_array('*', $codes)) {
+        if (in_array('*', $codes, true)) {
             return $this->all($attributeColumns);
         }
 
@@ -178,7 +189,8 @@ class AttributeRepository extends Repository
     /**
      * Get family attributes.
      *
-     * @param  \Webkul\Attribute\Contracts\AttributeFamily  $attributeFamily
+     * @param \Webkul\Attribute\Contracts\AttributeFamily $attributeFamily
+     *
      * @return \Webkul\Attribute\Contracts\Attribute
      */
     public function getFamilyAttributes($attributeFamily)
@@ -203,19 +215,19 @@ class AttributeRepository extends Repository
 
         foreach ($attributes as $key => $attribute) {
             if (
-                $attribute->code != 'tax_category_id'
+                $attribute->code !== 'tax_category_id'
                 && (
-                    in_array($attribute->type, ['select', 'multiselect'])
-                    || $attribute->code == 'sku'
+                    in_array($attribute->type, ['select', 'multiselect'], true)
+                    || $attribute->code === 'sku'
                 )
             ) {
-                array_push($trimmed, [
-                    'id'      => $attribute->id,
-                    'name'    => $attribute->admin_name,
-                    'type'    => $attribute->type,
-                    'code'    => $attribute->code,
+                $trimmed[] = [
+                    'id' => $attribute->id,
+                    'name' => $attribute->admin_name,
+                    'type' => $attribute->type,
+                    'code' => $attribute->code,
                     'options' => $attribute->options,
-                ]);
+                ];
             }
         }
 

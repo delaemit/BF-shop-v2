@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -34,7 +36,7 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'sku'                 => $this->faker->uuid,
+            'sku' => $this->faker->uuid,
             'attribute_family_id' => 1,
         ];
     }
@@ -42,72 +44,60 @@ class ProductFactory extends Factory
     /**
      * Simple state.
      */
-    public function simple(): ProductFactory
+    public function simple(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'type' => 'simple',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'type' => 'simple',
+        ]);
     }
 
     /**
      * Virtual state.
      */
-    public function virtual(): ProductFactory
+    public function virtual(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'type' => 'virtual',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'type' => 'virtual',
+        ]);
     }
 
     /**
      * Grouped state.
      */
-    public function grouped(): ProductFactory
+    public function grouped(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'type' => 'grouped',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'type' => 'grouped',
+        ]);
     }
 
     /**
      * Configurable state.
      */
-    public function configurable(): ProductFactory
+    public function configurable(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'type' => 'configurable',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'type' => 'configurable',
+        ]);
     }
 
     /**
      * Downloadable state.
      */
-    public function downloadable(): ProductFactory
+    public function downloadable(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'type' => 'downloadable',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'type' => 'downloadable',
+        ]);
     }
 
     /**
      * Bundle state.
      */
-    public function bundle(): ProductFactory
+    public function bundle(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'type' => 'bundle',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'type' => 'bundle',
+        ]);
     }
 }

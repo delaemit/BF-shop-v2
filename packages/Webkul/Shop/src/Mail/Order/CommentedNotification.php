@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Mail\Order;
 
 use Illuminate\Mail\Mailables\Address;
@@ -13,9 +15,13 @@ class CommentedNotification extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param OrderComment $comment
+     *
      * @return void
      */
-    public function __construct(public OrderComment $comment) {}
+    public function __construct(public OrderComment $comment)
+    {
+    }
 
     /**
      * Get the message envelope.

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +36,7 @@ abstract class Address extends Model implements AddressContract
      */
     protected $casts = [
         'use_for_shipping' => 'boolean',
-        'default_address'  => 'boolean',
+        'default_address' => 'boolean',
     ];
 
     /**
@@ -42,7 +44,7 @@ abstract class Address extends Model implements AddressContract
      */
     public function getNameAttribute(): string
     {
-        return $this->first_name.' '.$this->last_name;
+        return $this->first_name . ' ' . $this->last_name;
     }
 
     /**

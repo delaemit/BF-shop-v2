@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Sales;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -22,6 +24,11 @@ class OrderController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param OrderRepository $orderRepository
+     * @param OrderCommentRepository $orderCommentRepository
+     * @param CartRepository $cartRepository
+     * @param CustomerGroupRepository $customerGroupRepository
+     *
      * @return void
      */
     public function __construct(
@@ -29,7 +36,8 @@ class OrderController extends Controller
         protected OrderCommentRepository $orderCommentRepository,
         protected CartRepository $cartRepository,
         protected CustomerGroupRepository $customerGroupRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -50,13 +58,15 @@ class OrderController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param int $cartId
+     *
      * @return \Illuminate\View\View
      */
     public function create(int $cartId)
     {
         $cart = $this->cartRepository->find($cartId);
 
-        if (! $cart) {
+        if (!$cart) {
             return redirect()->route('admin.sales.orders.index');
         }
 
@@ -69,6 +79,8 @@ class OrderController extends Controller
 
     /**
      * Store order
+     *
+     * @param int $cartId
      */
     public function store(int $cartId)
     {
@@ -94,7 +106,7 @@ class OrderController extends Controller
 
         $cart = Cart::getCart();
 
-        if (! in_array($cart->payment->method, ['cashondelivery', 'moneytransfer'])) {
+        if (!in_array($cart->payment->method, ['cashondelivery', 'moneytransfer'], true)) {
             return response()->json([
                 'message' => trans('admin::app.sales.orders.create.payment-not-supported'),
             ], Response::HTTP_BAD_REQUEST);
@@ -109,13 +121,15 @@ class OrderController extends Controller
         session()->flash('order', trans('admin::app.sales.orders.create.order-placed-success'));
 
         return new JsonResource([
-            'redirect'     => true,
+            'redirect' => true,
             'redirect_url' => route('admin.sales.orders.view', $order->id),
         ]);
     }
 
     /**
      * Show the view for the specified resource.
+     *
+     * @param int $id
      *
      * @return \Illuminate\View\View
      */
@@ -129,6 +143,8 @@ class OrderController extends Controller
     /**
      * Reorder action for the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function reorder(int $id)
@@ -136,7 +152,7 @@ class OrderController extends Controller
         $order = $this->orderRepository->findOrFail($id);
 
         $cart = Cart::createCart([
-            'customer'  => $order->customer,
+            'customer' => $order->customer,
             'is_active' => false,
         ]);
 
@@ -156,6 +172,8 @@ class OrderController extends Controller
     /**
      * Cancel action for the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function cancel(int $id)
@@ -174,12 +192,14 @@ class OrderController extends Controller
     /**
      * Add comment to the order
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function comment(int $id)
     {
         $validatedData = $this->validate(request(), [
-            'comment'           => 'required',
+            'comment' => 'required',
             'customer_notified' => 'sometimes|sometimes',
         ]);
 
@@ -203,13 +223,11 @@ class OrderController extends Controller
      */
     public function search()
     {
-        $orders = $this->orderRepository->scopeQuery(function ($query) {
-            return $query->where('customer_email', 'like', '%'.urldecode(request()->input('query')).'%')
-                ->orWhere('status', 'like', '%'.urldecode(request()->input('query')).'%')
-                ->orWhere(DB::raw('CONCAT('.DB::getTablePrefix().'customer_first_name, " ", '.DB::getTablePrefix().'customer_last_name)'), 'like', '%'.urldecode(request()->input('query')).'%')
-                ->orWhere('increment_id', request()->input('query'))
-                ->orderBy('created_at', 'desc');
-        })->paginate(10);
+        $orders = $this->orderRepository->scopeQuery(fn($query) => $query->where('customer_email', 'like', '%' . urldecode(request()->input('query')) . '%')
+            ->orWhere('status', 'like', '%' . urldecode(request()->input('query')) . '%')
+            ->orWhere(DB::raw('CONCAT(' . DB::getTablePrefix() . 'customer_first_name, " ", ' . DB::getTablePrefix() . 'customer_last_name)'), 'like', '%' . urldecode(request()->input('query')) . '%')
+            ->orWhere('increment_id', request()->input('query'))
+            ->orderBy('created_at', 'desc'))->paginate(10);
 
         foreach ($orders as $key => $order) {
             $orders[$key]['formatted_created_at'] = core()->formatDate($order->created_at, 'd M Y');
@@ -225,13 +243,13 @@ class OrderController extends Controller
     /**
      * Validate order before creation.
      *
-     * @return void|\Exception
+     * @return \Exception|void
      */
     public function validateOrder()
     {
         $cart = Cart::getCart();
 
-        if (! Cart::haveMinimumOrderAmount()) {
+        if (!Cart::haveMinimumOrderAmount()) {
             throw new \Exception(trans('admin::app.sales.orders.create.minimum-order-error', [
                 'amount' => core()->formatPrice(core()->getConfigData('sales.order_settings.minimum_order.minimum_order_amount') ?: 0),
             ]));
@@ -239,23 +257,23 @@ class OrderController extends Controller
 
         if (
             $cart->haveStockableItems()
-            && ! $cart->shipping_address
+            && !$cart->shipping_address
         ) {
             throw new \Exception(trans('admin::app.sales.orders.create.check-shipping-address'));
         }
 
-        if (! $cart->billing_address) {
+        if (!$cart->billing_address) {
             throw new \Exception(trans('admin::app.sales.orders.create.check-billing-address'));
         }
 
         if (
             $cart->haveStockableItems()
-            && ! $cart->selected_shipping_rate
+            && !$cart->selected_shipping_rate
         ) {
             throw new \Exception(trans('admin::app.sales.orders.create.specify-shipping-method'));
         }
 
-        if (! $cart->payment) {
+        if (!$cart->payment) {
             throw new \Exception(trans('admin::app.sales.orders.create.specify-payment-method'));
         }
     }

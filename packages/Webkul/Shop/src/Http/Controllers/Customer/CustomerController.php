@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\Customer;
 
 use Illuminate\Support\Facades\Event;
@@ -17,13 +19,18 @@ class CustomerController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param ProductReviewRepository $productReviewRepository
+     * @param SubscribersListRepository $subscriptionRepository
+     *
      * @return void
      */
     public function __construct(
         protected CustomerRepository $customerRepository,
         protected ProductReviewRepository $productReviewRepository,
         protected SubscribersListRepository $subscriptionRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Taking the customer to profile details page.
@@ -52,6 +59,8 @@ class CustomerController extends Controller
     /**
      * Edit function for editing customer profile.
      *
+     * @param ProfileRequest $profileRequest
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(ProfileRequest $profileRequest)
@@ -66,14 +75,14 @@ class CustomerController extends Controller
 
         if (
             core()->getCurrentChannel()->theme === 'default'
-            && ! isset($data['image'])
+            && !isset($data['image'])
         ) {
             $data['image']['image_0'] = '';
         }
 
         $data['subscribed_to_news_letter'] = isset($data['subscribed_to_news_letter']);
 
-        if (! empty($data['current_password'])) {
+        if (!empty($data['current_password'])) {
             if (Hash::check($data['current_password'], auth()->guard('customer')->user()->password)) {
                 $isPasswordChanged = true;
 
@@ -101,16 +110,16 @@ class CustomerController extends Controller
 
                 if ($subscription) {
                     $this->subscriptionRepository->update([
-                        'customer_id'   => $customer->id,
+                        'customer_id' => $customer->id,
                         'is_subscribed' => 1,
                     ], $subscription->id);
                 } else {
                     $this->subscriptionRepository->create([
-                        'email'         => $data['email'],
-                        'customer_id'   => $customer->id,
-                        'channel_id'    => core()->getCurrentChannel()->id,
+                        'email' => $data['email'],
+                        'customer_id' => $customer->id,
+                        'channel_id' => core()->getCurrentChannel()->id,
                         'is_subscribed' => 1,
-                        'token'         => $token = uniqid(),
+                        'token' => $token = uniqid(),
                     ]);
                 }
             } else {
@@ -118,7 +127,7 @@ class CustomerController extends Controller
 
                 if ($subscription) {
                     $this->subscriptionRepository->update([
-                        'customer_id'   => $customer->id,
+                        'customer_id' => $customer->id,
                         'is_subscribed' => 0,
                     ], $subscription->id);
                 }
@@ -128,7 +137,7 @@ class CustomerController extends Controller
                 $this->customerRepository->uploadImages($data, $customer);
             } else {
                 if (isset($data['image'])) {
-                    if (! empty($data['image'])) {
+                    if (!empty($data['image'])) {
                         Storage::delete((string) $customer->image);
                     }
 
@@ -151,7 +160,8 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy()

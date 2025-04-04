@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataGrid;
 
 /**
@@ -9,6 +11,12 @@ class Action
 {
     /**
      * Create a column instance.
+     *
+     * @param string $index
+     * @param string $icon
+     * @param string $title
+     * @param string $method
+     * @param mixed $url
      */
     public function __construct(
         public string $index,
@@ -16,7 +24,8 @@ class Action
         public string $title,
         public string $method,
         public mixed $url,
-    ) {}
+    ) {
+    }
 
     /**
      * Convert to an array.
@@ -24,11 +33,11 @@ class Action
     public function toArray()
     {
         return [
-            'index'  => $this->index,
-            'icon'   => $this->icon,
-            'title'  => $this->title,
+            'index' => $this->index,
+            'icon' => $this->icon,
+            'title' => $this->title,
             'method' => $this->method,
-            'url'    => $this->url,
+            'url' => $this->url,
         ];
     }
 }

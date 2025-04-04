@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Settings;
 
 use Illuminate\Support\Facades\DB;
@@ -27,32 +29,32 @@ class CurrencyDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.settings.currencies.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.settings.currencies.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'name',
-            'label'      => trans('admin::app.settings.currencies.index.datagrid.name'),
-            'type'       => 'string',
+            'index' => 'name',
+            'label' => trans('admin::app.settings.currencies.index.datagrid.name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'code',
-            'label'      => trans('admin::app.settings.currencies.index.datagrid.code'),
-            'type'       => 'string',
+            'index' => 'code',
+            'label' => trans('admin::app.settings.currencies.index.datagrid.code'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
@@ -61,29 +63,25 @@ class CurrencyDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('settings.currencies.edit')) {
             $this->addAction([
-                'index'  => 'edit',
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.settings.currencies.index.datagrid.edit'),
+                'index' => 'edit',
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.settings.currencies.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.settings.currencies.edit', $row->id);
-                },
+                'url' => fn($row) => route('admin.settings.currencies.edit', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('settings.currencies.delete')) {
             $this->addAction([
-                'index'  => 'delete',
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.settings.currencies.index.datagrid.delete'),
+                'index' => 'delete',
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.settings.currencies.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.settings.currencies.delete', $row->id);
-                },
+                'url' => fn($row) => route('admin.settings.currencies.delete', $row->id),
             ]);
         }
     }

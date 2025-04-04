@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Repositories;
 
 use Illuminate\Support\Facades\Event;
@@ -16,16 +18,17 @@ class ShipmentItemRepository extends Repository
     }
 
     /**
-     * @param  array  $data
+     * @param array $data
+     *
      * @return void
      */
-    public function updateProductInventory($data)
+    public function updateProductInventory($data): void
     {
-        if (! $data['product']) {
+        if (!$data['product']) {
             return;
         }
 
-        if (! $data['product']->manage_stock) {
+        if (!$data['product']->manage_stock) {
             return;
         }
 
@@ -46,7 +49,7 @@ class ShipmentItemRepository extends Repository
             ->where('inventory_source_id', $data['shipment']->inventory_source_id)
             ->first();
 
-        if (! $inventory) {
+        if (!$inventory) {
             return;
         }
 

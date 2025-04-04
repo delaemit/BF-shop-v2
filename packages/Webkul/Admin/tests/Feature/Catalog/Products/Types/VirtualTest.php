@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Faker\Helpers\Product as ProductFaker;
 use Webkul\Product\Models\Product;
 use Webkul\Product\Models\ProductFlat;
@@ -22,7 +24,7 @@ it('should fail the validation with errors when certain inputs are not provided 
 
 it('should return the create page of virtual product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getSimpleProductFactory()->create();
+    $product = (new ProductFaker())->getSimpleProductFactory()->create();
 
     $productId = $product->id + 1;
 
@@ -30,9 +32,9 @@ it('should return the create page of virtual product', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.catalog.products.store'), [
-        'type'                => 'virtual',
+        'type' => 'virtual',
         'attribute_family_id' => 1,
-        'sku'                 => $sku = fake()->slug(),
+        'sku' => $sku = fake()->slug(),
     ])
         ->assertOk()
         ->assertJsonPath('data.redirect_url', route('admin.catalog.products.edit', $productId));
@@ -40,9 +42,9 @@ it('should return the create page of virtual product', function () {
     $this->assertModelWise([
         Product::class => [
             [
-                'id'   => $productId,
+                'id' => $productId,
                 'type' => 'virtual',
-                'sku'  => $sku,
+                'sku' => $sku,
             ],
         ],
     ]);
@@ -50,7 +52,7 @@ it('should return the create page of virtual product', function () {
 
 it('should return the edit page of virtual product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getVirtualProductFactory()->create();
+    $product = (new ProductFaker())->getVirtualProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
@@ -67,7 +69,7 @@ it('should return the edit page of virtual product', function () {
 
 it('should fail the validation with errors when certain inputs are not provided when update in virtual product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getVirtualProductFactory()->create();
+    $product = (new ProductFaker())->getVirtualProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
@@ -84,17 +86,17 @@ it('should fail the validation with errors when certain inputs are not provided 
 
 it('should fail the validation with errors if certain data is not provided correctly in virtual product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getVirtualProductFactory()->create();
+    $product = (new ProductFaker())->getVirtualProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
 
     putJson(route('admin.catalog.products.update', $product->id), [
         'visible_individually' => $unProcessAble = fake()->word(),
-        'status'               => $unProcessAble,
-        'guest_checkout'       => $unProcessAble,
-        'new'                  => $unProcessAble,
-        'featured'             => $unProcessAble,
+        'status' => $unProcessAble,
+        'guest_checkout' => $unProcessAble,
+        'new' => $unProcessAble,
+        'featured' => $unProcessAble,
     ])
         ->assertJsonValidationErrorFor('sku')
         ->assertJsonValidationErrorFor('url_key')
@@ -112,21 +114,21 @@ it('should fail the validation with errors if certain data is not provided corre
 
 it('should update the virtual product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getVirtualProductFactory()->create();
+    $product = (new ProductFaker())->getVirtualProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
 
     putJson(route('admin.catalog.products.update', $product->id), $data = [
-        'sku'               => $product->sku,
-        'url_key'           => $product->url_key,
+        'sku' => $product->sku,
+        'url_key' => $product->url_key,
         'short_description' => fake()->sentence(),
-        'description'       => fake()->paragraph(),
-        'name'              => fake()->words(3, true),
-        'price'             => fake()->randomFloat(2, 1, 1000),
-        'weight'            => fake()->numberBetween(0, 100),
-        'channel'           => core()->getCurrentChannelCode(),
-        'locale'            => app()->getLocale(),
+        'description' => fake()->paragraph(),
+        'name' => fake()->words(3, true),
+        'price' => fake()->randomFloat(2, 1, 1000),
+        'weight' => fake()->numberBetween(0, 100),
+        'channel' => core()->getCurrentChannelCode(),
+        'locale' => app()->getLocale(),
     ])
         ->assertRedirect(route('admin.catalog.products.index'))
         ->isRedirection();
@@ -134,25 +136,25 @@ it('should update the virtual product', function () {
     $this->assertModelWise([
         Product::class => [
             [
-                'id'   => $product->id,
+                'id' => $product->id,
                 'type' => $product->type,
-                'sku'  => $product->sku,
+                'sku' => $product->sku,
             ],
         ],
 
         ProductFlat::class => [
             [
-                'product_id'        => $product->id,
-                'type'              => $product->type,
-                'url_key'           => $product->url_key,
-                'sku'               => $product->sku,
-                'name'              => $data['name'],
+                'product_id' => $product->id,
+                'type' => $product->type,
+                'url_key' => $product->url_key,
+                'sku' => $product->sku,
+                'name' => $data['name'],
                 'short_description' => $data['short_description'],
-                'description'       => $data['description'],
-                'price'             => $data['price'],
-                'weight'            => $data['weight'],
-                'locale'            => $data['locale'],
-                'channel'           => $data['channel'],
+                'description' => $data['description'],
+                'price' => $data['price'],
+                'weight' => $data['weight'],
+                'locale' => $data['locale'],
+                'channel' => $data['channel'],
             ],
         ],
     ]);
@@ -160,7 +162,7 @@ it('should update the virtual product', function () {
 
 it('should delete a virtual product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getSimpleProductFactory()->create();
+    $product = (new ProductFaker())->getSimpleProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();

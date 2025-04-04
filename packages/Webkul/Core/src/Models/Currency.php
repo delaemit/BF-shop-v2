@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -30,6 +32,8 @@ class Currency extends Model implements CurrencyContract
 
     /**
      * Set currency code in capital letter.
+     *
+     * @param mixed $code
      */
     public function setCodeAttribute($code): void
     {

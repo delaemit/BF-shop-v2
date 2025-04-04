@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -13,9 +15,26 @@ use Webkul\Core\Database\Factories\ChannelFactory;
 use Webkul\Core\Eloquent\TranslatableModel;
 use Webkul\Inventory\Models\InventorySourceProxy;
 
+/**
+ * @property string|null $theme
+ * @property string|null $code
+ * @property \Webkul\Core\Models\Locale|null $default_locale
+ */
 class Channel extends TranslatableModel implements ChannelContract
 {
     use HasFactory;
+
+    /**
+     * Translated attributes.
+     *
+     * @var array
+     */
+    public $translatedAttributes = [
+        'name',
+        'description',
+        'maintenance_mode_text',
+        'home_seo',
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -44,18 +63,6 @@ class Channel extends TranslatableModel implements ChannelContract
      */
     protected $casts = [
         'home_seo' => 'array',
-    ];
-
-    /**
-     * Translated attributes.
-     *
-     * @var array
-     */
-    public $translatedAttributes = [
-        'name',
-        'description',
-        'maintenance_mode_text',
-        'home_seo',
     ];
 
     /**
@@ -111,7 +118,7 @@ class Channel extends TranslatableModel implements ChannelContract
      */
     public function logo_url()
     {
-        if (! $this->logo) {
+        if (!$this->logo) {
             return;
         }
 
@@ -131,7 +138,7 @@ class Channel extends TranslatableModel implements ChannelContract
      */
     public function favicon_url()
     {
-        if (! $this->favicon) {
+        if (!$this->favicon) {
             return;
         }
 

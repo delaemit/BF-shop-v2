@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -24,16 +26,20 @@ class UpdateCreateCatalogRuleIndex implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param CatalogRule $catalogRule
+     *
      * @return void
      */
-    public function __construct(protected CatalogRule $catalogRule) {}
+    public function __construct(protected CatalogRule $catalogRule)
+    {
+    }
 
     /**
      * Execute the job.
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         if ($this->catalogRule->status) {
             app(CatalogRuleIndex::class)->reIndexRule($this->catalogRule);
@@ -53,7 +59,7 @@ class UpdateCreateCatalogRuleIndex implements ShouldQueue
                 ->whereIn('id', $productIds)
                 ->cursorPaginate(self::BATCH_SIZE);
 
-            /**
+            /*
              * TODO:
              *
              * If the catalog rule is disabled and 'end_other_rules' flag is set,
@@ -63,7 +69,7 @@ class UpdateCreateCatalogRuleIndex implements ShouldQueue
              */
             app(PriceIndexer::class)->reindexBatch($paginator->items());
 
-            if (! $cursor = $paginator->nextCursor()) {
+            if (!$cursor = $paginator->nextCursor()) {
                 break;
             }
 

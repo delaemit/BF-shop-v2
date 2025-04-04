@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\User;
 
 use Illuminate\Auth\Events\PasswordReset;
@@ -18,7 +20,8 @@ class ResetPasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param  string|null  $token
+     * @param string|null $token
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function create($token = null)
@@ -38,18 +41,18 @@ class ResetPasswordController extends Controller
     {
         try {
             $this->validate(request(), [
-                'token'    => 'required',
-                'email'    => 'required|email',
+                'token' => 'required',
+                'email' => 'required|email',
                 'password' => 'required|confirmed|min:6',
             ]);
 
             $response = $this->broker()->reset(
-                request(['email', 'password', 'password_confirmation', 'token']), function ($admin, $password) {
+                request(['email', 'password', 'password_confirmation', 'token']), function ($admin, $password): void {
                     $this->resetPassword($admin, $password);
                 }
             );
 
-            if ($response == Password::PASSWORD_RESET) {
+            if ($response === Password::PASSWORD_RESET) {
                 return redirect()->route('admin.dashboard.index');
             }
 
@@ -68,11 +71,12 @@ class ResetPasswordController extends Controller
     /**
      * Reset the given admin's password.
      *
-     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $admin
-     * @param  string  $password
+     * @param \Illuminate\Contracts\Auth\CanResetPassword $admin
+     * @param string $password
+     *
      * @return void
      */
-    protected function resetPassword($admin, $password)
+    protected function resetPassword($admin, $password): void
     {
         $admin->password = Hash::make($password);
 

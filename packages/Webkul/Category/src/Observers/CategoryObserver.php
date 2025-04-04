@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Category\Observers;
 
 use Illuminate\Support\Facades\Storage;
@@ -10,21 +12,23 @@ class CategoryObserver
     /**
      * Handle the Category "deleted" event.
      *
-     * @param  \Webkul\Category\Contracts\Category  $category
+     * @param \Webkul\Category\Contracts\Category $category
+     *
      * @return void
      */
-    public function deleted($category)
+    public function deleted($category): void
     {
-        Storage::deleteDirectory('category/'.$category->id);
+        Storage::deleteDirectory('category/' . $category->id);
     }
 
     /**
      * Handle the Category "saved" event.
      *
-     * @param  \Webkul\Category\Contracts\Category  $category
+     * @param \Webkul\Category\Contracts\Category $category
+     *
      * @return void
      */
-    public function saved($category)
+    public function saved($category): void
     {
         foreach ($category->children as $child) {
             $child->touch();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\Communications;
 
 use Illuminate\Http\JsonResponse;
@@ -13,9 +15,13 @@ class TemplateController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param TemplateRepository $templateRepository
+     *
      * @return void
      */
-    public function __construct(protected TemplateRepository $templateRepository) {}
+    public function __construct(protected TemplateRepository $templateRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -49,8 +55,8 @@ class TemplateController extends Controller
     public function store()
     {
         $this->validate(request(), [
-            'name'    => 'required',
-            'status'  => 'required|in:active,inactive,draft',
+            'name' => 'required',
+            'status' => 'required|in:active,inactive,draft',
             'content' => 'required',
         ]);
 
@@ -72,6 +78,8 @@ class TemplateController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -84,13 +92,15 @@ class TemplateController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(int $id)
     {
         $this->validate(request(), [
-            'name'    => 'required',
-            'status'  => 'required|in:active,inactive,draft',
+            'name' => 'required',
+            'status' => 'required|in:active,inactive,draft',
             'content' => 'required',
         ]);
 
@@ -111,6 +121,8 @@ class TemplateController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {

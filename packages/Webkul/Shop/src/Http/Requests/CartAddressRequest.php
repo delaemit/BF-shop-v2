@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -32,7 +34,7 @@ class CartAddressRequest extends FormRequest
             $this->mergeAddressRules('billing');
         }
 
-        if (! $this->input('billing.use_for_shipping')) {
+        if (!$this->input('billing.use_for_shipping')) {
             $this->mergeAddressRules('shipping');
         }
 
@@ -42,26 +44,30 @@ class CartAddressRequest extends FormRequest
     /**
      * Merge new address rules.
      *
+     * @param string $addressType
+     *
      * @return void
      */
-    private function mergeAddressRules(string $addressType)
+    private function mergeAddressRules(string $addressType): void
     {
         $this->mergeWithRules([
             "{$addressType}.company_name" => ['nullable'],
-            "{$addressType}.first_name"   => ['required'],
-            "{$addressType}.last_name"    => ['required'],
-            "{$addressType}.email"        => ['required'],
-            "{$addressType}.address"      => ['required', 'array', 'min:1'],
-            "{$addressType}.city"         => ['required'],
-            "{$addressType}.country"      => core()->isCountryRequired() ? ['required'] : ['nullable'],
-            "{$addressType}.state"        => core()->isStateRequired() ? ['required'] : ['nullable'],
-            "{$addressType}.postcode"     => core()->isPostCodeRequired() ? ['required', new PostCode] : [new PostCode],
-            "{$addressType}.phone"        => ['required', new PhoneNumber],
+            "{$addressType}.first_name" => ['required'],
+            "{$addressType}.last_name" => ['required'],
+            "{$addressType}.email" => ['required'],
+            "{$addressType}.address" => ['required', 'array', 'min:1'],
+            "{$addressType}.city" => ['required'],
+            "{$addressType}.country" => core()->isCountryRequired() ? ['required'] : ['nullable'],
+            "{$addressType}.state" => core()->isStateRequired() ? ['required'] : ['nullable'],
+            "{$addressType}.postcode" => core()->isPostCodeRequired() ? ['required', new PostCode()] : [new PostCode()],
+            "{$addressType}.phone" => ['required', new PhoneNumber()],
         ]);
     }
 
     /**
      * Merge additional rules.
+     *
+     * @param mixed $rules
      */
     private function mergeWithRules($rules): void
     {

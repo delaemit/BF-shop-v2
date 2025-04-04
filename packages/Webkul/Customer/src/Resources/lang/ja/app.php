@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'validations' => [
         'captcha' => [
-            'captcha'  => '何か問題が発生しました！もう一度試してみてください。',
+            'captcha' => '何か問題が発生しました！もう一度試してみてください。',
             'required' => 'CAPTCHA を選択してください',
         ],
 

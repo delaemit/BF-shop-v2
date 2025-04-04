@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core;
 
 use Elastic\Elasticsearch\Client;
@@ -14,13 +16,27 @@ class ElasticSearch
      * @var array
      */
     protected $configMappings = [
-        'retries'  => 'setRetries',
+        'retries' => 'setRetries',
         'caBundle' => 'setCABundle',
     ];
 
     /**
+     * Dynamically pass methods to the default connection.
+     *
+     * @param string $method
+     * @param array $parameters
+     *
+     * @return mixed
+     */
+    public function __call(string $method, array $parameters)
+    {
+        return \call_user_func_array([$this->makeConnection(), $method], $parameters);
+    }
+
+    /**
      * Make a new connection.
      *
+     * @param ?string $name
      *
      * @return \Elasticsearch\Client
      */
@@ -32,20 +48,20 @@ class ElasticSearch
 
         $clientBuilder = ClientBuilder::create();
 
-        if ($connection == 'default') {
-            /**
+        if ($connection === 'default') {
+            /*
              * Build default connection
              */
             $clientBuilder->setHosts($config['hosts'])
                 ->setBasicAuthentication($config['user'] ?: '', $config['pass'] ?: '');
-        } elseif ($connection == 'api') {
-            /**
+        } elseif ($connection === 'api') {
+            /*
              * Build API key connection
              */
             $clientBuilder->setHosts($config['hosts'])
                 ->setApiKey($config['key']);
-        } elseif ($connection == 'cloud') {
-            /**
+        } elseif ($connection === 'cloud') {
+            /*
              * Build Elastic Cloud connection
              */
             $clientBuilder->setElasticCloudId($config['id']);
@@ -57,13 +73,13 @@ class ElasticSearch
             }
         }
 
-        /**
+        /*
          * Set additional client configuration
          */
         foreach ($this->configMappings as $key => $method) {
             $value = Arr::get(config('elasticsearch'), $key);
 
-            if (! is_null($value)) {
+            if (!is_null($value)) {
                 $clientBuilder->$method($value);
             }
         }
@@ -82,10 +98,11 @@ class ElasticSearch
     /**
      * Get the configuration for a named connection.
      *
+     * @throws \InvalidArgumentException
+     *
+     * @param string $name
      *
      * @return mixed
-     *
-     * @throws \InvalidArgumentException
      */
     protected function getConnectionConfig(string $name)
     {
@@ -96,15 +113,5 @@ class ElasticSearch
         }
 
         return $config;
-    }
-
-    /**
-     * Dynamically pass methods to the default connection.
-     *
-     * @return mixed
-     */
-    public function __call(string $method, array $parameters)
-    {
-        return call_user_func_array([$this->makeConnection(), $method], $parameters);
     }
 }

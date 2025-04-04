@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -67,7 +69,9 @@ class ProductImage extends Model implements ProductImageContract
     /**
      * Is custom attribute.
      *
-     * @param  string  $key
+     * @param string $key
+     * @param mixed $attribute
+     *
      * @return bool
      */
     public function isCustomAttribute($attribute)

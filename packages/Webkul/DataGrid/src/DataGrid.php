@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataGrid;
 
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -108,15 +110,21 @@ abstract class DataGrid
     /**
      * Prepare actions.
      */
-    public function prepareActions() {}
+    public function prepareActions(): void
+    {
+    }
 
     /**
      * Prepare mass actions.
      */
-    public function prepareMassActions() {}
+    public function prepareMassActions(): void
+    {
+    }
 
     /**
      * Set primary column.
+     *
+     * @param string $primaryColumn
      */
     public function setPrimaryColumn(string $primaryColumn): void
     {
@@ -133,6 +141,8 @@ abstract class DataGrid
 
     /**
      * Set sort column.
+     *
+     * @param string $sortColumn
      */
     public function setSortColumn(string $sortColumn): void
     {
@@ -149,6 +159,8 @@ abstract class DataGrid
 
     /**
      * Set sort order.
+     *
+     * @param string $sortOrder
      */
     public function setSortOrder(string $sortOrder): void
     {
@@ -165,6 +177,8 @@ abstract class DataGrid
 
     /**
      * Set items per page.
+     *
+     * @param int $itemsPerPage
      */
     public function setItemsPerPage(int $itemsPerPage): void
     {
@@ -181,6 +195,8 @@ abstract class DataGrid
 
     /**
      * Set per page options.
+     *
+     * @param array $perPageOptions
      */
     public function setPerPageOptions(array $perPageOptions): void
     {
@@ -197,6 +213,8 @@ abstract class DataGrid
 
     /**
      * Set columns.
+     *
+     * @param array $columns
      */
     public function setColumns(array $columns): void
     {
@@ -205,6 +223,8 @@ abstract class DataGrid
 
     /**
      * Add column.
+     *
+     * @param array $column
      */
     public function addColumn(array $column): void
     {
@@ -225,6 +245,8 @@ abstract class DataGrid
 
     /**
      * Set actions.
+     *
+     * @param array $actions
      */
     public function setActions(array $actions): void
     {
@@ -233,6 +255,8 @@ abstract class DataGrid
 
     /**
      * Add action.
+     *
+     * @param array $action
      */
     public function addAction(array $action): void
     {
@@ -259,6 +283,8 @@ abstract class DataGrid
 
     /**
      * Set mass actions.
+     *
+     * @param array $massActions
      */
     public function setMassActions(array $massActions): void
     {
@@ -267,6 +293,8 @@ abstract class DataGrid
 
     /**
      * Add mass action.
+     *
+     * @param array $massAction
      */
     public function addMassAction(array $massAction): void
     {
@@ -294,7 +322,7 @@ abstract class DataGrid
     /**
      * Set query builder.
      *
-     * @param  mixed  $queryBuilder
+     * @param mixed $queryBuilder
      */
     public function setQueryBuilder($queryBuilder): void
     {
@@ -311,6 +339,9 @@ abstract class DataGrid
 
     /**
      * Map your filter.
+     *
+     * @param string $datagridColumn
+     * @param mixed $queryColumn
      */
     public function addFilter(string $datagridColumn, mixed $queryColumn): void
     {
@@ -329,6 +360,8 @@ abstract class DataGrid
 
     /**
      * Set exportable.
+     *
+     * @param bool $exportable
      */
     public function setExportable(bool $exportable): void
     {
@@ -353,6 +386,8 @@ abstract class DataGrid
 
     /**
      * Set export file name.
+     *
+     * @param string $exportFileName
      */
     public function setExportFileName(string $exportFileName): void
     {
@@ -369,6 +404,8 @@ abstract class DataGrid
 
     /**
      * Set export file extension.
+     *
+     * @param string $exportFileExtension
      */
     public function setExportFileExtension(string $exportFileExtension = 'csv'): void
     {
@@ -396,7 +433,7 @@ abstract class DataGrid
      */
     public function getExportFileNameWithExtension(): string
     {
-        return $this->getExportFileName().'.'.$this->getExportFileExtension();
+        return $this->getExportFileName() . '.' . $this->getExportFileExtension();
     }
 
     /**
@@ -412,7 +449,7 @@ abstract class DataGrid
     /**
      * Process the datagrid.
      *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function process()
     {
@@ -431,7 +468,7 @@ abstract class DataGrid
      *
      * @deprecated
      *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function toJson()
     {
@@ -444,11 +481,11 @@ abstract class DataGrid
     protected function validatedRequest(): array
     {
         request()->validate([
-            'filters'     => ['sometimes', 'required', 'array'],
-            'sort'        => ['sometimes', 'required', 'array'],
-            'pagination'  => ['sometimes', 'required', 'array'],
-            'export'      => ['sometimes', 'required', 'boolean'],
-            'format'      => ['sometimes', 'required', 'in:csv,xls,xlsx'],
+            'filters' => ['sometimes', 'required', 'array'],
+            'sort' => ['sometimes', 'required', 'array'],
+            'pagination' => ['sometimes', 'required', 'array'],
+            'export' => ['sometimes', 'required', 'boolean'],
+            'format' => ['sometimes', 'required', 'in:csv,xls,xlsx'],
         ]);
 
         return request()->only(['filters', 'sort', 'pagination', 'export', 'format']);
@@ -456,6 +493,8 @@ abstract class DataGrid
 
     /**
      * Process requested filters.
+     *
+     * @param array $requestedFilters
      *
      * @return \Illuminate\Database\Query\Builder
      */
@@ -465,19 +504,19 @@ abstract class DataGrid
 
         foreach ($requestedFilters as $requestedColumn => $requestedValues) {
             if ($requestedColumn === 'all') {
-                $this->queryBuilder->where(function ($scopeQueryBuilder) use ($requestedValues) {
+                $this->queryBuilder->where(function ($scopeQueryBuilder) use ($requestedValues): void {
                     foreach ($requestedValues as $value) {
                         collect($this->columns)
-                            ->filter(fn ($column) => $column->getSearchable() && ! in_array($column->getType(), [
+                            ->filter(fn($column) => $column->getSearchable() && !in_array($column->getType(), [
                                 ColumnTypeEnum::BOOLEAN->value,
                                 ColumnTypeEnum::AGGREGATE->value,
-                            ]))
-                            ->each(fn ($column) => $scopeQueryBuilder->orWhere($column->getColumnName(), 'LIKE', '%'.$value.'%'));
+                            ], true))
+                            ->each(fn($column) => $scopeQueryBuilder->orWhere($column->getColumnName(), 'LIKE', '%' . $value . '%'));
                     }
                 });
             } else {
                 collect($this->columns)
-                    ->first(fn ($column) => $column->getIndex() === $requestedColumn)
+                    ->first(fn($column) => $column->getIndex() === $requestedColumn)
                     ->processFilter($this->queryBuilder, $requestedValues);
             }
         }
@@ -488,13 +527,15 @@ abstract class DataGrid
     /**
      * Process requested sorting.
      *
+     * @param mixed $requestedSort
+     *
      * @return \Illuminate\Database\Query\Builder
      */
     protected function processRequestedSorting($requestedSort)
     {
         $this->dispatchEvent('process_request.sorting.before', $this);
 
-        if (! $this->sortColumn) {
+        if (!$this->sortColumn) {
             $this->sortColumn = $this->primaryColumn;
         }
 
@@ -505,6 +546,8 @@ abstract class DataGrid
 
     /**
      * Process requested pagination.
+     *
+     * @param array $requestedPagination
      */
     protected function processRequestedPagination(array $requestedPagination): void
     {
@@ -522,6 +565,8 @@ abstract class DataGrid
 
     /**
      * Process requested export.
+     *
+     * @param string $exportFileExtension
      */
     protected function processRequestedExport(string $exportFileExtension = 'csv'): void
     {
@@ -552,7 +597,7 @@ abstract class DataGrid
 
         $this->processRequestedSorting($requestedParams['sort'] ?? []);
 
-        /**
+        /*
          * The `export` parameter is validated as a boolean in the `validatedRequest`. An `empty` function will not work,
          * as it will always be treated as true because of "0" and "1".
          */
@@ -565,6 +610,8 @@ abstract class DataGrid
 
     /**
      * Prepare all the setup for datagrid.
+     *
+     * @param mixed $row
      */
     protected function sanitizeRow($row): \stdClass
     {
@@ -574,15 +621,14 @@ abstract class DataGrid
         $tempRow = json_decode(json_encode($row), true);
 
         foreach ($tempRow as $column => $value) {
-            if (! is_string($tempRow[$column])) {
+            if (!is_string($tempRow[$column])) {
                 continue;
             }
 
             if (is_array($value)) {
                 return $this->sanitizeRow($tempRow[$column]);
-            } else {
-                $row->{$column} = strip_tags($value);
             }
+            $row->{$column} = strip_tags($value);
         }
 
         return $row;
@@ -594,7 +640,7 @@ abstract class DataGrid
     protected function formatColumns(): array
     {
         return collect($this->columns)
-            ->map(fn ($column) => $column->toArray())
+            ->map(fn($column) => $column->toArray())
             ->toArray();
     }
 
@@ -604,7 +650,7 @@ abstract class DataGrid
     protected function formatActions(): array
     {
         return collect($this->actions)
-            ->map(fn ($action) => $action->toArray())
+            ->map(fn($action) => $action->toArray())
             ->toArray();
     }
 
@@ -614,12 +660,14 @@ abstract class DataGrid
     protected function formatMassActions(): array
     {
         return collect($this->massActions)
-            ->map(fn ($massAction) => $massAction->toArray())
+            ->map(fn($massAction) => $massAction->toArray())
             ->toArray();
     }
 
     /**
      * Format records.
+     *
+     * @param mixed $records
      */
     protected function formatRecords($records): mixed
     {
@@ -638,11 +686,11 @@ abstract class DataGrid
                 $getUrl = $action->url;
 
                 $record->actions[] = [
-                    'index'  => ! empty($action->index) ? $action->index : 'action_'.$index + 1,
-                    'icon'   => $action->icon,
-                    'title'  => $action->title,
+                    'index' => !empty($action->index) ? $action->index : 'action_' . $index + 1,
+                    'icon' => $action->icon,
+                    'title' => $action->title,
                     'method' => $action->method,
-                    'url'    => $getUrl($record),
+                    'url' => $getUrl($record),
                 ];
             }
         }
@@ -658,26 +706,29 @@ abstract class DataGrid
         $paginator = $this->paginator->toArray();
 
         return [
-            'id'           => Crypt::encryptString(get_called_class()),
-            'columns'      => $this->formatColumns(),
-            'actions'      => $this->formatActions(),
+            'id' => Crypt::encryptString(static::class),
+            'columns' => $this->formatColumns(),
+            'actions' => $this->formatActions(),
             'mass_actions' => $this->formatMassActions(),
-            'records'      => $this->formatRecords($paginator['data']),
-            'meta'         => [
-                'primary_column'   => $this->primaryColumn,
-                'from'             => $paginator['from'],
-                'to'               => $paginator['to'],
-                'total'            => $paginator['total'],
+            'records' => $this->formatRecords($paginator['data']),
+            'meta' => [
+                'primary_column' => $this->primaryColumn,
+                'from' => $paginator['from'],
+                'to' => $paginator['to'],
+                'total' => $paginator['total'],
                 'per_page_options' => $this->perPageOptions,
-                'per_page'         => $paginator['per_page'],
-                'current_page'     => $paginator['current_page'],
-                'last_page'        => $paginator['last_page'],
+                'per_page' => $paginator['per_page'],
+                'current_page' => $paginator['current_page'],
+                'last_page' => $paginator['last_page'],
             ],
         ];
     }
 
     /**
      * Dispatch event.
+     *
+     * @param string $eventName
+     * @param mixed $payload
      */
     protected function dispatchEvent(string $eventName, mixed $payload): void
     {
@@ -695,7 +746,7 @@ abstract class DataGrid
     {
         $this->dispatchEvent('prepare.before', $this);
 
-        /**
+        /*
          * Prepare columns.
          */
         $this->dispatchEvent('columns.prepare.before', $this);
@@ -704,7 +755,7 @@ abstract class DataGrid
 
         $this->dispatchEvent('columns.prepare.after', $this);
 
-        /**
+        /*
          * Prepare actions.
          */
         $this->dispatchEvent('actions.prepare.before', $this);
@@ -713,7 +764,7 @@ abstract class DataGrid
 
         $this->dispatchEvent('actions.prepare.after', $this);
 
-        /**
+        /*
          * Prepare mass actions.
          */
         $this->dispatchEvent('mass_actions.prepare.before', $this);
@@ -722,7 +773,7 @@ abstract class DataGrid
 
         $this->dispatchEvent('mass_actions.prepare.after', $this);
 
-        /**
+        /*
          * Prepare query builder.
          */
         $this->dispatchEvent('query_builder.prepare.before', $this);
@@ -731,7 +782,7 @@ abstract class DataGrid
 
         $this->dispatchEvent('query_builder.prepare.after', $this);
 
-        /**
+        /*
          * Process request.
          */
         $this->processRequest();

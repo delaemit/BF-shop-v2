@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Product\Facades\ProductImage;
 use Webkul\Product\Facades\ProductVideo;
 use Webkul\Product\Helpers\Toolbar;
 
-if (! function_exists('product_image')) {
+if (!function_exists('product_image')) {
     /**
      * Product image helper.
      *
@@ -16,7 +18,7 @@ if (! function_exists('product_image')) {
     }
 }
 
-if (! function_exists('product_video')) {
+if (!function_exists('product_video')) {
     /**
      * Product video helper.
      *
@@ -28,7 +30,7 @@ if (! function_exists('product_video')) {
     }
 }
 
-if (! function_exists('product_toolbar')) {
+if (!function_exists('product_toolbar')) {
     /**
      * Product tolbar helper.
      *

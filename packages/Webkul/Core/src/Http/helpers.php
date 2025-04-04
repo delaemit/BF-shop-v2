@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Core\Facades\Acl;
 use Webkul\Core\Facades\Core;
 use Webkul\Core\Facades\Menu;
 use Webkul\Core\Facades\SystemConfig;
 
-if (! function_exists('core')) {
+if (!function_exists('core')) {
     /**
      * Core helper.
      *
@@ -17,7 +19,7 @@ if (! function_exists('core')) {
     }
 }
 
-if (! function_exists('menu')) {
+if (!function_exists('menu')) {
     /**
      * Menu helper.
      *
@@ -29,7 +31,7 @@ if (! function_exists('menu')) {
     }
 }
 
-if (! function_exists('acl')) {
+if (!function_exists('acl')) {
     /**
      * Acl helper.
      *
@@ -41,7 +43,7 @@ if (! function_exists('acl')) {
     }
 }
 
-if (! function_exists('system_config')) {
+if (!function_exists('system_config')) {
     /**
      * System Config helper.
      *
@@ -53,19 +55,21 @@ if (! function_exists('system_config')) {
     }
 }
 
-if (! function_exists('clean_path')) {
+if (!function_exists('clean_path')) {
     /**
      * Clean path.
+     *
+     * @param string $path
      */
     function clean_path(string $path): string
     {
         return collect(explode('/', $path))
-            ->filter(fn ($segment) => ! empty($segment))
+            ->filter(fn($segment) => !empty($segment))
             ->join('/');
     }
 }
 
-if (! function_exists('array_permutation')) {
+if (!function_exists('array_permutation')) {
     function array_permutation($input)
     {
         $results = [];

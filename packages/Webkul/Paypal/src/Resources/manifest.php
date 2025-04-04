@@ -1,6 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'name'    => 'Webkul Bagisto Paypal',
+    'name' => 'Webkul Bagisto Paypal',
     'version' => core()->version(),
 ];

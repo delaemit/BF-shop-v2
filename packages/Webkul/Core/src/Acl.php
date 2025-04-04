@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core;
 
 use Illuminate\Support\Arr;
@@ -15,6 +17,8 @@ class Acl
 
     /**
      * Add a new acl item.
+     *
+     * @param AclItem $aclItem
      */
     public function addItem(AclItem $aclItem): void
     {
@@ -26,7 +30,7 @@ class Acl
      */
     public function getItems(): Collection
     {
-        if (! $this->items) {
+        if (!$this->items) {
             $this->prepareAclItems();
         }
 
@@ -62,7 +66,7 @@ class Acl
         }
 
         $roles = collect($this->getAclConfig())
-            ->mapWithKeys(fn ($role) => [$role['route'] => $role['key']]);
+            ->mapWithKeys(fn($role) => [$role['route'] => $role['key']]);
 
         return $roles;
     }
@@ -95,12 +99,14 @@ class Acl
 
     /**
      * Process sub acl items.
+     *
+     * @param mixed $aclItem
      */
     private function processSubAclItems($aclItem): Collection
     {
         return collect($aclItem)
             ->sortBy('sort')
-            ->filter(fn ($value) => is_array($value))
+            ->filter(fn($value) => is_array($value))
             ->map(function ($subAclItem) {
                 $subSubAclItems = $this->processSubAclItems($subAclItem);
 

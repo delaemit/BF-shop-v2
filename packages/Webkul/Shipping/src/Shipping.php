@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shipping;
 
 use Illuminate\Support\Facades\Config;
@@ -21,7 +23,7 @@ class Shipping
      */
     public function collectRates()
     {
-        if (! Cart::getCart()) {
+        if (!Cart::getCart()) {
             return false;
         }
 
@@ -30,7 +32,7 @@ class Shipping
         $ratesList = [];
 
         foreach (Config::get('carriers') as $shippingMethod) {
-            $object = new $shippingMethod['class'];
+            $object = new $shippingMethod['class']();
 
             if ($rates = $object->calculate()) {
                 if (is_array($rates)) {
@@ -55,9 +57,9 @@ class Shipping
      *
      * @return void
      */
-    public function removeAllShippingRates()
+    public function removeAllShippingRates(): void
     {
-        if (! $cart = Cart::getCart()) {
+        if (!$cart = Cart::getCart()) {
             return;
         }
 
@@ -71,15 +73,15 @@ class Shipping
      *
      * @return void
      */
-    public function saveAllShippingRates()
+    public function saveAllShippingRates(): void
     {
-        if (! $cart = Cart::getCart()) {
+        if (!$cart = Cart::getCart()) {
             return;
         }
 
         $shippingAddress = $cart->shipping_address;
 
-        if (! $shippingAddress) {
+        if (!$shippingAddress) {
             return;
         }
 
@@ -103,10 +105,10 @@ class Shipping
         $rates = [];
 
         foreach ($this->rates as $rate) {
-            if (! isset($rates[$rate->carrier])) {
+            if (!isset($rates[$rate->carrier])) {
                 $rates[$rate->carrier] = [
                     'carrier_title' => $rate->carrier_title,
-                    'rates'         => [],
+                    'rates' => [],
                 ];
             }
 
@@ -128,17 +130,17 @@ class Shipping
         $methods = [];
 
         foreach (Config::get('carriers') as $shippingMethod) {
-            $object = new $shippingMethod['class'];
+            $object = new $shippingMethod['class']();
 
-            if (! $object->isAvailable()) {
+            if (!$object->isAvailable()) {
                 continue;
             }
 
             $methods[] = [
-                'code'         => $object->getCode(),
-                'method'       => $object->getMethod(),
+                'code' => $object->getCode(),
+                'method' => $object->getMethod(),
                 'method_title' => $object->getTitle(),
-                'description'  => $object->getDescription(),
+                'description' => $object->getDescription(),
             ];
         }
 
@@ -148,7 +150,8 @@ class Shipping
     /**
      * Is method exist in active shipping methods.
      *
-     * @param  string  $shippingMethodCode
+     * @param string $shippingMethodCode
+     *
      * @return bool
      */
     public function isMethodCodeExists($shippingMethodCode)
@@ -157,7 +160,7 @@ class Shipping
 
         if (
             empty($shippingMethods)
-            || ! $shippingMethods
+            || !$shippingMethods
         ) {
             return false;
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Http\Middleware;
 
 use Closure;
@@ -32,6 +34,8 @@ class PreventRequestsDuringMaintenance extends BasePreventRequestsDuringMaintena
 
     /**
      * Constructor.
+     *
+     * @param Application $app
      */
     public function __construct(Application $app)
     {
@@ -49,7 +53,9 @@ class PreventRequestsDuringMaintenance extends BasePreventRequestsDuringMaintena
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     * @param Closure $next
+     *
      * @return mixed
      *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
@@ -60,7 +66,7 @@ class PreventRequestsDuringMaintenance extends BasePreventRequestsDuringMaintena
             try {
                 $data = $this->app->maintenanceMode()->data();
             } catch (\ErrorException $exception) {
-                if (! $this->app->maintenanceMode()->active()) {
+                if (!$this->app->maintenanceMode()->active()) {
                     return $next($request);
                 }
 
@@ -78,7 +84,7 @@ class PreventRequestsDuringMaintenance extends BasePreventRequestsDuringMaintena
             if (
                 in_array($request->ip(), $this->excludedIPs)
                 || $this->inExceptArray($request)
-                || ! (bool) core()->getCurrentChannel()->is_maintenance_on
+                || !(bool) core()->getCurrentChannel()->is_maintenance_on
             ) {
                 return $next($request);
             }

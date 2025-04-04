@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -24,7 +26,8 @@ class PriceRuleIndex extends Command
     /**
      * Create a new command instance.
      *
-     * @param  \Webkul\CatalogRuleProduct\Helpers\CatalogRuleIndex  $catalogRuleIndexHelper
+     * @param \Webkul\CatalogRuleProduct\Helpers\CatalogRuleIndex $catalogRuleIndexHelper
+     *
      * @return void
      */
     public function __construct(protected CatalogRuleIndex $catalogRuleIndexHelper)

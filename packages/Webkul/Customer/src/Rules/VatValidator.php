@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Rules;
 
 class VatValidator
@@ -9,7 +11,7 @@ class VatValidator
      *
      * @var array
      *
-     * @link http://ec.europa.eu/taxation_customs/vies/faq.html?locale=en#item_11
+     * @see http://ec.europa.eu/taxation_customs/vies/faq.html?locale=en#item_11
      */
     protected static $pattern_expression = [
         'AT' => 'U[A-Z\d]{8}',
@@ -47,6 +49,8 @@ class VatValidator
 
     /**
      * Validate a VAT number format.
+     *
+     * @param string $vatNumber
      */
     public function validate(string $vatNumber): bool
     {
@@ -54,11 +58,11 @@ class VatValidator
 
         [$country, $number] = $this->splitVat($vatNumber);
 
-        if (! isset(self::$pattern_expression[$country])) {
+        if (!isset(self::$pattern_expression[$country])) {
             return false;
         }
 
-        return preg_match('/^'.self::$pattern_expression[$country].'$/', $number) > 0;
+        return preg_match('/^' . self::$pattern_expression[$country] . '$/', $number) > 0;
     }
 
     private function vatCleaner(string $vatNumber): string

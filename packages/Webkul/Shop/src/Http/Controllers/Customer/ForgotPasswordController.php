@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\Customer;
 
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
@@ -24,6 +26,8 @@ class ForgotPasswordController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param ForgotPasswordRequest $request
+     *
      * @return void
      */
     public function store(ForgotPasswordRequest $request)
@@ -33,13 +37,13 @@ class ForgotPasswordController extends Controller
         try {
             $response = $this->broker()->sendResetLink($request->only(['email']));
 
-            if ($response == Password::RESET_LINK_SENT) {
+            if ($response === Password::RESET_LINK_SENT) {
                 session()->flash('success', trans('shop::app.customers.forgot-password.reset-link-sent'));
 
                 return redirect()->route('shop.customers.forgot_password.create');
             }
 
-            if ($response == Password::RESET_THROTTLED) {
+            if ($response === Password::RESET_THROTTLED) {
                 session()->flash('warning', trans('shop::app.customers.forgot-password.already-sent'));
 
                 return redirect()->route('shop.customers.forgot_password.create');

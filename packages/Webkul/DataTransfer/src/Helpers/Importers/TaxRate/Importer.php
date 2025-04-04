@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Importers\TaxRate;
 
 use Illuminate\Support\Arr;
@@ -16,12 +18,12 @@ class Importer extends AbstractImporter
     /**
      * Error code for non existing identifier
      */
-    const ERROR_IDENTIFIER_NOT_FOUND_FOR_DELETE = 'identifier_not_found_to_delete';
+    public const ERROR_IDENTIFIER_NOT_FOUND_FOR_DELETE = 'identifier_not_found_to_delete';
 
     /**
      * Error code for duplicated identifier
      */
-    const ERROR_DUPLICATE_IDENTIFIER = 'duplicated_identifier';
+    public const ERROR_DUPLICATE_IDENTIFIER = 'duplicated_identifier';
 
     /**
      * Permanent entity columns
@@ -42,7 +44,7 @@ class Importer extends AbstractImporter
      */
     protected array $messages = [
         self::ERROR_IDENTIFIER_NOT_FOUND_FOR_DELETE => 'data_transfer::app.importers.tax-rates.validation.errors.identifier-not-found',
-        self::ERROR_DUPLICATE_IDENTIFIER            => 'data_transfer::app.importers.tax-rates.validation.errors.duplicate-identifier',
+        self::ERROR_DUPLICATE_IDENTIFIER => 'data_transfer::app.importers.tax-rates.validation.errors.duplicate-identifier',
     ];
 
     /**
@@ -64,6 +66,10 @@ class Importer extends AbstractImporter
 
     /**
      * Create a new helper instance.
+     *
+     * @param ImportBatchRepository $importBatchRepository
+     * @param TaxRateRepository $taxRateRepository
+     * @param Storage $taxRateStorage
      *
      * @return void
      */
@@ -99,23 +105,26 @@ class Importer extends AbstractImporter
 
     /**
      * Validates row
+     *
+     * @param array $rowData
+     * @param int $rowNumber
      */
     public function validateRow(array $rowData, int $rowNumber): bool
     {
-        /**
+        /*
          * If row is already validated than no need for further validation
          */
         if (isset($this->validatedRows[$rowNumber])) {
-            return ! $this->errorHelper->isRowInvalid($rowNumber);
+            return !$this->errorHelper->isRowInvalid($rowNumber);
         }
 
         $this->validatedRows[$rowNumber] = true;
 
-        /**
+        /*
          * If import action is delete than no need for further validation
          */
-        if ($this->import->action == Import::ACTION_DELETE) {
-            if (! $this->isIdentifierExist($rowData['identifier'])) {
+        if ($this->import->action === Import::ACTION_DELETE) {
+            if (!$this->isIdentifierExist($rowData['identifier'])) {
                 $this->skipRow($rowNumber, self::ERROR_IDENTIFIER_NOT_FOUND_FOR_DELETE);
 
                 return false;
@@ -128,13 +137,13 @@ class Importer extends AbstractImporter
          * Validate product attributes
          */
         $validator = Validator::make($rowData, [
-            'identifier'   => 'required|string',
+            'identifier' => 'required|string',
             'is_zip_range' => 'sometimes|boolean',
-            'zip_code'     => 'nullable|required_if:is_zip_range,0',
-            'zip_from'     => 'nullable|required_if:is_zip_range,1',
-            'zip_to'       => 'nullable|required_if:is_zip_range,1',
-            'country'      => 'required|string',
-            'tax_rate'     => 'required|numeric|min:0.0001',
+            'zip_code' => 'nullable|required_if:is_zip_range,0',
+            'zip_from' => 'nullable|required_if:is_zip_range,1',
+            'zip_to' => 'nullable|required_if:is_zip_range,1',
+            'country' => 'required|string',
+            'tax_rate' => 'required|numeric|min:0.0001',
         ]);
 
         if ($validator->fails()) {
@@ -147,10 +156,10 @@ class Importer extends AbstractImporter
             }
         }
 
-        /**
+        /*
          * Check if identifier is unique
          */
-        if (! in_array($rowData['identifier'], $this->identifiers)) {
+        if (!in_array($rowData['identifier'], $this->identifiers, true)) {
             $this->identifiers[] = $rowData['identifier'];
         } else {
             $message = sprintf(
@@ -161,17 +170,19 @@ class Importer extends AbstractImporter
             $this->skipRow($rowNumber, self::ERROR_DUPLICATE_IDENTIFIER, 'identifier', $message);
         }
 
-        return ! $this->errorHelper->isRowInvalid($rowNumber);
+        return !$this->errorHelper->isRowInvalid($rowNumber);
     }
 
     /**
      * Start the import process
+     *
+     * @param ImportBatchContract $batch
      */
     public function importBatch(ImportBatchContract $batch): bool
     {
         Event::dispatch('data_transfer.imports.batch.import.before', $batch);
 
-        if ($batch->import->action == Import::ACTION_DELETE) {
+        if ($batch->import->action === Import::ACTION_DELETE) {
             $this->deleteTaxRates($batch);
         } else {
             $this->saveTaxRatesData($batch);
@@ -183,7 +194,7 @@ class Importer extends AbstractImporter
         $batch = $this->importBatchRepository->update([
             'state' => Import::STATE_PROCESSED,
 
-            'summary'      => [
+            'summary' => [
                 'created' => $this->getCreatedItemsCount(),
                 'updated' => $this->getUpdatedItemsCount(),
                 'deleted' => $this->getDeletedItemsCount(),
@@ -197,10 +208,12 @@ class Importer extends AbstractImporter
 
     /**
      * Delete tax rates from current batch
+     *
+     * @param ImportBatchContract $batch
      */
     protected function deleteTaxRates(ImportBatchContract $batch): bool
     {
-        /**
+        /*
          * Load tax rates storage with batch identifiers
          */
         $this->taxRateStorage->load(Arr::pluck($batch->data, 'identifier'));
@@ -208,7 +221,7 @@ class Importer extends AbstractImporter
         $idsToDelete = [];
 
         foreach ($batch->data as $rowData) {
-            if (! $this->isIdentifierExist($rowData['identifier'])) {
+            if (!$this->isIdentifierExist($rowData['identifier'])) {
                 continue;
             }
 
@@ -226,10 +239,12 @@ class Importer extends AbstractImporter
 
     /**
      * Save tax rates from current batch
+     *
+     * @param ImportBatchContract $batch
      */
     protected function saveTaxRatesData(ImportBatchContract $batch): bool
     {
-        /**
+        /*
          * Load tax rate storage with batch identifier
          */
         $this->taxRateStorage->load(Arr::pluck($batch->data, 'identifier'));
@@ -237,7 +252,7 @@ class Importer extends AbstractImporter
         $taxRates = [];
 
         foreach ($batch->data as $rowData) {
-            /**
+            /*
              * Prepare tax rates for import
              */
             if ($this->isIdentifierExist($rowData['identifier'])) {
@@ -250,7 +265,7 @@ class Importer extends AbstractImporter
             }
         }
 
-        if (! empty($taxRates['update'])) {
+        if (!empty($taxRates['update'])) {
             $this->updatedItemsCount += count($taxRates['update']);
 
             $this->taxRateRepository->upsert(
@@ -259,7 +274,7 @@ class Importer extends AbstractImporter
             );
         }
 
-        if (! empty($taxRates['insert'])) {
+        if (!empty($taxRates['insert'])) {
             $this->createdItemsCount += count($taxRates['insert']);
 
             $this->taxRateRepository->insert($taxRates['insert']);
@@ -270,6 +285,8 @@ class Importer extends AbstractImporter
 
     /**
      * Check if identifier exists
+     *
+     * @param string $identifier
      */
     public function isIdentifierExist(string $identifier): bool
     {
@@ -278,6 +295,8 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare row data to save into the database
+     *
+     * @param array $rowData
      */
     protected function prepareRowForDb(array $rowData): array
     {

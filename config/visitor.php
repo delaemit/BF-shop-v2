@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -32,6 +34,6 @@ return [
     */
     'drivers' => [
         'jenssegers' => \Shetabit\Visitor\Drivers\JenssegersAgent::class,
-        'UAParser'   => \Shetabit\Visitor\Drivers\UAParser::class,
+        'UAParser' => \Shetabit\Visitor\Drivers\UAParser::class,
     ],
 ];

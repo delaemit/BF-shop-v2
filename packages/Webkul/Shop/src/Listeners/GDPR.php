@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Listeners;
 
 use Illuminate\Support\Facades\Mail;
@@ -11,10 +13,11 @@ class GDPR extends Base
     /**
      * Send mail on creating GDPR request
      *
-     * @param  \Webkul\GDPR\Models\GDPRDataRequest  $gdprRequest
+     * @param \Webkul\GDPR\Models\GDPRDataRequest $gdprRequest
+     *
      * @return void
      */
-    public function afterGdprRequestCreated($gdprRequest)
+    public function afterGdprRequestCreated($gdprRequest): void
     {
         if ($gdprRequest) {
             try {
@@ -32,10 +35,11 @@ class GDPR extends Base
     /**
      * Send mail on creating GDPR request
      *
-     * @param  \Webkul\GDPR\Models\GDPRDataRequest  $gdprRequest
+     * @param \Webkul\GDPR\Models\GDPRDataRequest $gdprRequest
+     *
      * @return void
      */
-    public function afterGdprRequestUpdated($gdprRequest)
+    public function afterGdprRequestUpdated($gdprRequest): void
     {
         try {
             Mail::queue(new StatusUpdateNotification($gdprRequest));

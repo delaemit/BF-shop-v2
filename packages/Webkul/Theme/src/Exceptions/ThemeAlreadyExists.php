@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme\Exceptions;
 
 class ThemeAlreadyExists extends \Exception
@@ -7,7 +9,8 @@ class ThemeAlreadyExists extends \Exception
     /**
      * Create an instance.
      *
-     * @param  \Webkul\Theme\Theme  $theme
+     * @param \Webkul\Theme\Theme $theme
+     *
      * @return void
      */
     public function __construct($theme)

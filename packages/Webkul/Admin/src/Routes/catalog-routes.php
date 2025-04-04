@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\Catalog\AttributeController;
 use Webkul\Admin\Http\Controllers\Catalog\AttributeFamilyController;
@@ -12,14 +14,14 @@ use Webkul\Admin\Http\Controllers\Catalog\Product\SimpleController;
 use Webkul\Admin\Http\Controllers\Catalog\Product\VirtualController;
 use Webkul\Admin\Http\Controllers\Catalog\ProductController;
 
-/**
+/*
  * Catalog routes.
  */
-Route::prefix('catalog')->group(function () {
-    /**
+Route::prefix('catalog')->group(function (): void {
+    /*
      * Attributes routes.
      */
-    Route::controller(AttributeController::class)->prefix('attributes')->group(function () {
+    Route::controller(AttributeController::class)->prefix('attributes')->group(function (): void {
         Route::get('', 'index')->name('admin.catalog.attributes.index');
 
         Route::get('{id}/options', 'getAttributeOptions')->name('admin.catalog.attributes.options');
@@ -37,10 +39,10 @@ Route::prefix('catalog')->group(function () {
         Route::post('mass-delete', 'massDestroy')->name('admin.catalog.attributes.mass_delete');
     });
 
-    /**
+    /*
      * Attribute families routes.
      */
-    Route::controller(AttributeFamilyController::class)->prefix('families')->group(function () {
+    Route::controller(AttributeFamilyController::class)->prefix('families')->group(function (): void {
         Route::get('', 'index')->name('admin.catalog.families.index');
 
         Route::get('create', 'create')->name('admin.catalog.families.create');
@@ -54,10 +56,10 @@ Route::prefix('catalog')->group(function () {
         Route::delete('edit/{id}', 'destroy')->name('admin.catalog.families.delete');
     });
 
-    /**
+    /*
      * Categories routes.
      */
-    Route::controller(CategoryController::class)->prefix('categories')->group(function () {
+    Route::controller(CategoryController::class)->prefix('categories')->group(function (): void {
         Route::get('', 'index')->name('admin.catalog.categories.index');
 
         Route::get('create', 'create')->name('admin.catalog.categories.create');
@@ -79,15 +81,15 @@ Route::prefix('catalog')->group(function () {
         Route::get('tree', 'tree')->name('admin.catalog.categories.tree');
     });
 
-    /**
+    /*
      * Sync route.
      */
     Route::get('/sync', [ProductController::class, 'sync']);
 
-    /**
+    /*
      * Products routes.
      */
-    Route::controller(ProductController::class)->prefix('products')->group(function () {
+    Route::controller(ProductController::class)->prefix('products')->group(function (): void {
         Route::get('', 'index')->name('admin.catalog.products.index');
 
         Route::post('create', 'store')->name('admin.catalog.products.store');
@@ -110,27 +112,27 @@ Route::prefix('catalog')->group(function () {
 
         Route::post('mass-delete', 'massDestroy')->name('admin.catalog.products.mass_delete');
 
-        Route::controller(SimpleController::class)->group(function () {
+        Route::controller(SimpleController::class)->group(function (): void {
             Route::get('{id}/simple-customizable-options', 'customizableOptions')->name('admin.catalog.products.simple.customizable-options');
         });
 
-        Route::controller(ConfigurableController::class)->group(function () {
+        Route::controller(ConfigurableController::class)->group(function (): void {
             Route::get('{id}/configurable-options', 'options')->name('admin.catalog.products.configurable.options');
         });
 
-        Route::controller(BundleController::class)->group(function () {
+        Route::controller(BundleController::class)->group(function (): void {
             Route::get('{id}/bundle-options', 'options')->name('admin.catalog.products.bundle.options');
         });
 
-        Route::controller(GroupedController::class)->group(function () {
+        Route::controller(GroupedController::class)->group(function (): void {
             Route::get('{id}/grouped-options', 'options')->name('admin.catalog.products.grouped.options');
         });
 
-        Route::controller(DownloadableController::class)->group(function () {
+        Route::controller(DownloadableController::class)->group(function (): void {
             Route::get('{id}/downloadable-options', 'options')->name('admin.catalog.products.downloadable.options');
         });
 
-        Route::controller(VirtualController::class)->group(function () {
+        Route::controller(VirtualController::class)->group(function (): void {
             Route::get('{id}/virtual-customizable-options', 'customizableOptions')->name('admin.catalog.products.virtual.customizable-options');
         });
 

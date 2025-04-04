@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Type;
 
 use Illuminate\Http\UploadedFile;
@@ -32,6 +34,19 @@ class Simple extends AbstractType
     /**
      * Create a new product type instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param AttributeRepository $attributeRepository
+     * @param ProductRepository $productRepository
+     * @param ProductAttributeValueRepository $attributeValueRepository
+     * @param ProductInventoryRepository $productInventoryRepository
+     * @param ProductImageRepository $productImageRepository
+     * @param ProductVideoRepository $productVideoRepository
+     * @param ProductCustomerGroupPriceRepository $productCustomerGroupPriceRepository
+     * @param ProductGroupedProductRepository $productGroupedProductRepository
+     * @param ProductBundleOptionProductRepository $productBundleOptionProductRepository
+     * @param ProductCustomizableOptionRepository $productCustomizableOptionRepository
+     * @param ProductCustomizableOptionPriceRepository $productCustomizableOptionPriceRepository
+     *
      * @return void
      */
     public function __construct(
@@ -63,15 +78,17 @@ class Simple extends AbstractType
     /**
      * Update.
      *
-     * @param  int  $id
-     * @param  array  $attributes
+     * @param int $id
+     * @param array $attributes
+     * @param array $data
+     *
      * @return \Webkul\Product\Contracts\Product
      */
     public function update(array $data, $id, $attributes = [])
     {
         $product = parent::update($data, $id, $attributes);
 
-        if (! empty($attributes)) {
+        if (!empty($attributes)) {
             return $product;
         }
 
@@ -101,7 +118,7 @@ class Simple extends AbstractType
      */
     public function isCustomizable()
     {
-        /**
+        /*
          * If the product is a child product of a configurable product, then it is not customizable.
          */
         if ($this->product->parent) {
@@ -137,7 +154,7 @@ class Simple extends AbstractType
      */
     public function isSaleable()
     {
-        if (! $this->product->status) {
+        if (!$this->product->status) {
             return false;
         }
 
@@ -146,10 +163,12 @@ class Simple extends AbstractType
 
     /**
      * Have sufficient quantity.
+     *
+     * @param int $qty
      */
     public function haveSufficientQuantity(int $qty): bool
     {
-        if (! $this->product->manage_stock) {
+        if (!$this->product->manage_stock) {
             return true;
         }
 
@@ -179,7 +198,8 @@ class Simple extends AbstractType
     /**
      * Add product. Returns error message if can't prepare product.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return array
      */
     public function prepareForCart($data)
@@ -195,16 +215,16 @@ class Simple extends AbstractType
 
         $data = $this->getQtyRequest($data);
 
-        if (! $this->haveSufficientQuantity($data['quantity'])) {
+        if (!$this->haveSufficientQuantity($data['quantity'])) {
             return trans('product::app.checkout.cart.inventory-warning');
         }
 
         $price = $this->getFinalPrice();
 
-        if (! empty($data['customizable_options'])) {
+        if (!empty($data['customizable_options'])) {
             $formattedCustomizableOptions = $this->formatRequestedCustomizableOptions($data['customizable_options']);
 
-            /**
+            /*
              * Check if the file extension is supported.
              */
             foreach ($formattedCustomizableOptions->where('type', 'file') as $option) {
@@ -215,8 +235,8 @@ class Simple extends AbstractType
                     $extension = $option['prices'][0]['label']->getClientOriginalExtension();
 
                     if (
-                        ! empty($option['supported_file_extensions'])
-                        && ! in_array(strtolower($extension), $option['supported_file_extensions'])
+                        !empty($option['supported_file_extensions'])
+                        && !in_array(strtolower($extension), $option['supported_file_extensions'], true)
                     ) {
                         return trans('product::app.checkout.cart.invalid-file-extension');
                     }
@@ -231,7 +251,7 @@ class Simple extends AbstractType
                     $file = $option['prices'][0]['label'];
 
                     if (
-                        ! empty($file)
+                        !empty($file)
                         && $file instanceof UploadedFile
                     ) {
                         $filePath = $file->store("carts/{$data['cart_id']}");
@@ -255,33 +275,35 @@ class Simple extends AbstractType
 
         return [
             [
-                'product_id'          => $this->product->id,
-                'sku'                 => $this->product->sku,
-                'quantity'            => $data['quantity'],
-                'name'                => $this->product->name,
-                'price'               => $convertedPrice = core()->convertPrice($price),
-                'price_incl_tax'      => $convertedPrice,
-                'base_price'          => $price,
+                'product_id' => $this->product->id,
+                'sku' => $this->product->sku,
+                'quantity' => $data['quantity'],
+                'name' => $this->product->name,
+                'price' => $convertedPrice = core()->convertPrice($price),
+                'price_incl_tax' => $convertedPrice,
+                'base_price' => $price,
                 'base_price_incl_tax' => $price,
-                'total'               => $convertedPrice * $data['quantity'],
-                'total_incl_tax'      => $convertedPrice * $data['quantity'],
-                'base_total'          => $price * $data['quantity'],
+                'total' => $convertedPrice * $data['quantity'],
+                'total_incl_tax' => $convertedPrice * $data['quantity'],
+                'base_total' => $price * $data['quantity'],
                 'base_total_incl_tax' => $price * $data['quantity'],
-                'weight'              => (float) ($this->product->weight ?? 0),
-                'total_weight'        => (float) ($this->product->weight ?? 0) * $data['quantity'],
-                'base_total_weight'   => (float) ($this->product->weight ?? 0) * $data['quantity'],
-                'type'                => $this->product->type,
-                'additional'          => $this->getAdditionalOptions($data),
+                'weight' => (float) ($this->product->weight ?? 0),
+                'total_weight' => (float) ($this->product->weight ?? 0) * $data['quantity'],
+                'base_total_weight' => (float) ($this->product->weight ?? 0) * $data['quantity'],
+                'type' => $this->product->type,
+                'additional' => $this->getAdditionalOptions($data),
             ],
         ];
     }
 
     /**
      * Validate cart item product price and other things.
+     *
+     * @param CartItem $item
      */
     public function validateCartItem(CartItem $item): CartItemValidationResult
     {
-        $validation = new CartItemValidationResult;
+        $validation = new CartItemValidationResult();
 
         if ($this->isCartItemInactive($item)) {
             $validation->itemIsInactive();
@@ -291,17 +313,17 @@ class Simple extends AbstractType
 
         $basePrice = round($this->getFinalPrice($item->quantity), 4);
 
-        /**
+        /*
          * Here, we will not check for the formatted customizable option key directly. Instead, we will use the original request keys
          * and retrieve the formatted options from the database again, similar to how we handled the base price above.
          */
-        if (! empty($item->additional['customizable_options'])) {
+        if (!empty($item->additional['customizable_options'])) {
             $formattedCustomizableOptions = $this->formatRequestedCustomizableOptions($item->additional['customizable_options']);
 
             $basePrice += round($formattedCustomizableOptions->sum('total_price'), 4);
         }
 
-        if ($basePrice == $item->base_price_incl_tax) {
+        if ($basePrice === $item->base_price_incl_tax) {
             return $validation;
         }
 
@@ -332,8 +354,8 @@ class Simple extends AbstractType
         return [
             'customizable_options' => [
                 'array',
-                function ($attribute, $value, $fail) {
-                    if (! $this->isCustomizable()) {
+                function ($attribute, $value, $fail): void {
+                    if (!$this->isCustomizable()) {
                         $fail(trans('admin::app.catalog.products.edit.types.simple.customizable-options.validations.associated-product'));
                     }
                 },
@@ -344,26 +366,27 @@ class Simple extends AbstractType
     /**
      * Returns additional information for items.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return array
      */
     public function getAdditionalOptions($data)
     {
-        if (! empty($data['formatted_customizable_options'])) {
+        if (!empty($data['formatted_customizable_options'])) {
             $data['attributes'] = [];
 
             foreach ($data['formatted_customizable_options'] as $option) {
-                if (in_array($option['type'], ['checkbox', 'multiselect'])) {
+                if (in_array($option['type'], ['checkbox', 'multiselect'], true)) {
                     $data['attributes'][] = [
                         'attribute_type' => $option['type'],
                         'attribute_name' => $option['label'][app()->getLocale()] ?? $option['label'][app()->getFallbackLocale()],
-                        'option_label'   => collect($option['prices'])->pluck('label')->join(', ', ' and '),
+                        'option_label' => collect($option['prices'])->pluck('label')->join(', ', ' and '),
                     ];
                 } else {
                     $data['attributes'][] = [
                         'attribute_type' => $option['type'],
                         'attribute_name' => $option['label'][app()->getLocale()] ?? $option['label'][app()->getFallbackLocale()],
-                        'option_label'   => $option['prices'][0]['label'],
+                        'option_label' => $option['prices'][0]['label'],
                     ];
                 }
             }
@@ -375,37 +398,37 @@ class Simple extends AbstractType
     /**
      * Compare options.
      *
-     * @param  array  $options1
-     * @param  array  $options2
+     * @param array $options1
+     * @param array $options2
+     *
      * @return bool
      */
     public function compareOptions($options1, $options2)
     {
         if (
-            isset($options1['customizable_options'])
-            && isset($options2['customizable_options'])
+            isset($options1['customizable_options'], $options2['customizable_options'])
         ) {
-            return $options1['customizable_options'] == $options2['customizable_options'];
+            return $options1['customizable_options'] === $options2['customizable_options'];
         }
 
         if (
             (
-                ! isset($options1['customizable_options'])
+                !isset($options1['customizable_options'])
                 && isset($options2['customizable_options'])
             )
             || (
                 isset($options1['customizable_options'])
-                && ! isset($options2['customizable_options'])
+                && !isset($options2['customizable_options'])
             )
         ) {
             return false;
         }
 
         if (
-            ! isset($options1['customizable_options'])
-            && ! isset($options2['customizable_options'])
+            !isset($options1['customizable_options'])
+            && !isset($options2['customizable_options'])
         ) {
-            return $this->product->id == $options2['product_id'];
+            return $this->product->id === $options2['product_id'];
         }
 
         return false;
@@ -414,6 +437,8 @@ class Simple extends AbstractType
     /**
      * Format the requested customizable options. This is a cleaned and formatted version of the customizable options
      * requested by the user.
+     *
+     * @param array $requestedCustomizableOptions
      */
     protected function formatRequestedCustomizableOptions(array $requestedCustomizableOptions): Collection
     {
@@ -432,18 +457,18 @@ class Simple extends AbstractType
                 case 'date':
                 case 'datetime':
                 case 'time':
-                    if (! $customizableOption->is_required && empty($requestedCustomizableOptions[$customizableOption->id][0])) {
+                    if (!$customizableOption->is_required && empty($requestedCustomizableOptions[$customizableOption->id][0])) {
                         continue 2;
                     }
 
                     $optionPrice = $customizableOption->customizable_option_prices->first();
 
                     $formattedCustomizableOptions[] = [
-                        'id'          => $customizableOption->id,
-                        'type'        => $customizableOption->type,
-                        'label'       => $customizableOption->translations->pluck('label', 'locale')->toArray(),
-                        'prices'      => [[
-                            'id'    => $optionPrice->id,
+                        'id' => $customizableOption->id,
+                        'type' => $customizableOption->type,
+                        'label' => $customizableOption->translations->pluck('label', 'locale')->toArray(),
+                        'prices' => [[
+                            'id' => $optionPrice->id,
                             'label' => $requestedCustomizableOptions[$customizableOption->id][0],
                             'price' => $optionPrice->price,
                         ]],
@@ -451,19 +476,18 @@ class Simple extends AbstractType
                     ];
 
                     break;
-
                 case 'checkbox':
                 case 'radio':
                 case 'select':
                 case 'multiselect':
-                    if (! $customizableOption->is_required && empty($requestedCustomizableOptions[$customizableOption->id])) {
+                    if (!$customizableOption->is_required && empty($requestedCustomizableOptions[$customizableOption->id])) {
                         continue 2;
                     }
 
-                    /**
+                    /*
                      * If the option is not required and the user has selected the `None` option, then we will skip this option.
                      */
-                    if (in_array(0, $requestedCustomizableOptions[$customizableOption->id])) {
+                    if (in_array(0, $requestedCustomizableOptions[$customizableOption->id], true)) {
                         continue 2;
                     }
 
@@ -471,11 +495,11 @@ class Simple extends AbstractType
                         ->whereIn('id', $requestedCustomizableOptions[$customizableOption->id]);
 
                     $formattedCustomizableOptions[] = [
-                        'id'          => $customizableOption->id,
-                        'type'        => $customizableOption->type,
-                        'label'       => $customizableOption->translations->pluck('label', 'locale')->toArray(),
-                        'prices'      => $optionPrices->map(fn ($price) => [
-                            'id'    => $price->id,
+                        'id' => $customizableOption->id,
+                        'type' => $customizableOption->type,
+                        'label' => $customizableOption->translations->pluck('label', 'locale')->toArray(),
+                        'prices' => $optionPrices->map(fn($price) => [
+                            'id' => $price->id,
                             'label' => $price->label,
                             'price' => $price->price,
                         ])->values()->toArray(),
@@ -483,29 +507,28 @@ class Simple extends AbstractType
                     ];
 
                     break;
-
                 case 'file':
-                    if (! $customizableOption->is_required && empty($requestedCustomizableOptions[$customizableOption->id][0])) {
+                    if (!$customizableOption->is_required && empty($requestedCustomizableOptions[$customizableOption->id][0])) {
                         continue 2;
                     }
 
                     $optionPrice = $customizableOption->customizable_option_prices->first();
 
-                    /**
+                    /*
                      * The file object is present in the label key here. We will not store the file at this moment because we do not have
                      * the cart ID yet. The file will be stored when the cart is created. Then, we will update the label key with the
                      * file path.
                      */
                     $formattedCustomizableOptions[] = [
-                        'id'                        => $customizableOption->id,
-                        'type'                      => $customizableOption->type,
-                        'label'                     => $customizableOption->translations->pluck('label', 'locale')->toArray(),
+                        'id' => $customizableOption->id,
+                        'type' => $customizableOption->type,
+                        'label' => $customizableOption->translations->pluck('label', 'locale')->toArray(),
                         'supported_file_extensions' => collect(explode(',', $customizableOption->supported_file_extensions))
-                            ->map(fn ($extension) => trim($extension))
-                            ->filter(fn ($extension) => ! empty($extension))
+                            ->map(fn($extension) => trim($extension))
+                            ->filter(fn($extension) => !empty($extension))
                             ->toArray(),
-                        'prices'      => [[
-                            'id'    => $optionPrice->id,
+                        'prices' => [[
+                            'id' => $optionPrice->id,
                             'label' => $requestedCustomizableOptions[$customizableOption->id][0],
                             'price' => $optionPrice->price,
                         ]],

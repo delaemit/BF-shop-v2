@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -67,7 +69,8 @@ class ProductVideo extends Model implements ProductVideoContract
     /**
      * Is custom attribute.
      *
-     * @param  string  $attribute
+     * @param string $attribute
+     *
      * @return bool
      */
     public function isCustomAttribute($attribute)

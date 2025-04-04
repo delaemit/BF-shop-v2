@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Sales;
 
 use Illuminate\Http\Request;
@@ -17,12 +19,16 @@ class InvoiceController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param OrderRepository $orderRepository
+     * @param InvoiceRepository $invoiceRepository
+     *
      * @return void
      */
     public function __construct(
         protected OrderRepository $orderRepository,
         protected InvoiceRepository $invoiceRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -41,6 +47,8 @@ class InvoiceController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param int $orderId
+     *
      * @return \Illuminate\View\View
      */
     public function create(int $orderId)
@@ -57,30 +65,32 @@ class InvoiceController extends Controller
     /**
      * (Store) a newly created resource in storage.
      *
+     * @param int $orderId
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(int $orderId)
     {
         $order = $this->orderRepository->findOrFail($orderId);
 
-        if (! $order->canInvoice()) {
+        if (!$order->canInvoice()) {
             session()->flash('error', trans('admin::app.sales.invoices.create.creation-error'));
 
             return redirect()->back();
         }
 
         $this->validate(request(), [
-            'invoice.items'   => 'required|array',
+            'invoice.items' => 'required|array',
             'invoice.items.*' => 'required|numeric|min:0',
         ]);
 
-        if (! $this->invoiceRepository->haveProductToInvoice(request()->all())) {
+        if (!$this->invoiceRepository->haveProductToInvoice(request()->all())) {
             session()->flash('error', trans('admin::app.sales.invoices.create.product-error'));
 
             return redirect()->back();
         }
 
-        if (! $this->invoiceRepository->isValidQuantity(request()->all())) {
+        if (!$this->invoiceRepository->isValidQuantity(request()->all())) {
             session()->flash('error', trans('admin::app.sales.invoices.create.invalid-qty'));
 
             return redirect()->back();
@@ -98,6 +108,8 @@ class InvoiceController extends Controller
     /**
      * Show the view for the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function view(int $id)
@@ -109,6 +121,9 @@ class InvoiceController extends Controller
 
     /**
      * Send duplicate invoice.
+     *
+     * @param Request $request
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -132,6 +147,8 @@ class InvoiceController extends Controller
     /**
      * Print and download the for the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function printInvoice(int $id)
@@ -140,7 +157,7 @@ class InvoiceController extends Controller
 
         return $this->downloadPDF(
             view('admin::sales.invoices.pdf', compact('invoice'))->render(),
-            'invoice-'.$invoice->created_at->format('d-m-Y')
+            'invoice-' . $invoice->created_at->format('d-m-Y')
         );
     }
 }

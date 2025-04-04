@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Customers;
 
 use Illuminate\Http\JsonResponse;
@@ -14,9 +16,13 @@ class CustomerGroupController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CustomerGroupRepository $customerGroupRepository
+     *
      * @return void
      */
-    public function __construct(protected CustomerGroupRepository $customerGroupRepository) {}
+    public function __construct(protected CustomerGroupRepository $customerGroupRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -38,7 +44,7 @@ class CustomerGroupController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'code' => ['required', 'unique:customer_groups,code', new Code],
+            'code' => ['required', 'unique:customer_groups,code', new Code()],
             'name' => 'required',
         ]);
 
@@ -68,7 +74,7 @@ class CustomerGroupController extends Controller
         $id = request()->input('id');
 
         $this->validate(request(), [
-            'code' => ['required', 'unique:customer_groups,code,'.$id, new Code],
+            'code' => ['required', 'unique:customer_groups,code,' . $id, new Code()],
             'name' => 'required',
         ]);
 
@@ -88,12 +94,14 @@ class CustomerGroupController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         $customerGroup = $this->customerGroupRepository->findOrFail($id);
 
-        if (! $customerGroup->is_user_defined) {
+        if (!$customerGroup->is_user_defined) {
             return new JsonResponse([
                 'message' => trans('admin::app.customers.groups.index.edit.group-default'),
             ], 400);

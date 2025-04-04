@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,10 +15,10 @@ return [
     |
     */
 
-    'reset'     => 'Ihr Passwort wurde zurückgesetzt.',
-    'sent'      => 'Wir haben Ihren Passwort-Zurücksetzungslink per E-Mail gesendet.',
+    'reset' => 'Ihr Passwort wurde zurückgesetzt.',
+    'sent' => 'Wir haben Ihren Passwort-Zurücksetzungslink per E-Mail gesendet.',
     'throttled' => 'Bitte warten Sie, bevor Sie es erneut versuchen.',
-    'token'     => 'Dieses Passwort-Zurücksetzungs-Token ist ungültig.',
-    'user'      => 'Wir können keinen Benutzer mit dieser E-Mail-Adresse finden.',
+    'token' => 'Dieses Passwort-Zurücksetzungs-Token ist ungültig.',
+    'user' => 'Wir können keinen Benutzer mit dieser E-Mail-Adresse finden.',
 
 ];

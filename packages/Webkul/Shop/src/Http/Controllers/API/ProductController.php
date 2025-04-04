@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -13,41 +15,45 @@ class ProductController extends APIController
     /**
      * Create a controller instance.
      *
+     * @param CategoryRepository $categoryRepository
+     * @param ProductRepository $productRepository
+     *
      * @return void
      */
     public function __construct(
         protected CategoryRepository $categoryRepository,
         protected ProductRepository $productRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Product listings.
      */
     public function index(): JsonResource
     {
-        if (core()->getConfigData('catalog.products.search.engine') == 'elastic') {
+        if (core()->getConfigData('catalog.products.search.engine') === 'elastic') {
             $searchEngine = core()->getConfigData('catalog.products.search.storefront_mode');
         }
 
         $products = $this->productRepository
             ->setSearchEngine($searchEngine ?? 'database')
             ->getAll(array_merge(request()->query(), [
-                'channel_id'           => core()->getCurrentChannel()->id,
-                'status'               => 1,
+                'channel_id' => core()->getCurrentChannel()->id,
+                'status' => 1,
                 'visible_individually' => 1,
             ]));
 
-        if (! empty(request()->query('query'))) {
-            /**
+        if (!empty(request()->query('query'))) {
+            /*
              * Update or create search term only if
              * there is only one filter that is query param
              */
-            if (count(request()->except(['mode', 'sort', 'limit'])) == 1) {
+            if (count(request()->except(['mode', 'sort', 'limit'])) === 1) {
                 UpdateCreateSearchTermJob::dispatch([
-                    'term'       => request()->query('query'),
-                    'results'    => $products->total(),
+                    'term' => request()->query('query'),
+                    'results' => $products->total(),
                     'channel_id' => core()->getCurrentChannel()->id,
-                    'locale'     => app()->getLocale(),
+                    'locale' => app()->getLocale(),
                 ]);
             }
         }
@@ -58,7 +64,7 @@ class ProductController extends APIController
     /**
      * Related product listings.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function relatedProducts($id): JsonResource
     {
@@ -74,7 +80,7 @@ class ProductController extends APIController
     /**
      * Up-sell product listings.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function upSellProducts($id): JsonResource
     {

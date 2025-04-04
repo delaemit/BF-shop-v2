@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Category\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,11 +22,11 @@ class CategoryTranslationFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'        => $this->faker->word,
-            'slug'        => $this->faker->unique()->slug,
+            'name' => $this->faker->word,
+            'slug' => $this->faker->unique()->slug,
             'description' => $this->faker->sentence(),
-            'locale'      => 'en',
-            'locale_id'   => 1,
+            'locale' => 'en',
+            'locale_id' => 1,
         ];
     }
 }

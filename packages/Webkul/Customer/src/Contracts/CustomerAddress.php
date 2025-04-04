@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Contracts;
 
-interface CustomerAddress {}
+use Webkul\Core\Contracts\ModelContract;
+
+interface CustomerAddress extends ModelContract
+{
+}

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,12 +19,16 @@ class CartController extends APIController
     /**
      * Create a new controller instance.
      *
+     * @param ProductRepository $productRepository
+     * @param CartRuleCouponRepository $cartRuleCouponRepository
+     *
      * @return void
      */
     public function __construct(
         protected ProductRepository $productRepository,
         protected CartRuleCouponRepository $cartRuleCouponRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Cart.
@@ -54,7 +60,7 @@ class CartController extends APIController
         $product = $this->productRepository->with('parent')->findOrFail(request()->input('product_id'));
 
         try {
-            if (! $product->status) {
+            if (!$product->status) {
                 throw new \Exception(trans('shop::app.checkout.cart.inactive-add'));
             }
 
@@ -69,13 +75,13 @@ class CartController extends APIController
             $cart = Cart::addProduct($product, request()->all());
 
             return new JsonResource(array_merge([
-                'data'    => new CartResource($cart),
+                'data' => new CartResource($cart),
                 'message' => trans('shop::app.checkout.cart.item-add-to-cart'),
             ], $response));
         } catch (\Exception $exception) {
             return response()->json([
                 'redirect_uri' => route('shop.product_or_category.index', $product->url_key),
-                'message'      => $exception->getMessage(),
+                'message' => $exception->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
     }
@@ -94,7 +100,7 @@ class CartController extends APIController
         Cart::collectTotals();
 
         return new JsonResource([
-            'data'    => new CartResource(Cart::getCart()),
+            'data' => new CartResource(Cart::getCart()),
             'message' => trans('shop::app.checkout.cart.success-remove'),
         ]);
     }
@@ -109,8 +115,8 @@ class CartController extends APIController
         }
 
         return new JsonResource([
-            'data'     => new CartResource(Cart::getCart()) ?? null,
-            'message'  => trans('shop::app.checkout.cart.index.remove-selected-success'),
+            'data' => new CartResource(Cart::getCart()) ?? null,
+            'message' => trans('shop::app.checkout.cart.index.remove-selected-success'),
         ]);
     }
 
@@ -126,8 +132,8 @@ class CartController extends APIController
         }
 
         return new JsonResource([
-            'data'     => new CartResource(Cart::getCart()) ?? null,
-            'message'  => trans('shop::app.checkout.cart.index.move-to-wishlist-success'),
+            'data' => new CartResource(Cart::getCart()) ?? null,
+            'message' => trans('shop::app.checkout.cart.index.move-to-wishlist-success'),
         ]);
     }
 
@@ -140,7 +146,7 @@ class CartController extends APIController
             Cart::updateItems(request()->input());
 
             return new JsonResource([
-                'data'    => new CartResource(Cart::getCart()),
+                'data' => new CartResource(Cart::getCart()),
                 'message' => trans('shop::app.checkout.cart.index.quantity-update'),
             ]);
         } catch (\Exception $exception) {
@@ -156,19 +162,19 @@ class CartController extends APIController
     public function estimateShippingMethods(): JsonResource
     {
         $this->validate(request(), [
-            'country'         => 'required',
-            'state'           => 'required',
-            'postcode'        => 'required',
+            'country' => 'required',
+            'state' => 'required',
+            'postcode' => 'required',
             'shipping_method' => 'sometimes|required',
         ]);
 
         $cart = Cart::getCart();
 
-        $address = (new CartAddress)->fill([
-            'country'  => request()->input('country'),
-            'state'    => request()->input('state'),
+        $address = (new CartAddress())->fill([
+            'country' => request()->input('country'),
+            'state' => request()->input('state'),
             'postcode' => request()->input('postcode'),
-            'cart_id'  => $cart->id,
+            'cart_id' => $cart->id,
         ]);
 
         $cart->setRelation('billing_address', $address);
@@ -186,8 +192,8 @@ class CartController extends APIController
         $cartResource = (new CartResource(Cart::getCart()))->jsonSerialize();
 
         return new JsonResource([
-            'data'     => [
-                'cart'             => $cartResource,
+            'data' => [
+                'cart' => $cartResource,
                 'shipping_methods' => array_values(Shipping::collectRates()['shippingMethods']),
             ],
         ]);
@@ -206,39 +212,39 @@ class CartController extends APIController
             if (strlen($validatedData['code'])) {
                 $coupon = $this->cartRuleCouponRepository->findOneByField('code', $validatedData['code']);
 
-                if (! $coupon) {
+                if (!$coupon) {
                     return (new JsonResource([
-                        'data'     => new CartResource(Cart::getCart()),
-                        'message'  => trans('Coupon not found.'),
+                        'data' => new CartResource(Cart::getCart()),
+                        'message' => trans('Coupon not found.'),
                     ]))->response()->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
 
                 if ($coupon->cart_rule->status) {
-                    if (Cart::getCart()->coupon_code == $validatedData['code']) {
+                    if (Cart::getCart()->coupon_code === $validatedData['code']) {
                         return (new JsonResource([
-                            'data'     => new CartResource(Cart::getCart()),
-                            'message'  => trans('shop::app.checkout.coupon.already-applied'),
+                            'data' => new CartResource(Cart::getCart()),
+                            'message' => trans('shop::app.checkout.coupon.already-applied'),
                         ]))->response()->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
                     }
 
                     Cart::setCouponCode($validatedData['code'])->collectTotals();
 
-                    if (Cart::getCart()->coupon_code == $validatedData['code']) {
+                    if (Cart::getCart()->coupon_code === $validatedData['code']) {
                         return new JsonResource([
-                            'data'     => new CartResource(Cart::getCart()),
-                            'message'  => trans('shop::app.checkout.coupon.success-apply'),
+                            'data' => new CartResource(Cart::getCart()),
+                            'message' => trans('shop::app.checkout.coupon.success-apply'),
                         ]);
                     }
                 }
 
                 return (new JsonResource([
-                    'data'     => new CartResource(Cart::getCart()),
-                    'message'  => trans('Coupon not found.'),
+                    'data' => new CartResource(Cart::getCart()),
+                    'message' => trans('Coupon not found.'),
                 ]))->response()->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         } catch (\Exception $e) {
             return (new JsonResource([
-                'data'    => new CartResource(Cart::getCart()),
+                'data' => new CartResource(Cart::getCart()),
                 'message' => trans('shop::app.checkout.coupon.error'),
             ]))->response()->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -252,8 +258,8 @@ class CartController extends APIController
         Cart::removeCouponCode()->collectTotals();
 
         return new JsonResource([
-            'data'     => new CartResource(Cart::getCart()),
-            'message'  => trans('shop::app.checkout.coupon.remove'),
+            'data' => new CartResource(Cart::getCart()),
+            'message' => trans('shop::app.checkout.coupon.remove'),
         ]);
     }
 
@@ -266,7 +272,7 @@ class CartController extends APIController
     {
         $cart = Cart::getCart();
 
-        if (! $cart) {
+        if (!$cart) {
             return new JsonResource([
                 'data' => [],
             ]);

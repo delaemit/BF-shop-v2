@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\MagicAI\Facades\MagicAI;
 
-if (! function_exists('magic_ai')) {
+if (!function_exists('magic_ai')) {
     /**
      * MagicAI helper.
      *

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers;
 
 use Illuminate\Support\Facades\Storage;
@@ -22,7 +24,7 @@ class TinyMCEController extends Controller
     {
         $media = $this->storeMedia();
 
-        if (! empty($media)) {
+        if (!empty($media)) {
             return response()->json([
                 'location' => $media['file_url'],
             ]);
@@ -38,14 +40,14 @@ class TinyMCEController extends Controller
      */
     public function storeMedia()
     {
-        if (! request()->hasFile('file')) {
+        if (!request()->hasFile('file')) {
             return [];
         }
 
         return [
-            'file'      => $path = request()->file('file')->store($this->storagePath),
+            'file' => $path = request()->file('file')->store($this->storagePath),
             'file_name' => request()->file('file')->getClientOriginalName(),
-            'file_url'  => Storage::url($path),
+            'file_url' => Storage::url($path),
         ];
     }
 }

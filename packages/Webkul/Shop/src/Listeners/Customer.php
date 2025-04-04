@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Listeners;
 
 use Illuminate\Support\Facades\Mail;
@@ -14,14 +16,15 @@ class Customer extends Base
     /**
      * After customer is created
      *
-     * @param  \Webkul\Customer\Contracts\Customer  $customer
+     * @param \Webkul\Customer\Contracts\Customer $customer
+     *
      * @return void
      */
-    public function afterCreated($customer)
+    public function afterCreated($customer): void
     {
         if (core()->getConfigData('emails.general.notifications.emails.general.notifications.verification')) {
             try {
-                if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.verification')) {
+                if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.verification')) {
                     return;
                 }
 
@@ -36,7 +39,7 @@ class Customer extends Base
         }
 
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.registration')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.registration')) {
                 return;
             }
 
@@ -49,10 +52,11 @@ class Customer extends Base
     /**
      * Send mail on updating password.
      *
-     * @param  \Webkul\Customer\Models\Customer  $customer
+     * @param \Webkul\Customer\Models\Customer $customer
+     *
      * @return void
      */
-    public function afterPasswordUpdated($customer)
+    public function afterPasswordUpdated($customer): void
     {
         try {
             Mail::queue(new UpdatePasswordNotification($customer));
@@ -64,10 +68,11 @@ class Customer extends Base
     /**
      * Send mail on subscribe
      *
-     * @param  \Webkul\Customer\Models\Customer  $customer
+     * @param \Webkul\Customer\Models\Customer $customer
+     *
      * @return void
      */
-    public function afterSubscribed($customer)
+    public function afterSubscribed($customer): void
     {
         try {
             Mail::queue(new SubscriptionNotification($customer));
@@ -79,12 +84,14 @@ class Customer extends Base
     /**
      * Send mail on creating Note
      *
-     * @param  \Webkul\Customer\Models\Customer  $customer
+     * @param \Webkul\Customer\Models\Customer $customer
+     * @param mixed $note
+     *
      * @return void
      */
-    public function afterNoteCreated($note)
+    public function afterNoteCreated($note): void
     {
-        if (! $note->customer_notified) {
+        if (!$note->customer_notified) {
             return;
         }
 

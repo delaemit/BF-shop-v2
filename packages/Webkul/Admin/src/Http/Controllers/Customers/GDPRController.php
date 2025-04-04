@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Customers;
 
 use Illuminate\Http\JsonResponse;
@@ -14,12 +16,16 @@ class GDPRController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param GDPRDataRequestRepository $gdprDataRequestRepository
+     *
      * @return void
      */
     public function __construct(
         protected CustomerRepository $customerRepository,
         protected GDPRDataRequestRepository $gdprDataRequestRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -37,6 +43,8 @@ class GDPRController extends Controller
 
     /**
      * Method to show the form for updating a new Data Request.
+     *
+     * @param int $id
      */
     public function edit(int $id)
     {
@@ -49,13 +57,15 @@ class GDPRController extends Controller
         } catch (\Exception $e) {
             return new JsonResponse([
                 'message' => trans('admin::app.customers.gdpr.index.attribute-reason-error'),
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Method to update the Data Request information.
+     *
+     * @param int $id
      */
     public function update(int $id)
     {
@@ -72,13 +82,15 @@ class GDPRController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => trans('admin::app.customers.gdpr.index.update-success-unsent-email'),
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function delete(int $id)
     {

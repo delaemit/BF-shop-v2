@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Helpers\Reporting;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -12,6 +14,10 @@ class Customer extends AbstractReporting
 {
     /**
      * Create a helper instance.
+     *
+     * @param CustomerRepository $customerRepository
+     * @param OrderRepository $orderRepository
+     * @param ProductReviewRepository $reviewRepository
      *
      * @return void
      */
@@ -30,7 +36,7 @@ class Customer extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalCustomers($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalCustomers($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalCustomers($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -38,8 +44,8 @@ class Customer extends AbstractReporting
     /**
      * Returns previous customers over time
      *
-     * @param  string  $period
-     * @param  bool  $includeEmpty
+     * @param string $period
+     * @param bool $includeEmpty
      */
     public function getPreviousTotalCustomersOverTime($period = 'auto', $includeEmpty = true): array
     {
@@ -49,8 +55,8 @@ class Customer extends AbstractReporting
     /**
      * Returns current customers over time
      *
-     * @param  string  $period
-     * @param  bool  $includeEmpty
+     * @param string $period
+     * @param bool $includeEmpty
      */
     public function getCurrentTotalCustomersOverTime($period = 'auto', $includeEmpty = true): array
     {
@@ -64,7 +70,7 @@ class Customer extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalCustomers(now()->subDay()->startOfDay(), now()->subDay()->endOfDay()),
-            'current'  => $current = $this->getTotalCustomers(now()->today(), now()->endOfDay()),
+            'current' => $current = $this->getTotalCustomers(now()->today(), now()->endOfDay()),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -72,8 +78,8 @@ class Customer extends AbstractReporting
     /**
      * Retrieves total customers by date
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalCustomers($startDate, $endDate): int
     {
@@ -91,7 +97,7 @@ class Customer extends AbstractReporting
     {
         return [
             'previous' => $previous = $this->getTotalReviews($this->lastStartDate, $this->lastEndDate),
-            'current'  => $current = $this->getTotalReviews($this->startDate, $this->endDate),
+            'current' => $current = $this->getTotalReviews($this->startDate, $this->endDate),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -99,8 +105,8 @@ class Customer extends AbstractReporting
     /**
      * Retrieves total reviews by date
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
      */
     public function getTotalReviews($startDate, $endDate): int
     {
@@ -116,7 +122,7 @@ class Customer extends AbstractReporting
     /**
      * Gets customer with most sales.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getCustomersWithMostSales($limit = null): Collection
     {
@@ -127,7 +133,7 @@ class Customer extends AbstractReporting
             ->addSelect(
                 'orders.customer_id as id',
                 'orders.customer_email as email',
-                DB::raw('CONCAT('.$tablePrefix.'orders.customer_first_name, " ", '.$tablePrefix.'orders.customer_last_name) as full_name'),
+                DB::raw('CONCAT(' . $tablePrefix . 'orders.customer_first_name, " ", ' . $tablePrefix . 'orders.customer_last_name) as full_name'),
                 DB::raw('SUM(base_grand_total_invoiced - base_grand_total_refunded) as total'),
                 DB::raw('COUNT(*) as orders')
             )
@@ -142,7 +148,7 @@ class Customer extends AbstractReporting
     /**
      * Gets customer with most orders.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getCustomersWithMostOrders($limit = null): Collection
     {
@@ -153,7 +159,7 @@ class Customer extends AbstractReporting
             ->addSelect(
                 'orders.customer_id as id',
                 'orders.customer_email as email',
-                DB::raw('CONCAT('.$tablePrefix.'orders.customer_first_name, " ", '.$tablePrefix.'orders.customer_last_name) as full_name'),
+                DB::raw('CONCAT(' . $tablePrefix . 'orders.customer_first_name, " ", ' . $tablePrefix . 'orders.customer_last_name) as full_name'),
                 DB::raw('COUNT(*) as orders')
             )
             ->whereIn('channel_id', $this->channelIds)
@@ -167,7 +173,7 @@ class Customer extends AbstractReporting
     /**
      * Gets customer with most orders.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getCustomersWithMostReviews($limit = null): Collection
     {
@@ -180,7 +186,7 @@ class Customer extends AbstractReporting
             ->addSelect(
                 'customers.id as id',
                 'customers.email as email',
-                DB::raw('CONCAT('.$tablePrefix.'customers.first_name, " ", '.$tablePrefix.'customers.last_name) as full_name'),
+                DB::raw('CONCAT(' . $tablePrefix . 'customers.first_name, " ", ' . $tablePrefix . 'customers.last_name) as full_name'),
                 DB::raw('COUNT(*) as reviews')
             )
             ->whereIn('customers.channel_id', $this->channelIds)
@@ -188,7 +194,7 @@ class Customer extends AbstractReporting
             ->whereBetween('product_reviews.created_at', [$this->startDate, $this->endDate])
             ->where('product_reviews.status', 'approved')
             ->whereNotNull('customer_id')
-            ->groupBy(DB::raw('CONCAT(email, "-", '.$tablePrefix.'customers.id)'))
+            ->groupBy(DB::raw('CONCAT(email, "-", ' . $tablePrefix . 'customers.id)'))
             ->orderByDesc('reviews')
             ->limit($limit)
             ->get();
@@ -197,7 +203,7 @@ class Customer extends AbstractReporting
     /**
      * Gets customer with most sales.
      *
-     * @param  int  $limit
+     * @param int $limit
      */
     public function getGroupsWithMostCustomers($limit = null): Collection
     {
@@ -217,9 +223,9 @@ class Customer extends AbstractReporting
     /**
      * Returns over time stats.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $period
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $period
      */
     public function getTotalCustomersOverTime($startDate, $endDate, $period = 'auto'): array
     {

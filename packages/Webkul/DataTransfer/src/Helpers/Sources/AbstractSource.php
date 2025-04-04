@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Sources;
 
 use Webkul\DataTransfer\Helpers\Importers\AbstractImporter;
@@ -37,22 +39,10 @@ abstract class AbstractSource
     protected bool $foundWrongQuoteFlag = false;
 
     /**
-     * Initialize reader.
-     */
-    abstract protected function initialize(): void;
-
-    /**
-     * Read next line from source.
-     */
-    abstract protected function getNextRow(): array|bool;
-
-    /**
-     * Generate error report.
-     */
-    abstract public function generateErrorReport(array $errors): string;
-
-    /**
      * Create a new helper instance.
+     *
+     * @param string $filePath
+     * @param string $delimiter
      *
      * @return void
      */
@@ -66,6 +56,23 @@ abstract class AbstractSource
             throw new \LogicException("Unable to open file: '{$filePath}'");
         }
     }
+
+    /**
+     * Initialize reader.
+     */
+    abstract protected function initialize(): void;
+
+    /**
+     * Read next line from source.
+     */
+    abstract protected function getNextRow(): array|bool;
+
+    /**
+     * Generate error report.
+     *
+     * @param array $errors
+     */
+    abstract public function generateErrorReport(array $errors): string;
 
     /**
      * Return the key of the current row.
@@ -90,12 +97,11 @@ abstract class AbstractSource
     {
         $row = $this->currentRowData;
 
-        if (count($row) != $this->totalColumns) {
+        if (count($row) !== $this->totalColumns) {
             if ($this->foundWrongQuoteFlag) {
                 throw new \InvalidArgumentException(AbstractImporter::ERROR_CODE_WRONG_QUOTES);
-            } else {
-                throw new \InvalidArgumentException(AbstractImporter::ERROR_CODE_COLUMNS_NUMBER);
             }
+            throw new \InvalidArgumentException(AbstractImporter::ERROR_CODE_COLUMNS_NUMBER);
         }
 
         return array_combine($this->columnNames, $row);
@@ -135,6 +141,8 @@ abstract class AbstractSource
 
     /**
      * Set reader.
+     *
+     * @param mixed $reader
      */
     public function setReader(mixed $reader): void
     {
@@ -151,6 +159,8 @@ abstract class AbstractSource
 
     /**
      * Set column names.
+     *
+     * @param array $columnNames
      */
     public function setColumnNames(array $columnNames): void
     {
@@ -167,6 +177,8 @@ abstract class AbstractSource
 
     /**
      * Set total columns count.
+     *
+     * @param int $totalColumns
      */
     public function setTotalColumns(int $totalColumns): void
     {
@@ -188,6 +200,6 @@ abstract class AbstractSource
     {
         $fileType = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
-        return 'imports/'.time().'-error-report.'.$fileType;
+        return 'imports/' . time() . '-error-report.' . $fileType;
     }
 }

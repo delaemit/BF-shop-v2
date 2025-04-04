@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\BookingProduct\Helpers;
 
 use Carbon\Carbon;
@@ -12,7 +14,7 @@ class EventTicket extends Booking
     /**
      * Returns event date
      *
-     * @param  \Webkul\BookingProduct\Contracts\BookingProduct  $bookingProduct
+     * @param \Webkul\BookingProduct\Contracts\BookingProduct $bookingProduct
      */
     public function getEventDate($bookingProduct): string
     {
@@ -20,17 +22,17 @@ class EventTicket extends Booking
 
         $to = Carbon::createFromTimeString($bookingProduct->available_to)->format('d F, Y h:i A');
 
-        return $from.' - '.$to;
+        return $from . ' - ' . $to;
     }
 
     /**
      * Returns tickets
      *
-     * @param  \Webkul\BookingProduct\Contracts\BookingProduct  $bookingProduct
+     * @param \Webkul\BookingProduct\Contracts\BookingProduct $bookingProduct
      */
     public function getTickets($bookingProduct)
     {
-        if (! $bookingProduct->event_tickets()->count()) {
+        if (!$bookingProduct->event_tickets()->count()) {
             return [];
         }
 
@@ -40,7 +42,7 @@ class EventTicket extends Booking
     /**
      * Format ticket price.
      *
-     * @param  array  $tickets
+     * @param array $tickets
      */
     public function formatPrice($tickets)
     {
@@ -66,7 +68,7 @@ class EventTicket extends Booking
     /**
      * Return the item if it has a quantity.
      *
-     * @param  \Webkul\Checkout\Contracts\CartItem|array  $cartItem
+     * @param array|\Webkul\Checkout\Contracts\CartItem $cartItem
      */
     public function isItemHaveQuantity($cartItem): bool
     {
@@ -84,7 +86,7 @@ class EventTicket extends Booking
     /**
      * Returns the quantity of booked product.
      *
-     * @param  array  $data
+     * @param array $data
      */
     public function getBookedQuantity($data): int
     {
@@ -95,11 +97,13 @@ class EventTicket extends Booking
             ->where('bookings.booking_product_event_ticket_id', $data['additional']['booking']['ticket_id'])
             ->first();
 
-        return ! is_null($result->total_qty_booked) ? $result->total_qty_booked : 0;
+        return !is_null($result->total_qty_booked) ? $result->total_qty_booked : 0;
     }
 
     /**
      * Add booking additional prices to cart item.
+     *
+     * @param array $products
      */
     public function addAdditionalPrices(array $products): array
     {
@@ -125,10 +129,12 @@ class EventTicket extends Booking
 
     /**
      * Validate cart item product price.
+     *
+     * @param CartItem $item
      */
     public function validateCartItem(CartItem $item): CartItemValidationResult
     {
-        $result = new CartItemValidationResult;
+        $result = new CartItemValidationResult();
 
         if (parent::isCartItemInactive($item)) {
             $result->itemIsInactive();
@@ -142,7 +148,7 @@ class EventTicket extends Booking
 
         $ticket = $bookingProduct->event_tickets()->find($item->additional['booking']['ticket_id']);
 
-        if (! $ticket) {
+        if (!$ticket) {
             $result->itemIsInactive();
 
             return $result;
@@ -171,6 +177,8 @@ class EventTicket extends Booking
 
     /**
      * Determines whether a single ticket is in Sale, i.e. has a valid sale price.
+     *
+     * @param mixed $ticket
      */
     public function isInSale($ticket): bool
     {

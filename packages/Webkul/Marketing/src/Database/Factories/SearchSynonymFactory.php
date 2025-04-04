@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,11 +21,11 @@ class SearchSynonymFactory extends Factory
      */
     public function definition()
     {
-        $terms = ['jackets', 'shoes', 'footwear',  'phone', 'computers', 'electronics'];
+        $terms = ['jackets', 'shoes', 'footwear', 'phone', 'computers', 'electronics'];
 
         return [
             'terms' => $terms[array_rand($terms)],
-            'name'  => preg_replace('/[^a-zA-Z ]/', '', $this->faker->name()),
+            'name' => preg_replace('/[^a-zA-Z ]/', '', $this->faker->name()),
         ];
     }
 }

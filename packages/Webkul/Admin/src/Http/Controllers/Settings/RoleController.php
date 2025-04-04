@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings;
 
 use Illuminate\Http\JsonResponse;
@@ -14,12 +16,16 @@ class RoleController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param RoleRepository $roleRepository
+     * @param AdminRepository $adminRepository
+     *
      * @return void
      */
     public function __construct(
         protected RoleRepository $roleRepository,
         protected AdminRepository $adminRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -53,12 +59,12 @@ class RoleController extends Controller
     public function store()
     {
         $this->validate(request(), [
-            'name'            => 'required',
+            'name' => 'required',
             'permission_type' => 'required|in:all,custom',
-            'description'     => 'required',
+            'description' => 'required',
         ]);
 
-        if (request('permission_type') == 'custom') {
+        if (request('permission_type') === 'custom') {
             $this->validate(request(), [
                 'permissions' => 'required',
             ]);
@@ -85,6 +91,8 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -97,20 +105,22 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(int $id)
     {
         $this->validate(request(), [
-            'name'            => 'required',
+            'name' => 'required',
             'permission_type' => 'required|in:all,custom',
-            'description'     => 'required',
+            'description' => 'required',
         ]);
 
         /**
          * Check for other admins if the role has been changed from all to custom.
          */
-        $isChangedFromAll = request('permission_type') == 'custom' && $this->roleRepository->find($id)->permission_type == 'all';
+        $isChangedFromAll = request('permission_type') === 'custom' && $this->roleRepository->find($id)->permission_type === 'all';
 
         if (
             $isChangedFromAll
@@ -142,6 +152,8 @@ class RoleController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
@@ -149,12 +161,12 @@ class RoleController extends Controller
 
         if ($role->admins->count() >= 1) {
             return new JsonResponse(['message' => trans('admin::app.settings.roles.being-used', [
-                'name'   => 'admin::app.settings.roles.index.title',
+                'name' => 'admin::app.settings.roles.index.title',
                 'source' => 'admin::app.settings.roles.index.admin-user',
             ])], 400);
         }
 
-        if ($this->roleRepository->count() == 1) {
+        if ($this->roleRepository->count() === 1) {
             return new JsonResponse([
                 'message' => trans(
                     'admin::app.settings.roles.last-delete-error'

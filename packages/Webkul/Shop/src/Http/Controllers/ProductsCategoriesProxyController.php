@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -15,10 +17,15 @@ class ProductsCategoriesProxyController extends Controller
      *
      * @var int Status
      */
-    const STATUS = 1;
+    public const STATUS = 1;
 
     /**
      * Create a new controller instance.
+     *
+     * @param CategoryRepository $categoryRepository
+     * @param ProductRepository $productRepository
+     * @param ThemeCustomizationRepository $themeCustomizationRepository
+     * @param URLRewriteRepository $urlRewriteRepository
      *
      * @return void
      */
@@ -27,25 +34,28 @@ class ProductsCategoriesProxyController extends Controller
         protected ProductRepository $productRepository,
         protected ThemeCustomizationRepository $themeCustomizationRepository,
         protected URLRewriteRepository $urlRewriteRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Show product or category view. If neither category nor product matches, abort with code 404.
      *
-     * @return \Illuminate\View\View|\Exception
+     * @param Request $request
+     *
+     * @return \Exception|\Illuminate\View\View
      */
     public function index(Request $request)
     {
         $slugOrURLKey = urldecode(trim($request->getPathInfo(), '/'));
 
-        /**
+        /*
          * Support url for chinese, japanese, arabic and english with numbers.
          */
-        if (! preg_match('/^([\p{L}\p{N}\p{M}\x{0900}-\x{097F}\x{0590}-\x{05FF}\x{0600}-\x{06FF}\x{0400}-\x{04FF}_-]+\/?)+$/u', $slugOrURLKey)) {
+        if (!preg_match('/^([\p{L}\p{N}\p{M}\x{0900}-\x{097F}\x{0590}-\x{05FF}\x{0600}-\x{06FF}\x{0400}-\x{04FF}_-]+\/?)+$/u', $slugOrURLKey)) {
             visitor()->visit();
 
             $customizations = $this->themeCustomizationRepository->orderBy('sort_order')->findWhere([
-                'status'     => self::STATUS,
+                'status' => self::STATUS,
                 'channel_id' => core()->getCurrentChannel()->id,
             ]);
 
@@ -59,15 +69,15 @@ class ProductsCategoriesProxyController extends Controller
 
             return view('shop::categories.view', [
                 'category' => $category,
-                'params'   => [
-                    'sort'  => request()->query('sort'),
+                'params' => [
+                    'sort' => request()->query('sort'),
                     'limit' => request()->query('limit'),
-                    'mode'  => request()->query('mode'),
+                    'mode' => request()->query('mode'),
                 ],
             ]);
         }
 
-        if (core()->getConfigData('catalog.products.search.engine') == 'elastic') {
+        if (core()->getConfigData('catalog.products.search.engine') === 'elastic') {
             $searchEngine = core()->getConfigData('catalog.products.search.storefront_mode');
         }
 
@@ -77,9 +87,9 @@ class ProductsCategoriesProxyController extends Controller
 
         if ($product) {
             if (
-                ! $product->url_key
-                || ! $product->visible_individually
-                || ! $product->status
+                !$product->url_key
+                || !$product->visible_individually
+                || !$product->status
             ) {
                 abort(404);
             }
@@ -106,9 +116,9 @@ class ProductsCategoriesProxyController extends Controller
          * try to find it by url rewrite for category.
          */
         $categoryURLRewrite = $this->urlRewriteRepository->findOneWhere([
-            'entity_type'  => 'category',
+            'entity_type' => 'category',
             'request_path' => $slugOrURLKey,
-            'locale'       => app()->getLocale(),
+            'locale' => app()->getLocale(),
         ]);
 
         if ($categoryURLRewrite) {
@@ -120,7 +130,7 @@ class ProductsCategoriesProxyController extends Controller
          * try to find it by url rewrite for product.
          */
         $productURLRewrite = $this->urlRewriteRepository->findOneWhere([
-            'entity_type'  => 'product',
+            'entity_type' => 'product',
             'request_path' => $slugOrURLKey,
         ]);
 

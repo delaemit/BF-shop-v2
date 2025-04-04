@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -16,10 +18,6 @@ use Webkul\Sales\Database\Factories\OrderFactory;
 class Order extends Model implements OrderContract
 {
     use HasFactory;
-
-    protected $dates = ['created_at'];
-
-    protected $appends = ['datetime'];
 
     /**
      * Pending Order
@@ -56,6 +54,10 @@ class Order extends Model implements OrderContract
      */
     public const STATUS_FRAUD = 'fraud';
 
+    protected $dates = ['created_at'];
+
+    protected $appends = ['datetime'];
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -74,13 +76,13 @@ class Order extends Model implements OrderContract
     ];
 
     protected $statusLabel = [
-        self::STATUS_PENDING         => 'Pending',
+        self::STATUS_PENDING => 'Pending',
         self::STATUS_PENDING_PAYMENT => 'Pending Payment',
-        self::STATUS_PROCESSING      => 'Processing',
-        self::STATUS_COMPLETED       => 'Completed',
-        self::STATUS_CANCELED        => 'Canceled',
-        self::STATUS_CLOSED          => 'Closed',
-        self::STATUS_FRAUD           => 'Fraud',
+        self::STATUS_PROCESSING => 'Processing',
+        self::STATUS_COMPLETED => 'Completed',
+        self::STATUS_CANCELED => 'Canceled',
+        self::STATUS_CLOSED => 'Closed',
+        self::STATUS_FRAUD => 'Fraud',
     ];
 
     /**
@@ -88,7 +90,7 @@ class Order extends Model implements OrderContract
      */
     public function getCustomerFullNameAttribute(): string
     {
-        return $this->customer_first_name.' '.$this->customer_last_name;
+        return $this->customer_first_name . ' ' . $this->customer_last_name;
     }
 
     /**
@@ -286,10 +288,10 @@ class Order extends Model implements OrderContract
         foreach ($this->items as $item) {
             if (
                 $item->canShip()
-                && ! in_array($item->order->status, [
+                && !in_array($item->order->status, [
                     self::STATUS_CLOSED,
                     self::STATUS_FRAUD,
-                ])
+                ], true)
             ) {
                 return true;
             }
@@ -306,10 +308,10 @@ class Order extends Model implements OrderContract
         foreach ($this->items as $item) {
             if (
                 $item->canInvoice()
-                && ! in_array($item->order->status, [
+                && !in_array($item->order->status, [
                     self::STATUS_CLOSED,
                     self::STATUS_FRAUD,
-                ])
+                ], true)
             ) {
                 return true;
             }
@@ -348,10 +350,10 @@ class Order extends Model implements OrderContract
         foreach ($this->items as $item) {
             if (
                 $item->canCancel()
-                && ! in_array($item->order->status, [
+                && !in_array($item->order->status, [
                     self::STATUS_CLOSED,
                     self::STATUS_FRAUD,
-                ])
+                ], true)
             ) {
                 return true;
             }
@@ -368,10 +370,10 @@ class Order extends Model implements OrderContract
         foreach ($this->items as $item) {
             if (
                 $item->qty_to_refund > 0
-                && ! in_array($item->order->status, [
+                && !in_array($item->order->status, [
                     self::STATUS_CLOSED,
                     self::STATUS_FRAUD,
-                ])
+                ], true)
             ) {
                 return true;
             }
@@ -394,7 +396,7 @@ class Order extends Model implements OrderContract
         }
 
         foreach ($this->items as $item) {
-            if (! $item->product?->getTypeInstance()->isSaleable()) {
+            if (!$item->product?->getTypeInstance()->isSaleable()) {
                 return false;
             }
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Faker\Helpers\Product as ProductFaker;
 use Webkul\Product\Models\Product as ProductModel;
 use Webkul\Product\Models\ProductFlat;
@@ -22,7 +24,7 @@ it('should fail the validation with errors when certain inputs are not provided 
 
 it('should return the create page of bundle product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getSimpleProductFactory()->create();
+    $product = (new ProductFaker())->getSimpleProductFactory()->create();
 
     $productId = $product->id + 1;
 
@@ -30,9 +32,9 @@ it('should return the create page of bundle product', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.catalog.products.store'), $data = [
-        'type'                => 'bundle',
+        'type' => 'bundle',
         'attribute_family_id' => 1,
-        'sku'                 => fake()->slug(),
+        'sku' => fake()->slug(),
     ])
         ->assertOk()
         ->assertJsonPath('data.redirect_url', route('admin.catalog.products.edit', $productId));
@@ -40,9 +42,9 @@ it('should return the create page of bundle product', function () {
     $this->assertModelWise([
         ProductModel::class => [
             [
-                'id'   => $productId,
+                'id' => $productId,
                 'type' => $data['type'],
-                'sku'  => $data['sku'],
+                'sku' => $data['sku'],
             ],
         ],
     ]);
@@ -50,7 +52,7 @@ it('should return the create page of bundle product', function () {
 
 it('should return the edit page of bundle product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getBundleProductFactory()->create();
+    $product = (new ProductFaker())->getBundleProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
@@ -67,7 +69,7 @@ it('should return the edit page of bundle product', function () {
 
 it('should fail the validation with errors when certain inputs are not provided when update in bundle product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getBundleProductFactory()->create();
+    $product = (new ProductFaker())->getBundleProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
@@ -83,17 +85,17 @@ it('should fail the validation with errors when certain inputs are not provided 
 
 it('should fail the validation with errors if certain data is not provided correctly in bundle product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getBundleProductFactory()->create();
+    $product = (new ProductFaker())->getBundleProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();
 
     putJson(route('admin.catalog.products.update', $product->id), [
         'visible_individually' => $unProcessAble = fake()->word(),
-        'status'               => $unProcessAble,
-        'guest_checkout'       => $unProcessAble,
-        'new'                  => $unProcessAble,
-        'featured'             => $unProcessAble,
+        'status' => $unProcessAble,
+        'guest_checkout' => $unProcessAble,
+        'new' => $unProcessAble,
+        'featured' => $unProcessAble,
     ])
         ->assertJsonValidationErrorFor('sku')
         ->assertJsonValidationErrorFor('url_key')
@@ -110,7 +112,7 @@ it('should fail the validation with errors if certain data is not provided corre
 
 it('should update the bundle product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getBundleProductFactory()->create();
+    $product = (new ProductFaker())->getBundleProductFactory()->create();
 
     $options = [];
 
@@ -129,10 +131,10 @@ it('should update the bundle product', function () {
             app()->getLocale() => [
                 'label' => fake()->words(3, true),
             ],
-            'type'        => fake()->randomElement(['select', 'radio', 'checkbox', 'multiselect']),
+            'type' => fake()->randomElement(['select', 'radio', 'checkbox', 'multiselect']),
             'is_required' => '1',
-            'sort_order'  => $key,
-            'products'    => $products,
+            'sort_order' => $key,
+            'products' => $products,
         ];
     }
 
@@ -140,21 +142,21 @@ it('should update the bundle product', function () {
     $this->loginAsAdmin();
 
     putJson(route('admin.catalog.products.update', $product->id), $data = [
-        'sku'                  => $product->sku,
-        'url_key'              => $product->url_key,
-        'short_description'    => fake()->sentence(),
-        'description'          => fake()->paragraph(),
-        'name'                 => fake()->words(3, true),
-        'price'                => fake()->randomFloat(2, 1, 1000),
-        'weight'               => fake()->numberBetween(0, 100),
-        'channel'              => core()->getCurrentChannelCode(),
-        'locale'               => app()->getLocale(),
-        'bundle_options'       => $options,
-        'new'                  => '1',
-        'featured'             => '1',
+        'sku' => $product->sku,
+        'url_key' => $product->url_key,
+        'short_description' => fake()->sentence(),
+        'description' => fake()->paragraph(),
+        'name' => fake()->words(3, true),
+        'price' => fake()->randomFloat(2, 1, 1000),
+        'weight' => fake()->numberBetween(0, 100),
+        'channel' => core()->getCurrentChannelCode(),
+        'locale' => app()->getLocale(),
+        'bundle_options' => $options,
+        'new' => '1',
+        'featured' => '1',
         'visible_individually' => '1',
-        'status'               => '1',
-        'guest_checkout'       => '1',
+        'status' => '1',
+        'guest_checkout' => '1',
     ])
         ->assertRedirect(route('admin.catalog.products.index'))
         ->isRedirection();
@@ -162,27 +164,27 @@ it('should update the bundle product', function () {
     $this->assertModelWise([
         ProductModel::class => [
             [
-                'id'                  => $product->id,
-                'type'                => $product->type,
-                'sku'                 => $product->sku,
+                'id' => $product->id,
+                'type' => $product->type,
+                'sku' => $product->sku,
                 'attribute_family_id' => 1,
-                'parent_id'           => null,
-                'additional'          => null,
+                'parent_id' => null,
+                'additional' => null,
             ],
         ],
 
         ProductFlat::class => [
             [
-                'url_key'           => $product->url_key,
-                'type'              => 'bundle',
-                'product_id'        => $product->id,
-                'name'              => $data['name'],
+                'url_key' => $product->url_key,
+                'type' => 'bundle',
+                'product_id' => $product->id,
+                'name' => $data['name'],
                 'short_description' => $data['short_description'],
-                'description'       => $data['description'],
-                'price'             => $data['price'],
-                'weight'            => $data['weight'],
-                'locale'            => $data['locale'],
-                'channel'           => $data['channel'],
+                'description' => $data['description'],
+                'price' => $data['price'],
+                'weight' => $data['weight'],
+                'locale' => $data['locale'],
+                'channel' => $data['channel'],
             ],
         ],
     ]);
@@ -193,16 +195,16 @@ it('should update the bundle product', function () {
         $this->assertModelWise([
             ProductFlat::class => [
                 [
-                    'url_key'           => $product->url_key,
-                    'type'              => 'simple',
-                    'name'              => $product->name,
+                    'url_key' => $product->url_key,
+                    'type' => 'simple',
+                    'name' => $product->name,
                     'short_description' => $product->short_description,
-                    'description'       => $product->description,
-                    'price'             => $product->price,
-                    'weight'            => $product->weight,
-                    'locale'            => $data['locale'],
-                    'product_id'        => $product->id,
-                    'channel'           => $data['channel'],
+                    'description' => $product->description,
+                    'price' => $product->price,
+                    'weight' => $product->weight,
+                    'locale' => $data['locale'],
+                    'product_id' => $product->id,
+                    'channel' => $data['channel'],
                 ],
             ],
         ]);
@@ -211,7 +213,7 @@ it('should update the bundle product', function () {
 
 it('should delete a bundle product', function () {
     // Arrange.
-    $product = (new ProductFaker)->getBundleProductFactory()->create();
+    $product = (new ProductFaker())->getBundleProductFactory()->create();
 
     // Act and Assert.
     $this->loginAsAdmin();

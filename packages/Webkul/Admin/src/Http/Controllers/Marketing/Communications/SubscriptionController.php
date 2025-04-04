@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\Communications;
 
 use Illuminate\Http\JsonResponse;
@@ -12,9 +14,13 @@ class SubscriptionController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param SubscribersListRepository $subscribersListRepository
+     *
      * @return void
      */
-    public function __construct(protected SubscribersListRepository $subscribersListRepository) {}
+    public function __construct(protected SubscribersListRepository $subscribersListRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -32,13 +38,15 @@ class SubscriptionController extends Controller
 
     /**
      * Subscriber Details
+     *
+     * @param int $id
      */
     public function edit(int $id): JsonResponse
     {
         $subscriber = $this->subscribersListRepository->findOrFail($id);
 
         return new JsonResponse([
-            'data'  => $subscriber,
+            'data' => $subscriber,
         ]);
     }
 
@@ -50,7 +58,7 @@ class SubscriptionController extends Controller
     public function update()
     {
         $validatedData = $this->validate(request(), [
-            'id'            => 'required',
+            'id' => 'required',
             'is_subscribed' => 'required|in:0,1',
         ]);
 
@@ -79,6 +87,8 @@ class SubscriptionController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      *
      * @return void
      */

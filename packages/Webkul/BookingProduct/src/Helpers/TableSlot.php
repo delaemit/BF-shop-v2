@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\BookingProduct\Helpers;
 
 use Carbon\Carbon;
@@ -9,13 +11,13 @@ class TableSlot extends Booking
     /**
      * Return the item if it has a quantity.
      *
-     * @param  \Webkul\Checkout\Contracts\CartItem  $cartItem
+     * @param \Webkul\Checkout\Contracts\CartItem $cartItem
      */
     public function isItemHaveQuantity($cartItem): bool
     {
         $bookingProduct = $this->bookingProductRepository->findOneByField('product_id', $cartItem['product_id']);
 
-        if (! $bookingProduct) {
+        if (!$bookingProduct) {
             return false;
         }
 
@@ -35,7 +37,7 @@ class TableSlot extends Booking
 
         $requestedQty = $cartItem['quantity'];
 
-        if ($tableSlot->price_type == 'table') {
+        if ($tableSlot->price_type === 'table') {
             $multiplier = $tableSlot->guest_limit;
 
             $requestedQty *= $multiplier;
@@ -43,6 +45,6 @@ class TableSlot extends Booking
             $bookedQty *= $multiplier;
         }
 
-        return $bookingProduct->qty - $bookedQty >= $requestedQty && ! $this->isSlotExpired($cartItem);
+        return $bookingProduct->qty - $bookedQty >= $requestedQty && !$this->isSlotExpired($cartItem);
     }
 }

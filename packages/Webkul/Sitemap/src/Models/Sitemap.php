@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sitemap\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -40,15 +42,15 @@ class Sitemap extends Model implements SitemapContract
     public function deleteFromStorage(): void
     {
         if ($this->additional) {
-            if (! empty($this->additional['sitemaps'])) {
-                collect($this->additional['sitemaps'])->each(function ($sitemapUrl) {
+            if (!empty($this->additional['sitemaps'])) {
+                collect($this->additional['sitemaps'])->each(function ($sitemapUrl): void {
                     if (Storage::exists($sitemapUrl)) {
                         Storage::delete($sitemapUrl);
                     }
                 });
             }
 
-            if (! empty($this->additional['index'])) {
+            if (!empty($this->additional['index'])) {
                 if (Storage::exists($sitemapIndexUrl = $this->additional['index'])) {
                     Storage::delete($sitemapIndexUrl);
                 }
@@ -61,7 +63,7 @@ class Sitemap extends Model implements SitemapContract
      */
     public function getIndexFileNameAttribute()
     {
-        return clean_path($this->path.'/'.$this->file_name);
+        return clean_path($this->path . '/' . $this->file_name);
     }
 
     /**

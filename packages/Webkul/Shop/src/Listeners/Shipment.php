@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Listeners;
 
 use Webkul\Shop\Mail\Order\ShippedNotification;
@@ -9,13 +11,14 @@ class Shipment extends Base
     /**
      * After order is created
      *
-     * @param  \Webkul\Sale\Contracts\Shipment  $shipment
+     * @param \Webkul\Sale\Contracts\Shipment $shipment
+     *
      * @return void
      */
-    public function afterCreated($shipment)
+    public function afterCreated($shipment): void
     {
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.new_shipment')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.new_shipment')) {
                 return;
             }
 

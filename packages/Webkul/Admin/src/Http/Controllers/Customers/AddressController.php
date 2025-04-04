@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Customers;
 
 use Illuminate\Http\JsonResponse;
@@ -15,15 +17,21 @@ class AddressController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param CustomerAddressRepository $customerAddressRepository
+     *
      * @return void
      */
     public function __construct(
         protected CustomerRepository $customerRepository,
         protected CustomerAddressRepository $customerAddressRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Fetch address by customer id.
+     *
+     * @param int $id
      *
      * @return \Illuminate\View\View
      */
@@ -37,6 +45,8 @@ class AddressController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function create(int $id)
@@ -48,6 +58,9 @@ class AddressController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param int $id
+     * @param AddressRequest $request
      */
     public function store(int $id, AddressRequest $request): JsonResponse
     {
@@ -79,12 +92,14 @@ class AddressController extends Controller
 
         return new JsonResponse([
             'message' => trans('admin::app.customers.customers.view.address.create-success'),
-            'data'    => new AddressResource($address),
+            'data' => new AddressResource($address),
         ]);
     }
 
     /**
      * Display a listing of the resource.
+     *
+     * @param int $id
      *
      * @return \Illuminate\View\View
      */
@@ -97,6 +112,9 @@ class AddressController extends Controller
 
     /**
      * Edit's the pre made resource of customer called address.
+     *
+     * @param int $id
+     * @param AddressRequest $request
      */
     public function update(int $id, AddressRequest $request): JsonResponse
     {
@@ -126,13 +144,15 @@ class AddressController extends Controller
 
         return new JsonResponse([
             'message' => trans('admin::app.customers.customers.view.address.update-success'),
-            'data'    => new AddressResource($address),
+            'data' => new AddressResource($address),
         ]);
     }
 
     /**
      * To change the default address or make the default address,
      * by default when first address is created will be the default address.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -143,20 +163,22 @@ class AddressController extends Controller
         }
 
         $address = $this->customerAddressRepository->findOneWhere([
-            'id'              => request('set_as_default'),
-            'customer_id'     => $id,
+            'id' => request('set_as_default'),
+            'customer_id' => $id,
         ]);
 
         $address->update(['default_address' => 1]);
 
         return new JsonResponse([
             'message' => trans('admin::app.customers.customers.view.address.set-default-success'),
-            'data'    => $address,
+            'data' => $address,
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\FPC\Listeners;
 
 use Spatie\ResponseCache\Facades\ResponseCache;
@@ -12,21 +14,27 @@ class Product
     /**
      * Create a new listener instance.
      *
+     * @param ProductRepository $productRepository
+     * @param ProductBundleOptionProductRepository $productBundleOptionProductRepository
+     * @param ProductGroupedProductRepository $productGroupedProductRepository
+     *
      * @return void
      */
     public function __construct(
         protected ProductRepository $productRepository,
         protected ProductBundleOptionProductRepository $productBundleOptionProductRepository,
         protected ProductGroupedProductRepository $productGroupedProductRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Update or create product page cache
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function afterUpdate($product)
+    public function afterUpdate($product): void
     {
         $urls = $this->getForgettableUrls($product);
 
@@ -36,10 +44,11 @@ class Product
     /**
      * Delete product page c
      *
-     * @param  int  $productId
+     * @param int $productId
+     *
      * @return void
      */
-    public function beforeDelete($productId)
+    public function beforeDelete($productId): void
     {
         $product = $this->productRepository->find($productId);
 
@@ -51,7 +60,8 @@ class Product
     /**
      * Returns product urls
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getForgettableUrls($product)
@@ -61,7 +71,7 @@ class Product
         $products = $this->getAllRelatedProducts($product);
 
         foreach ($products as $product) {
-            $urls[] = '/'.$product->url_key;
+            $urls[] = '/' . $product->url_key;
         }
 
         return $urls;
@@ -70,14 +80,15 @@ class Product
     /**
      * Returns parents bundle products associated with simple product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getAllRelatedProducts($product)
     {
         $products = [$product];
 
-        if ($product->type == 'simple') {
+        if ($product->type === 'simple') {
             if ($product->parent_id) {
                 $products[] = $product->parent;
             }
@@ -87,10 +98,10 @@ class Product
                 $this->getParentBundleProducts($product),
                 $this->getParentGroupProducts($product)
             );
-        } elseif ($product->type == 'configurable') {
+        } elseif ($product->type === 'configurable') {
             $products = [];
 
-            /**
+            /*
              * Fetching fresh variants.
              */
             foreach ($product->variants()->get() as $variant) {
@@ -106,7 +117,8 @@ class Product
     /**
      * Returns parents bundle products associated with simple product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getParentBundleProducts($product)
@@ -127,7 +139,8 @@ class Product
     /**
      * Returns parents group products associated with simple product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getParentGroupProducts($product)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Marketing\Promotions;
 
 use Illuminate\Support\Facades\DB;
@@ -14,7 +16,7 @@ class CartRuleCouponDataGrid extends DataGrid
      */
     public function prepareQueryBuilder()
     {
-        $queryBuilder = DB::table('cart_rule_coupons')
+        return DB::table('cart_rule_coupons')
             ->select(
                 'id',
                 'code',
@@ -23,8 +25,6 @@ class CartRuleCouponDataGrid extends DataGrid
                 'times_used'
             )
             ->where('cart_rule_coupons.cart_rule_id', request('id'));
-
-        return $queryBuilder;
     }
 
     /**
@@ -32,50 +32,50 @@ class CartRuleCouponDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'code',
-            'label'      => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.coupon-code'),
-            'type'       => 'string',
+            'index' => 'code',
+            'label' => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.coupon-code'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'           => 'created_at',
-            'label'           => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.created-date'),
-            'type'            => 'datetime',
-            'filterable'      => true,
+            'index' => 'created_at',
+            'label' => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.created-date'),
+            'type' => 'datetime',
+            'filterable' => true,
             'filterable_type' => 'datetime_range',
-            'sortable'        => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'           => 'expired_at',
-            'label'           => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.expiration-date'),
-            'type'            => 'datetime',
-            'filterable'      => true,
+            'index' => 'expired_at',
+            'label' => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.expiration-date'),
+            'type' => 'datetime',
+            'filterable' => true,
             'filterable_type' => 'datetime_range',
-            'sortable'        => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'times_used',
-            'label'      => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.times-used'),
-            'type'       => 'integer',
+            'index' => 'times_used',
+            'label' => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.times-used'),
+            'type' => 'integer',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
@@ -84,15 +84,13 @@ class CartRuleCouponDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         $this->addAction([
-            'icon'   => 'icon-delete',
-            'title'  => trans('admin::app.marketing.promotions.catalog-rules.index.datagrid.delete'),
+            'icon' => 'icon-delete',
+            'title' => trans('admin::app.marketing.promotions.catalog-rules.index.datagrid.delete'),
             'method' => 'DELETE',
-            'url'    => function ($row) {
-                return route('admin.marketing.promotions.cart_rules.coupons.delete', $row->id);
-            },
+            'url' => fn($row) => route('admin.marketing.promotions.cart_rules.coupons.delete', $row->id),
         ]);
     }
 
@@ -101,12 +99,12 @@ class CartRuleCouponDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareMassActions()
+    public function prepareMassActions(): void
     {
         $this->addMassAction([
-            'title'  => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.delete'),
+            'title' => trans('admin::app.marketing.promotions.cart-rules-coupons.datagrid.delete'),
             'method' => 'POST',
-            'url'    => route('admin.marketing.promotions.cart_rules.coupons.mass_delete'),
+            'url' => route('admin.marketing.promotions.cart_rules.coupons.mass_delete'),
         ]);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Eloquent;
 
 use Astrotomic\Translatable\Translatable;
@@ -30,13 +32,12 @@ class TranslatableModel extends Model
     {
         if ($this->isChannelBased()) {
             return core()->getDefaultLocaleCodeFromDefaultChannel();
-        } else {
-            if ($this->defaultLocale) {
-                return $this->defaultLocale;
-            }
-
-            return config('translatable.locale') ?: app()->make('translator')->getLocale();
         }
+        if ($this->defaultLocale) {
+            return $this->defaultLocale;
+        }
+
+        return config('translatable.locale') ?: app()->make('translator')->getLocale();
     }
 
     /**
@@ -51,11 +52,11 @@ class TranslatableModel extends Model
 
     public function scopeWhereTranslationIn(Builder $query, string $translationField, $value, ?string $locale = null, string $method = 'whereHas')
     {
-        return $query->$method('translations', function (Builder $query) use ($translationField, $value, $locale) {
-            $query->whereIn($this->getTranslationsTable().'.'.$translationField, $value);
+        return $query->$method('translations', function (Builder $query) use ($translationField, $value, $locale): void {
+            $query->whereIn($this->getTranslationsTable() . '.' . $translationField, $value);
 
             if ($locale) {
-                $query->whereIn($this->getTranslationsTable().'.'.$this->getLocaleKey(), $locale);
+                $query->whereIn($this->getTranslationsTable() . '.' . $this->getLocaleKey(), $locale);
             }
         });
     }

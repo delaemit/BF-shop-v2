@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Type;
 
 use Webkul\Attribute\Repositories\AttributeRepository;
@@ -51,6 +53,16 @@ class Grouped extends AbstractType
     /**
      * Create a new product type instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param AttributeRepository $attributeRepository
+     * @param ProductRepository $productRepository
+     * @param ProductAttributeValueRepository $attributeValueRepository
+     * @param ProductInventoryRepository $productInventoryRepository
+     * @param ProductImageRepository $productImageRepository
+     * @param ProductVideoRepository $productVideoRepository
+     * @param ProductCustomerGroupPriceRepository $productCustomerGroupPriceRepository
+     * @param ProductGroupedProductRepository $productGroupedProductRepository
+     *
      * @return void
      */
     public function __construct(
@@ -79,15 +91,17 @@ class Grouped extends AbstractType
     /**
      * Update.
      *
-     * @param  int  $id
-     * @param  array  $attributes
+     * @param int $id
+     * @param array $attributes
+     * @param array $data
+     *
      * @return \Webkul\Product\Contracts\Product
      */
     public function update(array $data, $id, $attributes = [])
     {
         $product = parent::update($data, $id);
 
-        if (! empty($attributes)) {
+        if (!empty($attributes)) {
             return $product;
         }
 
@@ -99,16 +113,17 @@ class Grouped extends AbstractType
     /**
      * Copy relationships.
      *
-     * @param  \Webkul\Product\Models\Product  $product
+     * @param \Webkul\Product\Models\Product $product
+     *
      * @return void
      */
-    protected function copyRelationships($product)
+    protected function copyRelationships($product): void
     {
         parent::copyRelationships($product);
 
         $attributesToSkip = config('products.skipAttributesOnCopy') ?? [];
 
-        if (in_array('grouped_products', $attributesToSkip)) {
+        if (in_array('grouped_products', $attributesToSkip, true)) {
             return;
         }
 
@@ -144,7 +159,7 @@ class Grouped extends AbstractType
      */
     public function isSaleable()
     {
-        if (! $this->product->status) {
+        if (!$this->product->status) {
             return false;
         }
 
@@ -159,6 +174,8 @@ class Grouped extends AbstractType
 
     /**
      * Is product have sufficient quantity.
+     *
+     * @param int $qty
      */
     public function haveSufficientQuantity(int $qty): bool
     {
@@ -180,21 +197,22 @@ class Grouped extends AbstractType
     {
         return view('shop::products.prices.grouped', [
             'product' => $this->product,
-            'prices'  => $this->getProductPrices(),
+            'prices' => $this->getProductPrices(),
         ])->render();
     }
 
     /**
      * Add product. Returns error message if can't prepare product.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return array|string
      */
     public function prepareForCart($data)
     {
         if (
-            ! isset($data['qty'])
-            || ! is_array($data['qty'])
+            !isset($data['qty'])
+            || !is_array($data['qty'])
         ) {
             return trans('product::app.checkout.cart.missing-options');
         }
@@ -202,7 +220,7 @@ class Grouped extends AbstractType
         $cartProductsList = [];
 
         foreach ($data['qty'] as $productId => $qty) {
-            if (! $qty) {
+            if (!$qty) {
                 continue;
             }
 
@@ -214,7 +232,7 @@ class Grouped extends AbstractType
 
             $cartProducts = $product->getTypeInstance()->prepareForCart([
                 'product_id' => $productId,
-                'quantity'   => $qty,
+                'quantity' => $qty,
             ]);
 
             if (is_string($cartProducts)) {
@@ -226,7 +244,7 @@ class Grouped extends AbstractType
 
         $products = array_merge(...$cartProductsList);
 
-        if (! count($products)) {
+        if (!count($products)) {
             return trans('product::app.checkout.cart.integrity.qty-missing');
         }
 
@@ -252,12 +270,12 @@ class Grouped extends AbstractType
     {
         return [
             'links' => 'array',
-            'links' => function ($attribute, $value, $fail) {
+            'links' => function ($attribute, $value, $fail): void {
                 $associatedProductIds = collect($value)->pluck('associated_product_id')->toArray();
 
                 $products = $this->productRepository->findWhereIn('id', $associatedProductIds)
                     ->pluck('type')
-                    ->filter(fn ($type) => $type !== 'simple')
+                    ->filter(fn($type) => $type !== 'simple')
                     ->count();
 
                 if ($products) {

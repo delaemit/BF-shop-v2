@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Tax;
 
 class Tax
@@ -23,7 +25,7 @@ class Tax
      */
     public function isInclusiveTaxProductPrices(): bool
     {
-        return core()->getConfigData('sales.taxes.calculation.product_prices') == 'including_tax';
+        return core()->getConfigData('sales.taxes.calculation.product_prices') === 'including_tax';
     }
 
     /**
@@ -31,20 +33,23 @@ class Tax
      */
     public function isInclusiveTaxShippingPrices(): bool
     {
-        return core()->getConfigData('sales.taxes.calculation.shipping_prices') == 'including_tax';
+        return core()->getConfigData('sales.taxes.calculation.shipping_prices') === 'including_tax';
     }
 
     /**
      * Returns an array with tax rates and tax amount.
+     *
+     * @param object $that
+     * @param bool $asBase
      */
     public function getTaxRatesWithAmount(object $that, bool $asBase = false): array
     {
         $taxes = [];
 
         foreach ($that->items as $item) {
-            $taxRate = $item->applied_tax_rate.' ('.(string) round((float) $item->tax_percent, self::TAX_RATE_PRECISION).'%)';
+            $taxRate = $item->applied_tax_rate . ' (' . (string) round((float) $item->tax_percent, self::TAX_RATE_PRECISION) . '%)';
 
-            if (! array_key_exists($taxRate, $taxes)) {
+            if (!array_key_exists($taxRate, $taxes)) {
                 $taxes[$taxRate] = 0;
             }
 
@@ -55,16 +60,16 @@ class Tax
             $that->selected_shipping_rate
             && $that->selected_shipping_rate->tax_amount > 0
         ) {
-            $taxRate = $that->selected_shipping_rate->applied_tax_rate.' ('.(string) round((float) $that->selected_shipping_rate->tax_percent, self::TAX_RATE_PRECISION).'%)';
+            $taxRate = $that->selected_shipping_rate->applied_tax_rate . ' (' . (string) round((float) $that->selected_shipping_rate->tax_percent, self::TAX_RATE_PRECISION) . '%)';
 
-            if (! array_key_exists($taxRate, $taxes)) {
+            if (!array_key_exists($taxRate, $taxes)) {
                 $taxes[$taxRate] = 0;
             }
 
             $taxes[$taxRate] += $asBase ? $that->selected_shipping_rate->base_tax_amount : $that->selected_shipping_rate->tax_amount;
         }
 
-        /**
+        /*
          * Finally round tax amounts now (to reduce rounding differences)
          */
         foreach ($taxes as $taxRate => $taxAmount) {
@@ -79,8 +84,7 @@ class Tax
      */
     public function getShippingOriginAddress(): object
     {
-        return new class
-        {
+        return new class {
             public $country;
 
             public $state;
@@ -89,7 +93,7 @@ class Tax
 
             public function __construct()
             {
-                $this->country = core()->getConfigData('sales.shipping.origin.country') != ''
+                $this->country = core()->getConfigData('sales.shipping.origin.country') !== ''
                     ? core()->getConfigData('sales.shipping.origin.country')
                     : strtoupper(config('app.default_country'));
 
@@ -105,8 +109,7 @@ class Tax
      */
     public function getDefaultAddress(): object
     {
-        return new class
-        {
+        return new class {
             public $country;
 
             public $state;
@@ -115,7 +118,7 @@ class Tax
 
             public function __construct()
             {
-                $this->country = core()->getConfigData('sales.taxes.default_destination_calculation.country') != ''
+                $this->country = core()->getConfigData('sales.taxes.default_destination_calculation.country') !== ''
                     ? core()->getConfigData('sales.taxes.default_destination_calculation.country')
                     : strtoupper(config('app.default_country'));
 
@@ -130,13 +133,13 @@ class Tax
      * This method will check tax for the current address. If applicable then
      * custom operation can be done.
      *
-     * @param  object  $address
-     * @param  object  $taxCategory
-     * @param  \Closure  $operation
+     * @param object $address
+     * @param object $taxCategory
+     * @param \Closure $operation
      */
     public function isTaxApplicableInCurrentAddress($taxCategory, $address, $operation): void
     {
-        if (! $address?->country) {
+        if (!$address?->country) {
             return;
         }
 
@@ -144,25 +147,25 @@ class Tax
             'country' => $address->country,
         ])->orderBy('tax_rate', 'desc')->get();
 
-        if (! $taxRates->count()) {
+        if (!$taxRates->count()) {
             return;
         }
 
         // dump($address);
         foreach ($taxRates as $rate) {
             if (
-                ! in_array(trim($rate->state), ['*', ''])
-                && $rate->state != $address->state
+                !in_array(trim($rate->state), ['*', ''], true)
+                && $rate->state !== $address->state
             ) {
                 continue;
             }
 
             $haveTaxRate = false;
 
-            if (! $rate->is_zip) {
+            if (!$rate->is_zip) {
                 if (
                     empty($rate->zip_code)
-                    || in_array($rate->zip_code, ['*', $address->postcode])
+                    || in_array($rate->zip_code, ['*', $address->postcode], true)
                 ) {
                     $haveTaxRate = true;
                 }

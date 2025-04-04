@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -9,12 +11,45 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Webkul\Attribute\Contracts\Attribute as AttributeContract;
 use Webkul\Attribute\Database\Factories\AttributeFactory;
 use Webkul\Core\Eloquent\TranslatableModel;
+use Webkul\Product\Models\ProductAttributeValueProxy;
 
+/**
+ * @property \Illuminate\Support\Collection<array-key, \Webkul\Attribute\Models\AttributeOption> $options
+ * @property \Illuminate\Support\Collection<array-key, \Webkul\Product\Models\ProductAttributeValue> $productAttributeValues
+ * @property string $code
+ * @property string $type
+ * @property bool $is_required
+ * @property string $validation
+ * @property string $admin_name
+ * @property string $regex
+ * @property bool $is_unique
+ * @property ?string $value_per_channel
+ * @property ?string $value_per_locale
+ */
 class Attribute extends TranslatableModel implements AttributeContract
 {
     use HasFactory;
 
     public $translatedAttributes = ['name'];
+
+    /**
+     * Attribute type fields.
+     *
+     * @var array
+     */
+    public $attributeTypeFields = [
+        'text' => 'text_value',
+        'textarea' => 'text_value',
+        'price' => 'float_value',
+        'boolean' => 'boolean_value',
+        'select' => 'integer_value',
+        'multiselect' => 'text_value',
+        'datetime' => 'datetime_value',
+        'date' => 'date_value',
+        'file' => 'text_value',
+        'image' => 'text_value',
+        'checkbox' => 'text_value',
+    ];
 
     protected $fillable = [
         'code',
@@ -38,25 +73,6 @@ class Attribute extends TranslatableModel implements AttributeContract
     ];
 
     /**
-     * Attribute type fields.
-     *
-     * @var array
-     */
-    public $attributeTypeFields = [
-        'text'        => 'text_value',
-        'textarea'    => 'text_value',
-        'price'       => 'float_value',
-        'boolean'     => 'boolean_value',
-        'select'      => 'integer_value',
-        'multiselect' => 'text_value',
-        'datetime'    => 'datetime_value',
-        'date'        => 'date_value',
-        'file'        => 'text_value',
-        'image'       => 'text_value',
-        'checkbox'    => 'text_value',
-    ];
-
-    /**
      * Get the options.
      */
     public function options(): HasMany
@@ -64,8 +80,15 @@ class Attribute extends TranslatableModel implements AttributeContract
         return $this->hasMany(AttributeOptionProxy::modelClass());
     }
 
+    public function productAttributeValues()
+    {
+        return $this->hasMany(ProductAttributeValueProxy::modelClass());
+    }
+
     /**
      * Scope a query to only include popular users.
+     *
+     * @param Builder $query
      */
     public function scopeFilterableAttributes(Builder $query): Builder
     {
@@ -97,35 +120,33 @@ class Attribute extends TranslatableModel implements AttributeContract
             $validations[] = 'required: true';
         }
 
-        if ($this->type == 'price') {
+        if ($this->type === 'price') {
             $validations[] = 'decimal: true';
         }
 
-        if ($this->type == 'file') {
+        if ($this->type === 'file') {
             $retVal = core()->getConfigData('catalog.products.attribute.file_attribute_upload_size') ?? '2048';
 
             if ($retVal) {
-                $validations[] = 'size:'.$retVal;
+                $validations[] = 'size:' . $retVal;
             }
         }
 
-        if ($this->type == 'image') {
+        if ($this->type === 'image') {
             $retVal = core()->getConfigData('catalog.products.attribute.image_attribute_upload_size') ?? '2048';
 
             if ($retVal) {
-                $validations[] = 'size:'.$retVal.', mimes: ["image/bmp", "image/jpeg", "image/jpg", "image/png", "image/webp"]';
+                $validations[] = 'size:' . $retVal . ', mimes: ["image/bmp", "image/jpeg", "image/jpg", "image/png", "image/webp"]';
             }
         }
 
-        if ($this->validation == 'regex') {
-            $validations[] = 'regex: '.$this->regex;
+        if ($this->validation === 'regex') {
+            $validations[] = 'regex: ' . $this->regex;
         } elseif ($this->validation) {
-            $validations[] = $this->validation.': true';
+            $validations[] = $this->validation . ': true';
         }
 
-        $validations = '{ '.implode(', ', array_filter($validations)).' }';
-
-        return $validations;
+        return '{ ' . implode(', ', array_filter($validations)) . ' }';
     }
 
     /**

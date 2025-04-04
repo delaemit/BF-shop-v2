@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Importers\Customer;
 
 use Webkul\Customer\Repositories\CustomerRepository;
@@ -22,9 +24,13 @@ class Storage
     /**
      * Create a new helper instance.
      *
+     * @param CustomerRepository $customerRepository
+     *
      * @return void
      */
-    public function __construct(protected CustomerRepository $customerRepository) {}
+    public function __construct(protected CustomerRepository $customerRepository)
+    {
+    }
 
     /**
      * Initialize storage
@@ -38,6 +44,8 @@ class Storage
 
     /**
      * Load the Emails
+     *
+     * @param array $emails
      */
     public function load(array $emails = []): void
     {
@@ -54,6 +62,9 @@ class Storage
 
     /**
      * Get email information
+     *
+     * @param string $email
+     * @param int $id
      */
     public function set(string $email, int $id): self
     {
@@ -64,6 +75,8 @@ class Storage
 
     /**
      * Check if email exists
+     *
+     * @param string $email
      */
     public function has(string $email): bool
     {
@@ -72,10 +85,12 @@ class Storage
 
     /**
      * Get email information
+     *
+     * @param string $email
      */
     public function get(string $email): ?int
     {
-        if (! $this->has($email)) {
+        if (!$this->has($email)) {
             return null;
         }
 

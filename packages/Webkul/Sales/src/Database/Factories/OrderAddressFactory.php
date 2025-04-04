@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -33,10 +35,8 @@ class OrderAddressFactory extends Factory
 
     public function shipping(): void
     {
-        $this->state(function () {
-            return [
-                'address_type' => OrderAddress::ADDRESS_TYPE_SHIPPING,
-            ];
-        });
+        $this->state(fn() => [
+            'address_type' => OrderAddress::ADDRESS_TYPE_SHIPPING,
+        ]);
     }
 }

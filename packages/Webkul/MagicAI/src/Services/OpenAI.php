@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\MagicAI\Services;
 
 use OpenAI\Laravel\Facades\OpenAI as BaseOpenAI;
@@ -8,6 +10,11 @@ class OpenAI
 {
     /**
      * New service instance.
+     *
+     * @param string $model
+     * @param string $prompt
+     * @param float $temperature
+     * @param bool $stream
      */
     public function __construct(
         protected string $model,
@@ -24,7 +31,7 @@ class OpenAI
     public function setConfig(): void
     {
         config([
-            'openai.api_key'      => core()->getConfigData('general.magic_ai.settings.api_key'),
+            'openai.api_key' => core()->getConfigData('general.magic_ai.settings.api_key'),
             'openai.organization' => core()->getConfigData('general.magic_ai.settings.organization'),
         ]);
     }
@@ -35,11 +42,11 @@ class OpenAI
     public function ask(): string
     {
         $result = BaseOpenAI::chat()->create([
-            'model'       => $this->model,
+            'model' => $this->model,
             'temperature' => $this->temperature,
-            'messages'    => [
+            'messages' => [
                 [
-                    'role'    => 'user',
+                    'role' => 'user',
                     'content' => $this->prompt,
                 ],
             ],
@@ -50,22 +57,24 @@ class OpenAI
 
     /**
      * Generate image.
+     *
+     * @param array $options
      */
     public function images(array $options): array
     {
         $result = BaseOpenAI::images()->create([
-            'model'           => $this->model,
-            'prompt'          => $this->prompt,
-            'n'               => intval($options['n'] ?? 1),
-            'size'            => $options['size'],
-            'quality'         => $options['quality'] ?? 'standard',
+            'model' => $this->model,
+            'prompt' => $this->prompt,
+            'n' => (int) ($options['n'] ?? 1),
+            'size' => $options['size'],
+            'quality' => $options['quality'] ?? 'standard',
             'response_format' => 'b64_json',
         ]);
 
         $images = [];
 
         foreach ($result->data as $image) {
-            $images[]['url'] = 'data:image/png;base64,'.$image->b64_json;
+            $images[]['url'] = 'data:image/png;base64,' . $image->b64_json;
         }
 
         return $images;

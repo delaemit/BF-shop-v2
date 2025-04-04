@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -34,41 +36,37 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'first_name'        => preg_replace('/[^a-zA-Z ]/', '', $this->faker->firstName()),
-            'last_name'         => preg_replace('/[^a-zA-Z ]/', '', $this->faker->lastName()),
-            'gender'            => Arr::random(['male', 'female', 'other']),
-            'email'             => $this->faker->safeEmail(),
-            'status'            => 1,
-            'password'          => Hash::make($this->faker->password),
+            'first_name' => preg_replace('/[^a-zA-Z ]/', '', $this->faker->firstName()),
+            'last_name' => preg_replace('/[^a-zA-Z ]/', '', $this->faker->lastName()),
+            'gender' => Arr::random(['male', 'female', 'other']),
+            'email' => $this->faker->safeEmail(),
+            'status' => 1,
+            'password' => Hash::make($this->faker->password),
             'customer_group_id' => 2,
-            'channel_id'        => 1,
-            'is_verified'       => 1,
-            'created_at'        => now(),
-            'updated_at'        => now(),
+            'channel_id' => 1,
+            'is_verified' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 
     /**
      * Male.
      */
-    public function male(): CustomerFactory
+    public function male(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'gender' => 'Male',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'gender' => 'Male',
+        ]);
     }
 
     /**
      * Female.
      */
-    public function female(): CustomerFactory
+    public function female(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'gender' => 'Female',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'gender' => 'Female',
+        ]);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\SearchSEO;
 
 use Illuminate\Http\JsonResponse;
@@ -14,9 +16,13 @@ class SitemapController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param SitemapRepository $sitemapRepository
+     *
      * @return void
      */
-    public function __construct(public SitemapRepository $sitemapRepository) {}
+    public function __construct(public SitemapRepository $sitemapRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,7 +45,7 @@ class SitemapController extends Controller
     {
         $this->validate(request(), [
             'file_name' => 'required|regex:/^[\w\-\.]+$/|ends_with:.xml',
-            'path'      => 'required|starts_with:/|regex:/^(?!.*\/\/)[\w\-\.\/]+$/|ends_with:/',
+            'path' => 'required|starts_with:/|regex:/^(?!.*\/\/)[\w\-\.\/]+$/|ends_with:/',
         ]);
 
         Event::dispatch('marketing.search_seo.sitemap.create.before');
@@ -61,7 +67,7 @@ class SitemapController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function update(): JsonResponse
     {
@@ -69,7 +75,7 @@ class SitemapController extends Controller
 
         $this->validate(request(), [
             'file_name' => 'required|regex:/^[\w\-\.]+$/|ends_with:.xml',
-            'path'      => 'required|starts_with:/|regex:/^(?!.*\/\/)[\w\-\.\/]+$/|ends_with:/',
+            'path' => 'required|starts_with:/|regex:/^(?!.*\/\/)[\w\-\.\/]+$/|ends_with:/',
         ]);
 
         Event::dispatch('marketing.search_seo.sitemap.update.before', $id);
@@ -91,7 +97,8 @@ class SitemapController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
     public function destroy($id)

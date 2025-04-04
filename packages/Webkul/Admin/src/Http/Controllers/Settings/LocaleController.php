@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings;
 
 use Illuminate\Http\JsonResponse;
@@ -12,9 +14,13 @@ class LocaleController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param LocaleRepository $localeRepository
+     *
      * @return void
      */
-    public function __construct(protected LocaleRepository $localeRepository) {}
+    public function __construct(protected LocaleRepository $localeRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -36,10 +42,10 @@ class LocaleController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'code'        => ['required', 'unique:locales,code', new \Webkul\Core\Rules\Code],
-            'name'        => 'required',
-            'direction'   => 'required|in:ltr,rtl',
-            'logo_path'   => 'array',
+            'code' => ['required', 'unique:locales,code', new \Webkul\Core\Rules\Code()],
+            'name' => 'required',
+            'direction' => 'required|in:ltr,rtl',
+            'logo_path' => 'array',
             'logo_path.*' => 'image|extensions:jpeg,jpg,png,svg,webp',
         ]);
 
@@ -57,6 +63,8 @@ class LocaleController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     *
+     * @param int $id
      */
     public function edit(int $id): JsonResponse
     {
@@ -73,9 +81,9 @@ class LocaleController extends Controller
     public function update(): JsonResponse
     {
         $this->validate(request(), [
-            'name'        => 'required',
-            'direction'   => 'required|in:ltr,rtl',
-            'logo_path'   => 'array',
+            'name' => 'required',
+            'direction' => 'required|in:ltr,rtl',
+            'logo_path' => 'array',
             'logo_path.*' => 'image|extensions:jpeg,jpg,png,svg,webp',
         ]);
 
@@ -92,12 +100,14 @@ class LocaleController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         $locale = $this->localeRepository->findOrFail($id);
 
-        if ($locale->count() == 1) {
+        if ($locale->count() === 1) {
             return response()->json([
                 'message' => trans('admin::app.settings.locales.index.last-delete-error'),
             ], 400);

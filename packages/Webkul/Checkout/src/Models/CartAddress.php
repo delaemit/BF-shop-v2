@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Checkout\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +15,6 @@ use Webkul\Core\Models\Address;
 
 /**
  * Class CartAddress
- *
  *
  * @property int $cart_id
  * @property Cart $cart
@@ -44,7 +45,7 @@ class CartAddress extends Address implements CartAddressContract
      */
     protected static function boot(): void
     {
-        static::addGlobalScope('address_type', static function (Builder $builder) {
+        static::addGlobalScope('address_type', static function (Builder $builder): void {
             $builder->whereIn('address_type', [
                 self::ADDRESS_TYPE_BILLING,
                 self::ADDRESS_TYPE_SHIPPING,

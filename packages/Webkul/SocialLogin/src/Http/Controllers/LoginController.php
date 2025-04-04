@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\SocialLogin\Http\Controllers;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -16,14 +18,19 @@ class LoginController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CustomerSocialAccountRepository $customerSocialAccountRepository
+     *
      * @return void
      */
-    public function __construct(protected CustomerSocialAccountRepository $customerSocialAccountRepository) {}
+    public function __construct(protected CustomerSocialAccountRepository $customerSocialAccountRepository)
+    {
+    }
 
     /**
      * Redirects to the social provider
      *
-     * @param  string  $provider
+     * @param string $provider
+     *
      * @return \Illuminate\Http\Response
      */
     public function redirectToProvider($provider)
@@ -40,7 +47,8 @@ class LoginController extends Controller
     /**
      * Handles callback
      *
-     * @param  string  $provider
+     * @param string $provider
+     *
      * @return \Illuminate\Http\Response
      */
     public function handleProviderCallback($provider)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Listeners;
 
 use Webkul\Admin\Mail\Order\InvoicedNotification;
@@ -10,19 +12,23 @@ class Invoice extends Base
     /**
      * Create a new controller instance.
      *
+     * @param OrderTransactionRepository $orderTransactionRepository
+     *
      * @return void
      */
     public function __construct(
         protected OrderTransactionRepository $orderTransactionRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * After order is created
      *
-     * @param  \Webkul\Sale\Contracts\Invoice  $invoice
+     * @param \Webkul\Sale\Contracts\Invoice $invoice
+     *
      * @return void
      */
-    public function afterCreated($invoice)
+    public function afterCreated($invoice): void
     {
         $this->sendMail($invoice);
 
@@ -34,13 +40,14 @@ class Invoice extends Base
     /**
      * Send Transaction mail.
      *
-     * @param  \Webkul\Sale\Contracts\Invoice  $invoice
+     * @param \Webkul\Sale\Contracts\Invoice $invoice
+     *
      * @return void
      */
-    public function sendMail($invoice)
+    public function sendMail($invoice): void
     {
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.new_invoice_mail_to_admin')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.new_invoice_mail_to_admin')) {
                 return;
             }
 
@@ -53,21 +60,22 @@ class Invoice extends Base
     /**
      * Create the transaction data for Money-transfer and Cash-on-delivery.
      *
-     * @param  \Webkul\Sale\Contracts\Invoice  $invoice
+     * @param \Webkul\Sale\Contracts\Invoice $invoice
+     *
      * @return void
      */
-    public function createTransaction($invoice)
+    public function createTransaction($invoice): void
     {
         $transactionId = md5(uniqid());
 
         $transactionData = [
             'transaction_id' => $transactionId,
-            'status'         => $invoice->state,
-            'type'           => $invoice->order->payment->method,
+            'status' => $invoice->state,
+            'type' => $invoice->order->payment->method,
             'payment_method' => $invoice->order->payment->method,
-            'order_id'       => $invoice->order->id,
-            'invoice_id'     => $invoice->id,
-            'amount'         => $invoice->grand_total,
+            'order_id' => $invoice->order->id,
+            'invoice_id' => $invoice->id,
+            'amount' => $invoice->grand_total,
         ];
 
         $this->orderTransactionRepository->create($transactionData);

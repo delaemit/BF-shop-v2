@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\User\Http\Middleware;
 
 use Illuminate\Support\Facades\Route;
@@ -9,13 +11,15 @@ class Bouncer
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|null  $guard
+     * @param \Illuminate\Http\Request $request
+     * @param string|null $guard
+     * @param \Closure $next
+     *
      * @return mixed
      */
     public function handle($request, \Closure $next, $guard = 'admin')
     {
-        if (! auth()->guard($guard)->check()) {
+        if (!auth()->guard($guard)->check()) {
             return redirect()->route('admin.session.create');
         }
 
@@ -23,7 +27,7 @@ class Bouncer
          * If user status is changed by admin. Then session should be
          * logged out.
          */
-        if (! (bool) auth()->guard($guard)->user()->status) {
+        if (!(bool) auth()->guard($guard)->user()->status) {
             auth()->guard($guard)->logout();
 
             return redirect()->route('admin.session.create');
@@ -51,7 +55,7 @@ class Bouncer
      */
     public function isPermissionsEmpty()
     {
-        if (! $role = auth()->guard('admin')->user()->role) {
+        if (!$role = auth()->guard('admin')->user()->role) {
             abort(401, 'This action is unauthorized.');
         }
 

@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
-use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class ProductMediaRepository extends Repository
      */
     public function model()
     {
-        /**
+        /*
          * This repository is extended to `ProductImageRepository` and `ProductVideoRepository`
          * repository.
          *
@@ -29,18 +30,19 @@ class ProductMediaRepository extends Repository
     /**
      * Get product directory.
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
      */
     public function getProductDirectory($product): string
     {
-        return 'product/'.$product->id;
+        return 'product/' . $product->id;
     }
 
     /**
      * Upload.
      *
-     * @param  array  $data
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param array $data
+     * @param \Webkul\Product\Contracts\Product $product
+     * @param string $uploadFileType
      */
     public function upload($data, $product, string $uploadFileType): void
     {
@@ -51,15 +53,15 @@ class ProductMediaRepository extends Repository
 
         $position = 0;
 
-        if (! empty($data[$uploadFileType]['files'])) {
+        if (!empty($data[$uploadFileType]['files'])) {
             foreach ($data[$uploadFileType]['files'] as $indexOrModelId => $file) {
                 if ($file instanceof UploadedFile) {
                     if (Str::contains($file->getMimeType(), 'image')) {
-                        $manager = new ImageManager;
+                        $manager = new ImageManager();
 
                         $image = $manager->make($file)->encode('webp');
 
-                        $path = $this->getProductDirectory($product).'/'.Str::random(40).'.webp';
+                        $path = $this->getProductDirectory($product) . '/' . Str::random(40) . '.webp';
 
                         Storage::put($path, $image);
                     } else {
@@ -67,10 +69,10 @@ class ProductMediaRepository extends Repository
                     }
 
                     $this->create([
-                        'type'       => $uploadFileType,
-                        'path'       => $path,
+                        'type' => $uploadFileType,
+                        'path' => $path,
                         'product_id' => $product->id,
-                        'position'   => ++$position,
+                        'position' => ++$position,
                     ]);
                 } else {
                     if (is_numeric($index = $previousIds->search($indexOrModelId))) {
@@ -85,7 +87,7 @@ class ProductMediaRepository extends Repository
         }
 
         foreach ($previousIds as $indexOrModelId) {
-            if (! $model = $this->find($indexOrModelId)) {
+            if (!$model = $this->find($indexOrModelId)) {
                 continue;
             }
 
@@ -98,7 +100,9 @@ class ProductMediaRepository extends Repository
     /**
      * Resolve file type query builder.
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     * @param string $uploadFileType
+     *
      * @return mixed
      *
      * @throws \Exception
@@ -107,10 +111,11 @@ class ProductMediaRepository extends Repository
     {
         if ($uploadFileType === 'images') {
             return $product->images();
-        } elseif ($uploadFileType === 'videos') {
+        }
+        if ($uploadFileType === 'videos') {
             return $product->videos();
         }
 
-        throw new Exception('Unsupported file type.');
+        throw new \Exception('Unsupported file type.');
     }
 }

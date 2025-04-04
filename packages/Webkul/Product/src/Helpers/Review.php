@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers;
 
 use Illuminate\Support\Facades\DB;
@@ -9,7 +11,8 @@ class Review
     /**
      * Returns the product's avg rating
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function getReviews($product)
@@ -20,7 +23,8 @@ class Review
     /**
      * Returns the product's avg rating
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return string
      */
     public function getAverageRating($product)
@@ -31,7 +35,8 @@ class Review
     /**
      * Returns the total review of the product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return int
      */
     public function getTotalReviews($product)
@@ -42,7 +47,8 @@ class Review
     /**
      * Returns the total rating of the product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return int
      */
     public function getTotalRating($product)
@@ -53,12 +59,13 @@ class Review
     /**
      * Returns the total active feedback of the product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return int
      */
     public function getTotalFeedback($product)
     {
-        return core()->getConfigData('catalog.products.review.summary') == 'star_counts'
+        return core()->getConfigData('catalog.products.review.summary') === 'star_counts'
             ? $this->getTotalRating($product)
             : $this->getTotalReviews($product);
     }
@@ -66,7 +73,8 @@ class Review
     /**
      * Returns reviews with ratings.
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return \Illuminate\Support\Collection
      */
     public function getReviewsWithRatings($product)
@@ -82,7 +90,8 @@ class Review
     /**
      * Returns the Percentage rating of the product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return array
      */
     public function getPercentageRating($product)
@@ -92,15 +101,14 @@ class Review
         $totalReviews = $this->getTotalReviews($product);
 
         for ($i = 5; $i >= 1; $i--) {
-            if (! $reviews->isEmpty()) {
+            if (!$reviews->isEmpty()) {
                 foreach ($reviews as $review) {
-                    if ($review->rating == $i) {
+                    if ($review->rating === $i) {
                         $percentage[$i] = round(($review->total / $totalReviews) * 100);
 
                         break;
-                    } else {
-                        $percentage[$i] = 0;
                     }
+                    $percentage[$i] = 0;
                 }
             } else {
                 $percentage[$i] = 0;

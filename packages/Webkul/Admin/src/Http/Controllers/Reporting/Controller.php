@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Reporting;
 
 use Maatwebsite\Excel\Facades\Excel;
@@ -19,9 +21,13 @@ class Controller extends BaseController
     /**
      * Create a controller instance.
      *
+     * @param ReportingHelper $reportingHelper
+     *
      * @return void
      */
-    public function __construct(protected ReportingHelper $reportingHelper) {}
+    public function __construct(protected ReportingHelper $reportingHelper)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -62,6 +68,6 @@ class Controller extends BaseController
     {
         $stats = $this->reportingHelper->{$this->typeFunctions[request()->query('type')]}('table');
 
-        return Excel::download(new ReportingExport($stats), request()->query('type').'.'.request()->query('format'));
+        return Excel::download(new ReportingExport($stats), request()->query('type') . '.' . request()->query('format'));
     }
 }

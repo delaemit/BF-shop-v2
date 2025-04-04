@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\Communications;
 
 use Illuminate\Http\JsonResponse;
@@ -14,12 +16,16 @@ class CampaignController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CampaignRepository $campaignRepository
+     * @param TemplateRepository $templateRepository
+     *
      * @return void
      */
     public function __construct(
         protected CampaignRepository $campaignRepository,
         protected TemplateRepository $templateRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -55,13 +61,13 @@ class CampaignController extends Controller
     public function store()
     {
         $validatedData = $this->validate(request(), [
-            'name'                  => 'required',
-            'subject'               => 'required',
+            'name' => 'required',
+            'subject' => 'required',
             'marketing_template_id' => 'required',
-            'marketing_event_id'    => 'required',
-            'channel_id'            => 'required',
-            'customer_group_id'     => 'required',
-            'status'                => 'sometimes|required|in:0,1',
+            'marketing_event_id' => 'required',
+            'channel_id' => 'required',
+            'customer_group_id' => 'required',
+            'status' => 'sometimes|required|in:0,1',
         ]);
 
         Event::dispatch('marketing.campaigns.create.before');
@@ -78,6 +84,8 @@ class CampaignController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -92,17 +100,19 @@ class CampaignController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(int $id)
     {
         $validatedData = $this->validate(request(), [
-            'name'                  => 'required',
-            'subject'               => 'required',
+            'name' => 'required',
+            'subject' => 'required',
             'marketing_template_id' => 'required',
-            'marketing_event_id'    => 'required',
-            'channel_id'            => 'required',
-            'customer_group_id'     => 'required',
+            'marketing_event_id' => 'required',
+            'channel_id' => 'required',
+            'customer_group_id' => 'required',
         ]);
 
         Event::dispatch('marketing.campaigns.update.before', $id);
@@ -121,6 +131,8 @@ class CampaignController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {

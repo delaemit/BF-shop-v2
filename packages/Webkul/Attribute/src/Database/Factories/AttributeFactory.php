@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -48,92 +50,76 @@ class AttributeFactory extends Factory
         ];
 
         return [
-            'admin_name'          => $this->faker->word,
-            'code'                => $this->faker->regexify('/^[a-zA-Z]+[a-zA-Z0-9_]+$/'),
-            'type'                => array_rand($types),
-            'validation'          => '',
-            'position'            => $this->faker->randomDigit,
-            'is_required'         => false,
-            'is_unique'           => false,
-            'value_per_locale'    => false,
-            'value_per_channel'   => false,
-            'is_filterable'       => false,
-            'is_configurable'     => false,
-            'is_user_defined'     => true,
+            'admin_name' => $this->faker->word,
+            'code' => $this->faker->regexify('/^[a-zA-Z]+[a-zA-Z0-9_]+$/'),
+            'type' => array_rand($types),
+            'validation' => '',
+            'position' => $this->faker->randomDigit,
+            'is_required' => false,
+            'is_unique' => false,
+            'value_per_locale' => false,
+            'value_per_channel' => false,
+            'is_filterable' => false,
+            'is_configurable' => false,
+            'is_user_defined' => true,
             'is_visible_on_front' => true,
-            'swatch_type'         => null,
+            'swatch_type' => null,
         ];
     }
 
-    public function validation_numeric(): AttributeFactory
+    public function validation_numeric(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'validation' => 'numeric',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'validation' => 'numeric',
+        ]);
     }
 
-    public function validation_email(): AttributeFactory
+    public function validation_email(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'validation' => 'email',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'validation' => 'email',
+        ]);
     }
 
-    public function validation_decimal(): AttributeFactory
+    public function validation_decimal(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'validation' => 'decimal',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'validation' => 'decimal',
+        ]);
     }
 
-    public function validation_url(): AttributeFactory
+    public function validation_url(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'validation' => 'url',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'validation' => 'url',
+        ]);
     }
 
-    public function required(): AttributeFactory
+    public function required(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'is_required' => true,
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'is_required' => true,
+        ]);
     }
 
-    public function unique(): AttributeFactory
+    public function unique(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'is_unique' => true,
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'is_unique' => true,
+        ]);
     }
 
-    public function filterable(): AttributeFactory
+    public function filterable(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'is_filterable' => true,
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'is_filterable' => true,
+        ]);
     }
 
-    public function configurable(): AttributeFactory
+    public function configurable(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'is_configurable' => true,
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'is_configurable' => true,
+        ]);
     }
 }

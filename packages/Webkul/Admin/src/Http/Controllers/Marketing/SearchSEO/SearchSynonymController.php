@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\SearchSEO;
 
 use Illuminate\Http\JsonResponse;
@@ -15,9 +17,13 @@ class SearchSynonymController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param SearchSynonymRepository $searchSynonymRepository
+     *
      * @return void
      */
-    public function __construct(public SearchSynonymRepository $searchSynonymRepository) {}
+    public function __construct(public SearchSynonymRepository $searchSynonymRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,7 +45,7 @@ class SearchSynonymController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'name'  => 'required',
+            'name' => 'required',
             'terms' => 'required',
         ]);
 
@@ -60,14 +66,14 @@ class SearchSynonymController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function update(): JsonResponse
     {
         $id = request()->id;
 
         $this->validate(request(), [
-            'name'  => 'required',
+            'name' => 'required',
             'terms' => 'required',
         ]);
 
@@ -88,7 +94,8 @@ class SearchSynonymController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
     public function destroy($id)
@@ -113,6 +120,8 @@ class SearchSynonymController extends Controller
 
     /**
      * Mass delete the search terms.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Payment\Payment;
 
 use Webkul\Checkout\Facades\Cart;
@@ -70,18 +72,19 @@ abstract class Payment
     /**
      * Retrieve information from payment configuration.
      *
-     * @param  string  $field
+     * @param string $field
+     *
      * @return mixed
      */
     public function getConfigData($field)
     {
-        return core()->getConfigData('sales.payment_methods.'.$this->getCode().'.'.$field);
+        return core()->getConfigData('sales.payment_methods.' . $this->getCode() . '.' . $field);
     }
 
     /**
      * Abstract method to get the redirect URL.
      *
-     * @return string The redirect URL.
+     * @return string the redirect URL
      */
     abstract public function getRedirectUrl();
 
@@ -90,9 +93,9 @@ abstract class Payment
      *
      * @var void
      */
-    public function setCart()
+    public function setCart(): void
     {
-        if (! $this->cart) {
+        if (!$this->cart) {
             $this->cart = Cart::getCart();
         }
     }
@@ -104,7 +107,7 @@ abstract class Payment
      */
     public function getCart()
     {
-        if (! $this->cart) {
+        if (!$this->cart) {
             $this->setCart();
         }
 
@@ -118,7 +121,7 @@ abstract class Payment
      */
     public function getCartItems()
     {
-        if (! $this->cart) {
+        if (!$this->cart) {
             $this->setCart();
         }
 

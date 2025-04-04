@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -39,70 +41,64 @@ class OrderFactory extends Factory
             ->first()->id ?? 0;
 
         return [
-            'increment_id'              => $lastOrder + 1,
-            'status'                    => 'pending',
-            'channel_name'              => 'Default',
-            'is_guest'                  => 0,
-            'is_gift'                   => 0,
-            'total_item_count'          => 1,
-            'total_qty_ordered'         => 1,
-            'base_currency_code'        => 'USD',
-            'channel_currency_code'     => 'USD',
-            'order_currency_code'       => 'USD',
-            'grand_total'               => $grandTotal = rand(0, 9999),
-            'base_grand_total'          => $grandTotal,
-            'grand_total_invoiced'      => $grandTotal,
+            'increment_id' => $lastOrder + 1,
+            'status' => 'pending',
+            'channel_name' => 'Default',
+            'is_guest' => 0,
+            'is_gift' => 0,
+            'total_item_count' => 1,
+            'total_qty_ordered' => 1,
+            'base_currency_code' => 'USD',
+            'channel_currency_code' => 'USD',
+            'order_currency_code' => 'USD',
+            'grand_total' => $grandTotal = random_int(0, 9999),
+            'base_grand_total' => $grandTotal,
+            'grand_total_invoiced' => $grandTotal,
             'base_grand_total_invoiced' => $grandTotal,
-            'grand_total_refunded'      => $grandTotal,
-            'sub_total'                 => $grandTotal,
-            'base_sub_total'            => $grandTotal,
-            'sub_total_invoiced'        => $grandTotal,
-            'base_sub_total_invoiced'   => $grandTotal,
-            'sub_total_refunded'        => $grandTotal,
-            'base_sub_total_refunded'   => $grandTotal,
+            'grand_total_refunded' => $grandTotal,
+            'sub_total' => $grandTotal,
+            'base_sub_total' => $grandTotal,
+            'sub_total_invoiced' => $grandTotal,
+            'base_sub_total_invoiced' => $grandTotal,
+            'sub_total_refunded' => $grandTotal,
+            'base_sub_total_refunded' => $grandTotal,
             'base_grand_total_refunded' => 0.0000,
-            'customer_type'             => Customer::class,
-            'channel_id'                => 1,
-            'channel_type'              => Channel::class,
-            'cart_id'                   => 0,
-            'shipping_method'           => 'free_free',
-            'shipping_title'            => 'Free Shipping',
+            'customer_type' => Customer::class,
+            'channel_id' => 1,
+            'channel_type' => Channel::class,
+            'cart_id' => 0,
+            'shipping_method' => 'free_free',
+            'shipping_title' => 'Free Shipping',
         ];
     }
 
     /**
      * Pending state.
      */
-    public function pending(): OrderFactory
+    public function pending(): self
     {
-        return $this->state(function () {
-            return [
-                'status' => 'pending',
-            ];
-        });
+        return $this->state(fn() => [
+            'status' => 'pending',
+        ]);
     }
 
     /**
      * Completed state.
      */
-    public function completed(): OrderFactory
+    public function completed(): self
     {
-        return $this->state(function () {
-            return [
-                'status' => 'completed',
-            ];
-        });
+        return $this->state(fn() => [
+            'status' => 'completed',
+        ]);
     }
 
     /**
      * Closed state.
      */
-    public function closed(): OrderFactory
+    public function closed(): self
     {
-        return $this->state(function () {
-            return [
-                'status' => 'closed',
-            ];
-        });
+        return $this->state(fn() => [
+            'status' => 'closed',
+        ]);
     }
 }

@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,11 +17,11 @@ return new class extends Migration
             Schema::dropColumns('locales', 'locale_image');
         }
 
-        Schema::table('locales', function (Blueprint $table) {
+        Schema::table('locales', function (Blueprint $table): void {
             $table->string('logo_path')->after('direction')->nullable();
         });
 
-        DB::table('locales')->whereNull('logo_path')->update(['logo_path'=> DB::raw('CONCAT("locales/", code, ".png")')]);
+        DB::table('locales')->whereNull('logo_path')->update(['logo_path' => DB::raw('CONCAT("locales/", code, ".png")')]);
     }
 
     /**

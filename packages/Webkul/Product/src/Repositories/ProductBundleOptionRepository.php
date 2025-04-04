@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Container\Container;
@@ -11,6 +13,9 @@ class ProductBundleOptionRepository extends Repository
 {
     /**
      * Create a new repository instance.
+     *
+     * @param ProductBundleOptionProductRepository $productBundleOptionProductRepository
+     * @param Container $container
      *
      * @return void
      */
@@ -32,11 +37,12 @@ class ProductBundleOptionRepository extends Repository
     /**
      * Save bundle options.
      *
-     * @param  array  $data
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param array $data
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function saveBundleOptions($data, $product)
+    public function saveBundleOptions($data, $product): void
     {
         $previousBundleOptionIds = $product->bundle_options()->pluck('id');
 

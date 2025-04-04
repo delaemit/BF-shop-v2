@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Payment\Payment;
 
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +20,9 @@ class CashOnDelivery extends Payment
      *
      * @return string
      */
-    public function getRedirectUrl() {}
+    public function getRedirectUrl()
+    {
+    }
 
     /**
      * Is available.
@@ -27,7 +31,7 @@ class CashOnDelivery extends Payment
      */
     public function isAvailable()
     {
-        if (! $this->cart) {
+        if (!$this->cart) {
             $this->setCart();
         }
 

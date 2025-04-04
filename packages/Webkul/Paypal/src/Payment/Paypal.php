@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Paypal\Payment;
 
 use Illuminate\Support\Facades\Storage;
@@ -10,25 +12,27 @@ abstract class Paypal extends Payment
     /**
      * PayPal web URL generic getter
      *
-     * @param  array  $params
+     * @param array $params
+     *
      * @return string
      */
     public function getPaypalUrl($params = [])
     {
         return sprintf('https://www.%spaypal.com/cgi-bin/webscr%s',
             $this->getConfigData('sandbox') ? 'sandbox.' : '',
-            $params ? '?'.http_build_query($params) : ''
+            $params ? '?' . http_build_query($params) : ''
         );
     }
 
     /**
      * Add order item fields
      *
-     * @param  array  $fields
-     * @param  int  $i
+     * @param array $fields
+     * @param int $i
+     *
      * @return void
      */
-    protected function addLineItemsFields(&$fields, $i = 1)
+    protected function addLineItemsFields(&$fields, $i = 1): void
     {
         $cartItems = $this->getCartItems();
 
@@ -44,24 +48,25 @@ abstract class Paypal extends Payment
     /**
      * Add billing address fields
      *
-     * @param  array  $fields
+     * @param array $fields
+     *
      * @return void
      */
-    protected function addAddressFields(&$fields)
+    protected function addAddressFields(&$fields): void
     {
         $cart = $this->getCart();
 
         $billingAddress = $cart->billing_address;
 
         $fields = array_merge($fields, [
-            'city'             => $billingAddress->city,
-            'country'          => $billingAddress->country,
-            'email'            => $billingAddress->email,
-            'first_name'       => $billingAddress->first_name,
-            'last_name'        => $billingAddress->last_name,
-            'zip'              => $billingAddress->postcode,
-            'state'            => $billingAddress->state,
-            'address1'         => $billingAddress->address,
+            'city' => $billingAddress->city,
+            'country' => $billingAddress->country,
+            'email' => $billingAddress->email,
+            'first_name' => $billingAddress->first_name,
+            'last_name' => $billingAddress->last_name,
+            'zip' => $billingAddress->postcode,
+            'state' => $billingAddress->state,
+            'address1' => $billingAddress->address,
             'address_override' => 1,
         ]);
     }
@@ -79,7 +84,8 @@ abstract class Paypal extends Payment
     /**
      * Format a currency value according to paypal's api constraints
      *
-     * @param  float|int  $long
+     * @param float|int $long
+     * @param mixed $number
      */
     public function formatCurrencyValue($number): float
     {
@@ -92,7 +98,7 @@ abstract class Paypal extends Payment
      * Strips non-numbers characters like '+' or ' ' in
      * inputs like "+54 11 3323 2323"
      *
-     * @param  mixed  $phone
+     * @param mixed $phone
      */
     public function formatPhone($phone): string
     {

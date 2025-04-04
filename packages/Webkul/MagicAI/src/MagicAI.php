@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\MagicAI;
 
 use Webkul\MagicAI\Services\Gemini;
@@ -41,6 +43,8 @@ class MagicAI
 
     /**
      * Set LLM model
+     *
+     * @param string $model
      */
     public function setModel(string $model): self
     {
@@ -51,6 +55,8 @@ class MagicAI
 
     /**
      * Set LLM agent
+     *
+     * @param string $agent
      */
     public function setAgent(string $agent): self
     {
@@ -61,6 +67,8 @@ class MagicAI
 
     /**
      * Set stream response.
+     *
+     * @param bool $stream
      */
     public function setStream(bool $stream): self
     {
@@ -71,6 +79,8 @@ class MagicAI
 
     /**
      * Set response raw.
+     *
+     * @param bool $raw
      */
     public function setRaw(bool $raw): self
     {
@@ -81,6 +91,8 @@ class MagicAI
 
     /**
      * Set LLM prompt text.
+     *
+     * @param float $temperature
      */
     public function setTemperature(float $temperature): self
     {
@@ -91,6 +103,8 @@ class MagicAI
 
     /**
      * Set LLM prompt text.
+     *
+     * @param string $prompt
      */
     public function setPrompt(string $prompt): self
     {
@@ -109,6 +123,8 @@ class MagicAI
 
     /**
      * Generate Images
+     *
+     * @param array $options
      */
     public function images(array $options): array
     {
@@ -118,9 +134,9 @@ class MagicAI
     /**
      * Get LLM model instance.
      */
-    public function getModelInstance(): OpenAI|Ollama|Gemini|GroqAI
+    public function getModelInstance(): Gemini|GroqAI|Ollama|OpenAI
     {
-        if (in_array($this->model, ['gpt-4-turbo', 'gpt-4o', 'gpt-4o-mini', 'dall-e-2', 'dall-e-3'])) {
+        if (in_array($this->model, ['gpt-4-turbo', 'gpt-4o', 'gpt-4o-mini', 'dall-e-2', 'dall-e-3'], true)) {
             return new OpenAI(
                 $this->model,
                 $this->prompt,
@@ -129,7 +145,7 @@ class MagicAI
             );
         }
 
-        if (in_array($this->model, ['llama3-8b-8192'])) {
+        if (in_array($this->model, ['llama3-8b-8192'], true)) {
             return new GroqAI(
                 $this->model,
                 $this->prompt,
@@ -138,7 +154,7 @@ class MagicAI
             );
         }
 
-        if (in_array($this->model, ['gemini-2.0-flash'])) {
+        if (in_array($this->model, ['gemini-2.0-flash'], true)) {
             return new Gemini(
                 $this->model,
                 $this->prompt,

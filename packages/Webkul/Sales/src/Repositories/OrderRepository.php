@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Repositories;
 
 use Illuminate\Container\Container;
@@ -16,6 +18,11 @@ class OrderRepository extends Repository
 {
     /**
      * Create a new repository instance.
+     *
+     * @param OrderItemRepository $orderItemRepository
+     * @param ProductCustomizableOptionRepository $productCustomizableOptionRepository
+     * @param DownloadableLinkPurchasedRepository $downloadableLinkPurchasedRepository
+     * @param Container $container
      *
      * @return void
      */
@@ -38,6 +45,8 @@ class OrderRepository extends Repository
 
     /**
      * This method will try attempt to a create order.
+     *
+     * @param array $data
      *
      * @return \Webkul\Sales\Contracts\Order
      */
@@ -65,7 +74,7 @@ class OrderRepository extends Repository
 
                 $orderItem = $this->orderItemRepository->create(array_merge($item, ['order_id' => $order->id]));
 
-                if (! empty($item['children'])) {
+                if (!empty($item['children'])) {
                     foreach ($item['children'] as $child) {
                         $this->orderItemRepository->create(array_merge($child, ['order_id' => $order->id, 'parent_id' => $orderItem->id]));
                     }
@@ -87,7 +96,7 @@ class OrderRepository extends Repository
 
             /* storing log for errors */
             Log::error(
-                'OrderRepository:createOrderIfNotThenRetry: '.$e->getMessage(),
+                'OrderRepository:createOrderIfNotThenRetry: ' . $e->getMessage(),
                 ['data' => $data]
             );
 
@@ -104,6 +113,8 @@ class OrderRepository extends Repository
     /**
      * Create order.
      *
+     * @param array $data
+     *
      * @return \Webkul\Sales\Contracts\Order
      */
     public function create(array $data)
@@ -114,7 +125,8 @@ class OrderRepository extends Repository
     /**
      * Cancel order. This method should be independent as admin also can cancel the order.
      *
-     * @param  \Webkul\Sales\Models\Order|int  $orderOrId
+     * @param int|\Webkul\Sales\Models\Order $orderOrId
+     *
      * @return bool
      */
     public function cancel($orderOrId)
@@ -123,14 +135,14 @@ class OrderRepository extends Repository
         $order = $this->resolveOrderInstance($orderOrId);
 
         /* check wether order can be cancelled or not */
-        if (! $order->canCancel()) {
+        if (!$order->canCancel()) {
             return false;
         }
 
         Event::dispatch('sales.order.cancel.before', $order);
 
         foreach ($order->items as $item) {
-            if (! $item->qty_to_cancel) {
+            if (!$item->qty_to_cancel) {
                 continue;
             }
 
@@ -187,7 +199,8 @@ class OrderRepository extends Repository
     /**
      * Is order in completed state.
      *
-     * @param  \Webkul\Sales\Contracts\Order  $order
+     * @param \Webkul\Sales\Contracts\Order $order
+     *
      * @return bool
      */
     public function isInCompletedState($order)
@@ -198,7 +211,7 @@ class OrderRepository extends Repository
             $totalQtyOrdered += $item->qty_ordered;
             $totalQtyInvoiced += $item->qty_invoiced;
 
-            if (! $item->isStockable()) {
+            if (!$item->isStockable()) {
                 $totalQtyShipped += $item->qty_invoiced;
             } else {
                 $totalQtyShipped += $item->qty_shipped;
@@ -208,21 +221,21 @@ class OrderRepository extends Repository
             $totalQtyCanceled += $item->qty_canceled;
         }
 
-        /**
+        /*
          * Canceled state.
          */
         if ($totalQtyOrdered === $totalQtyCanceled) {
             return false;
         }
 
-        /**
+        /*
          * Closed state.
          */
         if ($totalQtyOrdered === $totalQtyRefunded + $totalQtyCanceled) {
             return false;
         }
 
-        /**
+        /*
          * Completed state.
          */
         if (
@@ -235,13 +248,13 @@ class OrderRepository extends Repository
             return $totalQtyOrdered === $totalQtyShipped + $totalQtyRefunded;
         }
 
-        /**
+        /*
          * If order is already completed and total quantity ordered is not equal to refunded
          * then it can be considered as completed.
          */
         if (
             $order->status === Order::STATUS_COMPLETED
-            && $totalQtyOrdered != $totalQtyRefunded
+            && $totalQtyOrdered !== $totalQtyRefunded
         ) {
             return true;
         }
@@ -252,7 +265,8 @@ class OrderRepository extends Repository
     /**
      * Is order in cancelled state.
      *
-     * @param  \Webkul\Sales\Contracts\Order  $order
+     * @param \Webkul\Sales\Contracts\Order $order
+     *
      * @return bool
      */
     public function isInCanceledState($order)
@@ -270,7 +284,8 @@ class OrderRepository extends Repository
     /**
      * Is order in closed state.
      *
-     * @param  mixed  $order
+     * @param mixed $order
+     *
      * @return bool
      */
     public function isInClosedState($order)
@@ -289,15 +304,16 @@ class OrderRepository extends Repository
     /**
      * Update order status.
      *
-     * @param  \Webkul\Sales\Contracts\Order  $order
-     * @param  string  $orderState
+     * @param \Webkul\Sales\Contracts\Order $order
+     * @param string $orderState
+     *
      * @return void
      */
-    public function updateOrderStatus($order, $orderState = null)
+    public function updateOrderStatus($order, $orderState = null): void
     {
         Event::dispatch('sales.order.update-status.before', $order);
 
-        if (! empty($orderState)) {
+        if (!empty($orderState)) {
             $status = $orderState;
         } else {
             $status = Order::STATUS_PROCESSING;
@@ -323,7 +339,8 @@ class OrderRepository extends Repository
     /**
      * Collect totals.
      *
-     * @param  \Webkul\Sales\Contracts\Order  $order
+     * @param \Webkul\Sales\Contracts\Order $order
+     *
      * @return mixed
      */
     public function collectTotals($order)
@@ -386,7 +403,8 @@ class OrderRepository extends Repository
     /**
      * This method will find order if id is given else pass the order as it is.
      *
-     * @param  \Webkul\Sales\Models\Order|int  $orderOrId
+     * @param int|\Webkul\Sales\Models\Order $orderOrId
+     *
      * @return \Webkul\Sales\Contracts\Order
      */
     protected function resolveOrderInstance($orderOrId)

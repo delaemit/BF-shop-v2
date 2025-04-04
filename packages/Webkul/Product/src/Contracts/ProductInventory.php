@@ -1,5 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Contracts;
 
-interface ProductInventory {}
+use Webkul\Core\Contracts\ModelContract;
+
+/**
+ * @mixin \Webkul\Product\Models\ProductInventory
+ */
+interface ProductInventory extends ModelContract
+{
+}

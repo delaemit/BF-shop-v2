@@ -1,19 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('booking_product_table_slots', function (Blueprint $table) {
+        Schema::create('booking_product_table_slots', function (Blueprint $table): void {
             $table->id();
             $table->unsignedInteger('booking_product_id');
             $table->string('price_type');
@@ -38,7 +39,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('booking_product_table_slots');
     }

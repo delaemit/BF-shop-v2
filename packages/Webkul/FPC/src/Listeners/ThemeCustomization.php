@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\FPC\Listeners;
 
 use Spatie\ResponseCache\Facades\ResponseCache;
@@ -10,23 +12,28 @@ class ThemeCustomization
     /**
      * Create a new listener instance.
      *
+     * @param ThemeCustomizationRepository $themeCustomizationRepository
+     *
      * @return void
      */
-    public function __construct(protected ThemeCustomizationRepository $themeCustomizationRepository) {}
+    public function __construct(protected ThemeCustomizationRepository $themeCustomizationRepository)
+    {
+    }
 
     /**
      * After theme customization create
      *
-     * @param  \Webkul\Shop\Contracts\ThemeCustomization  $themeCustomization
+     * @param \Webkul\Shop\Contracts\ThemeCustomization $themeCustomization
+     *
      * @return void
      */
-    public function afterCreate($themeCustomization)
+    public function afterCreate($themeCustomization): void
     {
-        if (in_array($themeCustomization->type, ['footer_links', 'services_content'])) {
+        if (in_array($themeCustomization->type, ['footer_links', 'services_content'], true)) {
             ResponseCache::clear();
         } else {
             ResponseCache::selectCachedItems()
-                ->forUrls(config('app.url').'/')
+                ->forUrls(config('app.url') . '/')
                 ->forget();
         }
     }
@@ -34,16 +41,17 @@ class ThemeCustomization
     /**
      * After theme customization update
      *
-     * @param  \Webkul\Shop\Contracts\ThemeCustomization  $themeCustomization
+     * @param \Webkul\Shop\Contracts\ThemeCustomization $themeCustomization
+     *
      * @return void
      */
-    public function afterUpdate($themeCustomization)
+    public function afterUpdate($themeCustomization): void
     {
-        if (in_array($themeCustomization->type, ['footer_links', 'services_content'])) {
+        if (in_array($themeCustomization->type, ['footer_links', 'services_content'], true)) {
             ResponseCache::clear();
         } else {
             ResponseCache::selectCachedItems()
-                ->forUrls(config('app.url').'/')
+                ->forUrls(config('app.url') . '/')
                 ->forget();
         }
     }
@@ -51,18 +59,19 @@ class ThemeCustomization
     /**
      * Before theme customization delete
      *
-     * @param  int  $themeCustomizationId
+     * @param int $themeCustomizationId
+     *
      * @return void
      */
-    public function beforeDelete($themeCustomizationId)
+    public function beforeDelete($themeCustomizationId): void
     {
         $themeCustomization = $this->themeCustomizationRepository->find($themeCustomizationId);
 
-        if (in_array($themeCustomization->type, ['footer_links', 'services_content'])) {
+        if (in_array($themeCustomization->type, ['footer_links', 'services_content'], true)) {
             ResponseCache::clear();
         } else {
             ResponseCache::selectCachedItems()
-                ->forUrls(config('app.url').'/')
+                ->forUrls(config('app.url') . '/')
                 ->forget();
         }
     }

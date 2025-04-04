@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Customers;
 
 use Illuminate\Http\JsonResponse;
@@ -15,9 +17,13 @@ class ReviewController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param ProductReviewRepository $productReviewRepository
+     *
      * @return void
      */
-    public function __construct(protected ProductReviewRepository $productReviewRepository) {}
+    public function __construct(protected ProductReviewRepository $productReviewRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -35,6 +41,8 @@ class ReviewController extends Controller
 
     /**
      * Review Details
+     *
+     * @param int $id
      */
     public function edit(int $id): JsonResponse
     {
@@ -49,6 +57,8 @@ class ReviewController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -73,6 +83,8 @@ class ReviewController extends Controller
 
     /**
      * Delete the review of the current product
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
@@ -95,6 +107,8 @@ class ReviewController extends Controller
 
     /**
      * Mass delete the reviews on the products.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {
@@ -121,6 +135,8 @@ class ReviewController extends Controller
 
     /**
      * Mass approve the reviews on the products.
+     *
+     * @param MassUpdateRequest $massUpdateRequest
      */
     public function massUpdate(MassUpdateRequest $massUpdateRequest): JsonResponse
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings\Tax;
 
 use Illuminate\Http\JsonResponse;
@@ -14,9 +16,13 @@ class TaxRateController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param TaxRateRepository $taxRateRepository
+     *
      * @return void
      */
-    public function __construct(protected TaxRateRepository $taxRateRepository) {}
+    public function __construct(protected TaxRateRepository $taxRateRepository)
+    {
+    }
 
     /**
      * Display a listing resource for the available tax rates.
@@ -49,6 +55,8 @@ class TaxRateController extends Controller
     /**
      * Create the tax rate.
      *
+     * @param TaxRateRequest $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(TaxRateRequest $request)
@@ -76,6 +84,8 @@ class TaxRateController extends Controller
     /**
      * Show the edit form for the previously created tax rates.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -87,6 +97,9 @@ class TaxRateController extends Controller
 
     /**
      * Edit the previous tax rate.
+     *
+     * @param TaxRateRequest $request
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -114,6 +127,8 @@ class TaxRateController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {

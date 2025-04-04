@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\View\Compilers;
 
 use Illuminate\View\Compilers\BladeCompiler as BaseBladeCompiler;
@@ -9,7 +11,8 @@ class BladeCompiler extends BaseBladeCompiler
     /**
      * Append the file path to the compiled string.
      *
-     * @param  string  $contents
+     * @param string $contents
+     *
      * @return string
      */
     protected function appendFilePath($contents)
@@ -18,12 +21,12 @@ class BladeCompiler extends BaseBladeCompiler
 
         if (
             config('view.tracer')
-            && strpos($this->getPath(), 'tracer/style.blade.php') == false
-            && strpos($this->getPath(), 'master.blade.php') == false
+            && strpos($this->getPath(), 'tracer/style.blade.php') === false
+            && strpos($this->getPath(), 'master.blade.php') === false
         ) {
             $finalPath = str_replace('/Providers/..', '', str_replace(base_path(), '', $this->getPath()));
 
-            $contents = '<div class="path-hint" data-toggle="tooltip" data-title="'.$finalPath.'" data-id="'.uniqid().'"><span class="testing"></span>'.$contents.'</div>';
+            $contents = '<div class="path-hint" data-toggle="tooltip" data-title="' . $finalPath . '" data-id="' . uniqid() . '"><span class="testing"></span>' . $contents . '</div>';
         }
 
         if (
@@ -33,6 +36,6 @@ class BladeCompiler extends BaseBladeCompiler
             $contents .= ' ?>';
         }
 
-        return $contents."<?php /**PATH {$this->getPath()} ENDPATH**/ ?>";
+        return $contents . "<?php /**PATH {$this->getPath()} ENDPATH**/ ?>";
     }
 }

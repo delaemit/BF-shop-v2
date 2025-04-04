@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Theme\Facades\Themes;
 use Webkul\Theme\ViewRenderEventManager;
 
-if (! function_exists('themes')) {
+if (!function_exists('themes')) {
     /**
      * Themes.
      *
@@ -15,9 +17,12 @@ if (! function_exists('themes')) {
     }
 }
 
-if (! function_exists('bagisto_asset')) {
+if (!function_exists('bagisto_asset')) {
     /**
      * Bagisto asset.
+     *
+     * @param string $path
+     * @param ?string $namespace
      *
      * @return string
      */
@@ -27,12 +32,13 @@ if (! function_exists('bagisto_asset')) {
     }
 }
 
-if (! function_exists('view_render_event')) {
+if (!function_exists('view_render_event')) {
     /**
      * View render event.
      *
-     * @param  string  $eventName
-     * @param  mixed  $params
+     * @param string $eventName
+     * @param mixed $params
+     *
      * @return mixed
      */
     function view_render_event($eventName, $params = null)

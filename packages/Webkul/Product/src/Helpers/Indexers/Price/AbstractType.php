@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers\Price;
 
 use Illuminate\Support\Carbon;
@@ -33,18 +35,24 @@ abstract class AbstractType
     /**
      * Create a new command instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param ProductCustomerGroupPriceRepository $productCustomerGroupPriceRepository
+     * @param CatalogRuleProductPriceRepository $catalogRuleProductPriceRepository
+     *
      * @return void
      */
     public function __construct(
         protected CustomerRepository $customerRepository,
         protected ProductCustomerGroupPriceRepository $productCustomerGroupPriceRepository,
         protected CatalogRuleProductPriceRepository $catalogRuleProductPriceRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Set current product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return \Webkul\Product\Helpers\Indexers\Price\AbstractPriceIndex
      */
     public function setProduct($product)
@@ -57,7 +65,8 @@ abstract class AbstractType
     /**
      * Set channel
      *
-     * @param  \Webkul\Core\Contracts\Channel  $channel
+     * @param \Webkul\Core\Contracts\Channel $channel
+     *
      * @return \Webkul\Product\Helpers\Indexers\Price\AbstractPriceIndex
      */
     public function setChannel($channel)
@@ -70,7 +79,8 @@ abstract class AbstractType
     /**
      * Set customer group
      *
-     * @param  \Webkul\Customer\Contracts\CustomerGroup  $customerGroup
+     * @param \Webkul\Customer\Contracts\CustomerGroup $customerGroup
+     *
      * @return \Webkul\Product\Helpers\Indexers\Price\AbstractPriceIndex
      */
     public function setCustomerGroup($customerGroup)
@@ -88,12 +98,12 @@ abstract class AbstractType
     public function getIndices()
     {
         return [
-            'min_price'         => ($minPrice = $this->getMinimalPrice()) ?? 0,
+            'min_price' => ($minPrice = $this->getMinimalPrice()) ?? 0,
             'regular_min_price' => $this->product->price ?? 0,
-            'max_price'         => $minPrice ?? 0,
+            'max_price' => $minPrice ?? 0,
             'regular_max_price' => $this->product->price ?? 0,
-            'product_id'        => $this->product->id,
-            'channel_id'        => $this->channel->id,
+            'product_id' => $this->product->id,
+            'channel_id' => $this->channel->id,
             'customer_group_id' => $this->customerGroup->id,
         ];
     }
@@ -101,7 +111,8 @@ abstract class AbstractType
     /**
      * Get product minimal price.
      *
-     * @param  int  $qty
+     * @param int $qty
+     *
      * @return float
      */
     public function getMinimalPrice($qty = null)
@@ -113,12 +124,12 @@ abstract class AbstractType
         if (
             empty($this->product->special_price)
             && empty($rulePrice)
-            && $customerGroupPrice == $this->product->price
+            && $customerGroupPrice === $this->product->price
         ) {
             return $this->product->price;
         }
 
-        if (! (float) $this->product->special_price) {
+        if (!(float) $this->product->special_price) {
             if ($rulePrice) {
                 $discountedPrice = min($rulePrice->price, $this->product->price);
             } else {
@@ -156,7 +167,8 @@ abstract class AbstractType
     /**
      * Get product group price.
      *
-     * @param  int  $qty
+     * @param int $qty
+     *
      * @return float
      */
     public function getCustomerGroupPrice($qty)
@@ -180,7 +192,7 @@ abstract class AbstractType
                 continue;
             }
 
-            if ($customerGroupPrice->value_type == 'discount') {
+            if ($customerGroupPrice->value_type === 'discount') {
                 if (
                     $customerGroupPrice->value >= 0
                     && $customerGroupPrice->value <= 100

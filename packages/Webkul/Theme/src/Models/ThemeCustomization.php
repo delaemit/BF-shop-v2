@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -11,22 +13,6 @@ use Webkul\Theme\Contracts\ThemeCustomization as ThemeCustomizationContract;
 class ThemeCustomization extends TranslatableModel implements ThemeCustomizationContract
 {
     use HasFactory;
-
-    /**
-     * The attributes that are translatable.
-     *
-     * @var array
-     */
-    public $translatedAttributes = [
-        'options',
-    ];
-
-    /**
-     * With the translations given attributes
-     *
-     * @var array
-     */
-    protected $with = ['translations'];
 
     /**
      * Image carousel precision.
@@ -69,6 +55,22 @@ class ThemeCustomization extends TranslatableModel implements ThemeCustomization
      * @var string
      */
     public const SERVICES_CONTENT = 'services_content';
+
+    /**
+     * The attributes that are translatable.
+     *
+     * @var array
+     */
+    public $translatedAttributes = [
+        'options',
+    ];
+
+    /**
+     * With the translations given attributes
+     *
+     * @var array
+     */
+    protected $with = ['translations'];
 
     /**
      * Cast options field to array.

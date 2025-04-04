@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Listeners;
 
 use Illuminate\Support\Facades\Event;
@@ -13,33 +15,38 @@ class Page
      *
      * @var int
      */
-    const PERMANENT_REDIRECT_CODE = 301;
+    public const PERMANENT_REDIRECT_CODE = 301;
 
     /**
      * Create a new listener instance.
+     *
+     * @param PageRepository $pageRepository
+     * @param URLRewriteRepository $urlRewriteRepository
      *
      * @return void
      */
     public function __construct(
         protected PageRepository $pageRepository,
         protected URLRewriteRepository $urlRewriteRepository
-    ) {}
+    ) {
+    }
 
     /**
      * After page is created
      *
-     * @param  \Webkul\CMS\Contracts\Page  $page
+     * @param \Webkul\CMS\Contracts\Page $page
+     *
      * @return void
      */
-    public function afterCreate($page)
+    public function afterCreate($page): void
     {
         /**
          * Delete if url rewrite already exists for request path
          */
         $urlRewrites = $this->urlRewriteRepository->findWhere([
-            'entity_type'  => 'cms_page',
+            'entity_type' => 'cms_page',
             'request_path' => $page->url_key,
-            'locale'       => app()->getLocale(),
+            'locale' => app()->getLocale(),
         ]);
 
         foreach ($urlRewrites as $urlRewrite) {
@@ -54,10 +61,11 @@ class Page
     /**
      * Before page is updated
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
-    public function beforeUpdate($id)
+    public function beforeUpdate($id): void
     {
         $locale = request()->input('locale');
 
@@ -65,35 +73,35 @@ class Page
 
         $translations = $page->translate($locale);
 
-        /**
+        /*
          * If url key is empty for requested locale then return
          */
         if (empty($translations['url_key'])) {
             return;
         }
 
-        $currentURLKey = request()->input($locale.'.url_key');
+        $currentURLKey = request()->input($locale . '.url_key');
 
         if ($translations['url_key'] === $currentURLKey) {
             return;
         }
 
-        /**
+        /*
          * Delete if url rewrite already exists for target path
          */
         $this->urlRewriteRepository->deleteWhere([
             'entity_type' => 'cms_page',
             'target_path' => $translations['url_key'],
-            'locale'      => $locale,
+            'locale' => $locale,
         ]);
 
         Event::dispatch('marketing.search_seo.url_rewrites.create.before');
 
         $urlRewrite = $this->urlRewriteRepository->create([
-            'entity_type'   => 'cms_page',
-            'request_path'  => $translations['url_key'],
-            'target_path'   => $currentURLKey,
-            'locale'        => $locale,
+            'entity_type' => 'cms_page',
+            'request_path' => $translations['url_key'],
+            'target_path' => $currentURLKey,
+            'locale' => $locale,
             'redirect_type' => self::PERMANENT_REDIRECT_CODE,
         ]);
 
@@ -103,10 +111,11 @@ class Page
     /**
      * Before page is deleted
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return void
      */
-    public function beforeDelete($id)
+    public function beforeDelete($id): void
     {
         $page = $this->pageRepository->find($id);
 
@@ -117,9 +126,9 @@ class Page
 
         foreach ($translations as $locale => $translation) {
             $urlRewrites = $this->urlRewriteRepository->findWhere([
-                'entity_type'  => 'cms_page',
+                'entity_type' => 'cms_page',
                 'request_path' => $translation['url_key'],
-                'locale'       => $locale,
+                'locale' => $locale,
             ]);
 
             foreach ($urlRewrites as $urlRewrite) {

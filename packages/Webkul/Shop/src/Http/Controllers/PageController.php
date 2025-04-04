@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 use Webkul\CMS\Repositories\PageRepository;
@@ -10,35 +12,40 @@ class PageController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param PageRepository $pageRepository
+     * @param URLRewriteRepository $urlRewriteRepository
+     *
      * @return void
      */
     public function __construct(
         protected PageRepository $pageRepository,
         protected URLRewriteRepository $urlRewriteRepository
-    ) {}
+    ) {
+    }
 
     /**
      * To extract the page content and load it in the respective view file
      *
-     * @param  string  $urlKey
+     * @param string $urlKey
+     *
      * @return \Illuminate\View\View
      */
     public function view($urlKey)
     {
         $page = $this->pageRepository->findByUrlKey($urlKey);
 
-        if (! $page) {
+        if (!$page) {
             $urlRewrite = $this->urlRewriteRepository->findOneWhere([
-                'entity_type'  => 'cms_page',
+                'entity_type' => 'cms_page',
                 'request_path' => $urlKey,
-                'locale'       => app()->getLocale(),
+                'locale' => app()->getLocale(),
             ]);
 
             if ($urlRewrite) {
                 return redirect()->to($urlRewrite->target_path, $urlRewrite->redirect_type);
             }
 
-            abort_if(! $page && ! $urlRewrite, 404);
+            abort_if(!$page && !$urlRewrite, 404);
         }
 
         return view('shop::cms.page')->with('page', $page);

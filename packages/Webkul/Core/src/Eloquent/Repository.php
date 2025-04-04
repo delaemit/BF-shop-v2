@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Eloquent;
 
 use Prettus\Repository\Contracts\CacheableInterface;
@@ -38,7 +40,7 @@ abstract class Repository extends BaseRepository implements CacheableInterface
      */
     public function allowedClean()
     {
-        if (! isset($this->cleanEnabled)) {
+        if (!isset($this->cleanEnabled)) {
             return config('repository.cache.clean.enabled', true);
         }
 
@@ -48,28 +50,30 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Allowed cache.
      *
+     * @param mixed $method
+     *
      * @return bool
      */
     protected function allowedCache($method)
     {
-        $className = get_class($this);
+        $className = static::class;
 
         $cacheEnabled = config("repository.cache.repositories.{$className}.enabled", config('repository.cache.enabled', true));
 
-        if (! $cacheEnabled) {
+        if (!$cacheEnabled) {
             return false;
         }
 
-        $cacheOnly = isset($this->cacheOnly) ? $this->cacheOnly : config("repository.cache.repositories.{$className}.allowed.only", config('repository.cache.allowed.only', null));
+        $cacheOnly = $this->cacheOnly ?? config("repository.cache.repositories.{$className}.allowed.only", config('repository.cache.allowed.only', null));
 
-        $cacheExcept = isset($this->cacheExcept) ? $this->cacheExcept : config("repository.cache.repositories.{$className}.allowed.except", config('repository.cache.allowed.only', null));
+        $cacheExcept = $this->cacheExcept ?? config("repository.cache.repositories.{$className}.allowed.except", config('repository.cache.allowed.only', null));
 
         if (is_array($cacheOnly)) {
-            return in_array($method, $cacheOnly);
+            return in_array($method, $cacheOnly, true);
         }
 
         if (is_array($cacheExcept)) {
-            return ! in_array($method, $cacheExcept);
+            return !in_array($method, $cacheExcept, true);
         }
 
         if (is_null($cacheOnly) && is_null($cacheExcept)) {
@@ -94,9 +98,10 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Find data by field and value.
      *
-     * @param  string  $field
-     * @param  string  $value
-     * @param  array  $columns
+     * @param string $field
+     * @param string $value
+     * @param array $columns
+     *
      * @return mixed
      */
     public function findOneByField($field, $value = null, $columns = ['*'])
@@ -109,9 +114,11 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Find data by field and value.
      *
-     * @param  string  $field
-     * @param  string  $value
-     * @param  array  $columns
+     * @param string $field
+     * @param string $value
+     * @param array $columns
+     * @param array $where
+     *
      * @return mixed
      */
     public function findOneWhere(array $where, $columns = ['*'])
@@ -124,8 +131,9 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Find data by id.
      *
-     * @param  int  $id
-     * @param  array  $columns
+     * @param int $id
+     * @param array $columns
+     *
      * @return mixed
      */
     public function find($id, $columns = ['*'])
@@ -141,8 +149,9 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Find data by id.
      *
-     * @param  int  $id
-     * @param  array  $columns
+     * @param int $id
+     * @param array $columns
+     *
      * @return mixed
      */
     public function findOrFail($id, $columns = ['*'])
@@ -158,7 +167,9 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Count results of repository.
      *
-     * @param  string  $columns
+     * @param string $columns
+     * @param array $where
+     *
      * @return int
      */
     public function count(array $where = [], $columns = '*')
@@ -180,7 +191,8 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Sum.
      *
-     * @param  string  $columns
+     * @param string $columns
+     *
      * @return mixed
      */
     public function sum($columns)
@@ -197,7 +209,8 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Avg.
      *
-     * @param  string  $columns
+     * @param string $columns
+     *
      * @return mixed
      */
     public function avg($columns)

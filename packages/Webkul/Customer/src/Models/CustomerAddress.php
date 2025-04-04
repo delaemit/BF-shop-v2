@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -32,7 +34,7 @@ class CustomerAddress extends Address implements CustomerAddressContract
      */
     protected static function boot(): void
     {
-        static::addGlobalScope('address_type', static function (Builder $builder) {
+        static::addGlobalScope('address_type', static function (Builder $builder): void {
             $builder->where('address_type', self::ADDRESS_TYPE);
         });
 

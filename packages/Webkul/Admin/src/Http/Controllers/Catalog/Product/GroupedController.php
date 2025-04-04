@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Catalog\Product;
 
 use Illuminate\Http\JsonResponse;
@@ -10,11 +12,17 @@ class GroupedController extends Controller
 {
     /**
      * Create a new controller instance.
+     *
+     * @param ProductRepository $productRepository
      */
-    public function __construct(protected ProductRepository $productRepository) {}
+    public function __construct(protected ProductRepository $productRepository)
+    {
+    }
 
     /**
      * Returns the compare items of the customer.
+     *
+     * @param int $id
      */
     public function options(int $id): JsonResponse
     {
@@ -25,15 +33,15 @@ class GroupedController extends Controller
         $products = [];
 
         foreach ($options as $option) {
-            if (! $option->associated_product->getTypeInstance()->isSaleable()) {
+            if (!$option->associated_product->getTypeInstance()->isSaleable()) {
                 continue;
             }
 
             $products[] = [
-                'id'              => $option->associated_product->id,
-                'name'            => $option->associated_product->name,
-                'qty'             => $option->qty,
-                'price'           => $price = $option->associated_product->getTypeInstance()->getFinalPrice(),
+                'id' => $option->associated_product->id,
+                'name' => $option->associated_product->name,
+                'qty' => $option->qty,
+                'price' => $price = $option->associated_product->getTypeInstance()->getFinalPrice(),
                 'formatted_price' => core()->formatPrice($price),
             ];
         }

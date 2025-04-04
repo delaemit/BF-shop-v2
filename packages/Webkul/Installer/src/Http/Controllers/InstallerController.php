@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
@@ -19,17 +21,21 @@ class InstallerController extends Controller
      *
      * @var string
      */
-    const MIN_PHP_VERSION = '8.1.0';
+    public const MIN_PHP_VERSION = '8.1.0';
 
     /**
      * Const Variable for Static Customer Id
      *
      * @var int
      */
-    const USER_ID = 1;
+    public const USER_ID = 1;
 
     /**
      * Create a new controller instance
+     *
+     * @param ServerRequirements $serverRequirements
+     * @param EnvironmentManager $environmentManager
+     * @param DatabaseManager $databaseManager
      *
      * @return void
      */
@@ -37,7 +43,8 @@ class InstallerController extends Controller
         protected ServerRequirements $serverRequirements,
         protected EnvironmentManager $environmentManager,
         protected DatabaseManager $databaseManager
-    ) {}
+    ) {
+    }
 
     /**
      * Installer View Root Page
@@ -59,6 +66,8 @@ class InstallerController extends Controller
 
     /**
      * ENV File Setup
+     *
+     * @param Request $request
      */
     public function envFileSetup(Request $request): JsonResponse
     {
@@ -72,15 +81,13 @@ class InstallerController extends Controller
      */
     public function runMigration()
     {
-        $migration = $this->databaseManager->migration();
-
-        return $migration;
+        return $this->databaseManager->migration();
     }
 
     /**
      * Run Seeder
      *
-     * @return void|string
+     * @return string|void
      */
     public function runSeeder()
     {
@@ -92,23 +99,23 @@ class InstallerController extends Controller
 
         $allowedLocales = array_unique(
             array_merge(
-                [($appLocale ?? 'en')],
+                [$appLocale ?? 'en'],
                 $selectedParameters['allowed_locales']
             )
         );
 
         $allowedCurrencies = array_unique(
             array_merge(
-                [($appCurrency ?? 'USD')],
+                [$appCurrency ?? 'USD'],
                 $selectedParameters['allowed_currencies']
             )
         );
 
         $parameter = [
             'parameter' => [
-                'default_locales'    => $appLocale,
-                'default_currency'   => $appCurrency,
-                'allowed_locales'    => $allowedLocales,
+                'default_locales' => $appLocale,
+                'default_currency' => $appCurrency,
+                'allowed_locales' => $allowedLocales,
                 'allowed_currencies' => $allowedCurrencies,
             ],
         ];
@@ -116,9 +123,7 @@ class InstallerController extends Controller
         $response = $this->environmentManager->setEnvConfiguration(request()->allParameters);
 
         if ($response) {
-            $seeder = $this->databaseManager->seeder($parameter);
-
-            return $seeder;
+            return $this->databaseManager->seeder($parameter);
         }
     }
 
@@ -138,9 +143,9 @@ class InstallerController extends Controller
         $allowedCurrencies = array_merge([$defaultCurrency], request()->input('selectedCurrencies'));
 
         $this->databaseManager->seedSampleProducts([
-            'default_locale'     => $defaultLocale,
-            'allowed_locales'    => $allowedLocales,
-            'default_currency'   => $defaultCurrency,
+            'default_locale' => $defaultLocale,
+            'allowed_locales' => $allowedLocales,
+            'default_currency' => $defaultCurrency,
             'allowed_currencies' => $allowedCurrencies,
         ]);
     }
@@ -159,17 +164,17 @@ class InstallerController extends Controller
                 [
                     'id' => self::USER_ID,
                 ], [
-                    'name'     => request()->input('admin'),
-                    'email'    => request()->input('email'),
+                    'name' => request()->input('admin'),
+                    'email' => request()->input('email'),
                     'password' => $password,
-                    'role_id'  => 1,
-                    'status'   => 1,
+                    'role_id' => 1,
+                    'status' => 1,
                 ]
             );
 
             return true;
         } catch (\Throwable $th) {
-            Log::error('Error in Admin installer config setup'.$th->getMessage());
+            Log::error('Error in Admin installer config setup' . $th->getMessage());
 
             return false;
         }

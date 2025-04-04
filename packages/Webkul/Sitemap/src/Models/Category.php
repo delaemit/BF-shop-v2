@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sitemap\Models;
 
 use Illuminate\Support\Carbon;
@@ -12,11 +14,11 @@ class Category extends BaseCategory implements Sitemapable
     /**
      * To get the sitemap tag for the category.
      */
-    public function toSitemapTag(): Url|string|array
+    public function toSitemapTag(): array|string|Url
     {
         if (
-            ! $this->slug
-            || ! $this->status
+            !$this->slug
+            || !$this->status
         ) {
             return [];
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Core\Models\Currency;
 use Webkul\Core\Models\CurrencyExchangeRate;
 
@@ -37,7 +39,7 @@ it('should store the newly created exchange rates', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.settings.exchange_rates.store'), [
-        'rate'            => $rate = rand(1, 100),
+        'rate' => $rate = rand(1, 100),
         'target_currency' => $currency->id,
     ])
         ->assertOk()
@@ -46,7 +48,7 @@ it('should store the newly created exchange rates', function () {
     $this->assertModelWise([
         CurrencyExchangeRate::class => [
             [
-                'rate'            => $rate,
+                'rate' => $rate,
                 'target_currency' => $currency->id,
             ],
         ],
@@ -95,8 +97,8 @@ it('should update the currency exchange rate', function () {
     $this->loginAsAdmin();
 
     putJson(route('admin.settings.exchange_rates.update'), [
-        'id'              => $exchangeRate->id,
-        'rate'            => $rate = rand(1, 100),
+        'id' => $exchangeRate->id,
+        'rate' => $rate = rand(1, 100),
         'target_currency' => $exchangeRate->target_currency,
     ])
         ->assertOk()
@@ -105,7 +107,7 @@ it('should update the currency exchange rate', function () {
     $this->assertModelWise([
         CurrencyExchangeRate::class => [
             [
-                'rate'            => $rate,
+                'rate' => $rate,
                 'target_currency' => $exchangeRate->target_currency,
             ],
         ],

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Mail\Customer;
 
 use Illuminate\Mail\Mailables\Address;
@@ -13,9 +15,13 @@ class InvoiceOverdueReminder extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param Invoice $invoice
+     *
      * @return void
      */
-    public function __construct(public Invoice $invoice) {}
+    public function __construct(public Invoice $invoice)
+    {
+    }
 
     /**
      * Build the message.

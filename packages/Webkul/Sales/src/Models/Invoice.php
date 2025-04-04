@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -49,8 +51,8 @@ class Invoice extends Model implements InvoiceContract
      * @var array
      */
     protected $statusLabel = [
-        self::STATUS_PENDING  => 'Pending',
-        self::STATUS_PAID     => 'Paid',
+        self::STATUS_PENDING => 'Pending',
+        self::STATUS_PAID => 'Paid',
         self::STATUS_REFUNDED => 'Refunded',
     ];
 

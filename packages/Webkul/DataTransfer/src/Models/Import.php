@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -40,9 +42,9 @@ class Import extends Model implements ImportContract
      * @var array
      */
     protected $casts = [
-        'summary'      => 'array',
-        'errors'       => 'array',
-        'started_at'   => 'datetime',
+        'summary' => 'array',
+        'errors' => 'array',
+        'started_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
 

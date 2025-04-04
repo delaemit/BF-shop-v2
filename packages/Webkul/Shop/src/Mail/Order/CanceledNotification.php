@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Mail\Order;
 
 use Illuminate\Mail\Mailables\Address;
@@ -12,9 +14,13 @@ class CanceledNotification extends Mailable
     /**
      * Create a new CanceledNotification instance.
      *
+     * @param mixed $order
+     *
      * @return void
      */
-    public function __construct(public $order) {}
+    public function __construct(public $order)
+    {
+    }
 
     /**
      * Get the message envelope.

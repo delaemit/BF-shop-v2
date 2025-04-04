@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Repositories;
 
 use Illuminate\Support\Facades\Event;
@@ -19,6 +21,8 @@ class CurrencyRepository extends Repository
     /**
      * Create.
      *
+     * @param array $attributes
+     *
      * @return mixed
      */
     public function create(array $attributes)
@@ -34,6 +38,9 @@ class CurrencyRepository extends Repository
 
     /**
      * Update.
+     *
+     * @param array $attributes
+     * @param mixed $id
      *
      * @return mixed
      */
@@ -51,14 +58,15 @@ class CurrencyRepository extends Repository
     /**
      * Delete.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return bool
      */
     public function delete($id)
     {
         Event::dispatch('core.currency.delete.before', $id);
 
-        if ($this->model->count() == 1) {
+        if ($this->model->count() === 1) {
             return false;
         }
 

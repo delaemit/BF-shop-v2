@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,13 +11,6 @@ use Webkul\Theme\Contracts\ThemeCustomizationTranslation as ThemeCustomizationTr
 class ThemeCustomizationTranslation extends Model implements ThemeCustomizationTranslationContract
 {
     use HasFactory;
-
-    /**
-     * Timestamp false of the model
-     *
-     * @var bool
-     */
-    public $timestamps = false;
 
     /**
      * Image carousel precision.
@@ -58,6 +53,13 @@ class ThemeCustomizationTranslation extends Model implements ThemeCustomizationT
      * @var string
      */
     public const SERVICES_CONTENT = 'services_content';
+
+    /**
+     * Timestamp false of the model
+     *
+     * @var bool
+     */
+    public $timestamps = false;
 
     /**
      * Castable.

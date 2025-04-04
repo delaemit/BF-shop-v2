@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +12,7 @@ class ShipmentItem extends Model implements ShipmentItemContract
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var string[]|bool
+     * @var bool|string[]
      */
     protected $guarded = [
         'id',

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Middleware;
 
 use Closure;
@@ -15,6 +17,8 @@ class CacheResponse extends BaseCacheResponseMiddleware
     /**
      * Create a middleware instance.
      *
+     * @param BaseResponseCache $responseCache
+     *
      * @return void
      */
     public function __construct(protected BaseResponseCache $responseCache)
@@ -27,12 +31,15 @@ class CacheResponse extends BaseCacheResponseMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  mixed  ...$args
+     * @param mixed ...$args
+     * @param Request $request
+     * @param Closure $next
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next, ...$args): Response
     {
-        if (! $this->responseCache->enabled($request)) {
+        if (!$this->responseCache->enabled($request)) {
             return parent::handle($request, $next, ...$args);
         }
 
@@ -41,9 +48,9 @@ class CacheResponse extends BaseCacheResponseMiddleware
          */
         if ($request->route()->getName() == 'shop.search.index') {
             $searchTerm = app(SearchTermRepository::class)->findOneWhere([
-                'term'       => request()->query('query'),
+                'term' => request()->query('query'),
                 'channel_id' => core()->getCurrentChannel()->id,
-                'locale'     => app()->getLocale(),
+                'locale' => app()->getLocale(),
             ]);
 
             if ($searchTerm?->redirect_url) {
@@ -58,9 +65,9 @@ class CacheResponse extends BaseCacheResponseMiddleware
             $slugOrPath = urldecode(trim($request->getPathInfo(), '/'));
 
             $categoryURLRewrite = app(URLRewriteRepository::class)->findOneWhere([
-                'entity_type'  => 'category',
+                'entity_type' => 'category',
                 'request_path' => $slugOrPath,
-                'locale'       => app()->getLocale(),
+                'locale' => app()->getLocale(),
             ]);
 
             if ($categoryURLRewrite) {
@@ -68,7 +75,7 @@ class CacheResponse extends BaseCacheResponseMiddleware
             }
 
             $productURLRewrite = app(URLRewriteRepository::class)->findOneWhere([
-                'entity_type'  => 'product',
+                'entity_type' => 'product',
                 'request_path' => $slugOrPath,
             ]);
 
@@ -84,9 +91,9 @@ class CacheResponse extends BaseCacheResponseMiddleware
             $slug = last(explode('/', $request->getPathInfo()));
 
             $pageURLRewrite = app(URLRewriteRepository::class)->findOneWhere([
-                'entity_type'  => 'cms_page',
+                'entity_type' => 'cms_page',
                 'request_path' => $slug,
-                'locale'       => app()->getLocale(),
+                'locale' => app()->getLocale(),
             ]);
 
             if ($pageURLRewrite) {

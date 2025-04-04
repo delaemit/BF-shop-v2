@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Mail;
 use Webkul\Admin\Mail\Customer\RegistrationNotification as AdminRegistrationNotification;
 use Webkul\Core\Models\CoreConfig;
@@ -58,10 +60,10 @@ it('successfully registers a customer', function () {
 
     // Arrange.
     $requestedCustomer = [
-        'first_name'            => fake()->firstName(),
-        'last_name'             => fake()->lastName(),
-        'email'                 => fake()->email(),
-        'password'              => 'admin123',
+        'first_name' => fake()->firstName(),
+        'last_name' => fake()->lastName(),
+        'email' => fake()->email(),
+        'password' => 'admin123',
         'password_confirmation' => 'admin123',
     ];
 
@@ -76,15 +78,15 @@ it('successfully registers a customer and send mail to the customer verify the a
     Mail::fake();
 
     CoreConfig::factory()->create([
-        'code'  => 'emails.general.notifications.emails.general.notifications.verification',
+        'code' => 'emails.general.notifications.emails.general.notifications.verification',
         'value' => 1,
     ]);
 
     $requestedCustomer = [
-        'first_name'            => fake()->firstName(),
-        'last_name'             => fake()->lastName(),
-        'email'                 => fake()->email(),
-        'password'              => 'admin123',
+        'first_name' => fake()->firstName(),
+        'last_name' => fake()->lastName(),
+        'email' => fake()->email(),
+        'password' => 'admin123',
         'password_confirmation' => 'admin123',
     ];
 
@@ -115,10 +117,10 @@ it('registers a customer successfully and sends a registration email to customer
     ]);
 
     $requestedCustomer = [
-        'first_name'            => fake()->firstName(),
-        'last_name'             => fake()->lastName(),
-        'email'                 => fake()->email(),
-        'password'              => 'admin123',
+        'first_name' => fake()->firstName(),
+        'last_name' => fake()->lastName(),
+        'email' => fake()->email(),
+        'password' => 'admin123',
         'password_confirmation' => 'admin123',
     ];
 

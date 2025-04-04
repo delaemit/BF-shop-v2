@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Helpers\Exchange;
 
 use Webkul\Core\Repositories\CurrencyRepository;
@@ -24,6 +26,9 @@ class ExchangeRates extends ExchangeRate
     /**
      * Create a new helper instance.
      *
+     * @param CurrencyRepository $currencyRepository
+     * @param ExchangeRateRepository $exchangeRateRepository
+     *
      * @return void
      */
     public function __construct(
@@ -42,10 +47,10 @@ class ExchangeRates extends ExchangeRate
      */
     public function updateRates()
     {
-        $client = new \GuzzleHttp\Client;
+        $client = new \GuzzleHttp\Client();
 
         foreach ($this->currencyRepository->all() as $currency) {
-            if ($currency->code == config('app.currency')) {
+            if ($currency->code === config('app.currency')) {
                 continue;
             }
 
@@ -54,11 +59,11 @@ class ExchangeRates extends ExchangeRate
                 $this->apiEndPoint, [
                     'headers' => [
                         'Content-Type' => 'text/plain',
-                        'apikey'       => $this->apiKey,
+                        'apikey' => $this->apiKey,
                     ],
                     'query' => [
-                        'to'     => $currency->code,
-                        'from'   => config('app.currency'),
+                        'to' => $currency->code,
+                        'from' => config('app.currency'),
                         'amount' => 1,
                     ],
                 ]
@@ -68,7 +73,7 @@ class ExchangeRates extends ExchangeRate
 
             if (
                 isset($result['success'])
-                && ! $result['success']
+                && !$result['success']
             ) {
                 throw new \Exception($result['error']['info'] ?? $result['error']['type'], 1);
             }
@@ -79,7 +84,7 @@ class ExchangeRates extends ExchangeRate
                 ], $exchangeRate->id);
             } else {
                 $this->exchangeRateRepository->create([
-                    'rate'            => $result['result'],
+                    'rate' => $result['result'],
                     'target_currency' => $currency->id,
                 ]);
             }

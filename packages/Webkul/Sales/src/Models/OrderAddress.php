@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +15,6 @@ use Webkul\Sales\Database\Factories\OrderAddressFactory;
 
 /**
  * Class OrderAddress
- *
  *
  * @property int $order_id
  * @property Order $order
@@ -44,20 +45,19 @@ class OrderAddress extends Address implements OrderAddressContract
      */
     protected static function boot(): void
     {
-        static::addGlobalScope('address_type', function (Builder $builder) {
+        static::addGlobalScope('address_type', function (Builder $builder): void {
             $builder->whereIn('address_type', [
                 self::ADDRESS_TYPE_BILLING,
                 self::ADDRESS_TYPE_SHIPPING,
             ]);
         });
 
-        static::creating(static function ($address) {
+        static::creating(static function ($address): void {
             switch ($address->address_type) {
                 case CartAddress::ADDRESS_TYPE_BILLING:
                     $address->address_type = self::ADDRESS_TYPE_BILLING;
 
                     break;
-
                 case CartAddress::ADDRESS_TYPE_SHIPPING:
                     $address->address_type = self::ADDRESS_TYPE_SHIPPING;
 

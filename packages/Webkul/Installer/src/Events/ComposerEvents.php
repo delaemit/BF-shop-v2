@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Events;
 
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -11,10 +13,10 @@ class ComposerEvents
      *
      * @return void
      */
-    public static function postCreateProject()
+    public static function postCreateProject(): void
     {
-        $output = new ConsoleOutput;
+        $output = new ConsoleOutput();
 
-        $output->writeln(file_get_contents(__DIR__.'/../Templates/on-boarding.php'));
+        $output->writeln(file_get_contents(__DIR__ . '/../Templates/on-boarding.php'));
     }
 }

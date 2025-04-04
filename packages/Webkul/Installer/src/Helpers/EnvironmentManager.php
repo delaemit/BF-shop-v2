@@ -1,17 +1,21 @@
 <?php
 
-namespace Webkul\Installer\Helpers;
+declare(strict_types=1);
 
-use Exception;
+namespace Webkul\Installer\Helpers;
 
 class EnvironmentManager
 {
     /**
      * Create a helper instance.
      *
+     * @param DatabaseManager $databaseManager
+     *
      * @return void
      */
-    public function __construct(protected DatabaseManager $databaseManager) {}
+    public function __construct(protected DatabaseManager $databaseManager)
+    {
+    }
 
     /**
      * Generate ENV File and Installation.
@@ -24,7 +28,7 @@ class EnvironmentManager
 
         $envPath = base_path('.env');
 
-        if (! file_exists($envPath)) {
+        if (!file_exists($envPath)) {
             if (file_exists($envExamplePath)) {
                 copy($envExamplePath, $envPath);
             } else {
@@ -38,7 +42,7 @@ class EnvironmentManager
             $this->databaseManager->generateKey();
 
             return $response;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $e;
         }
     }
@@ -46,13 +50,15 @@ class EnvironmentManager
     /**
      * Set the ENV file configuration.
      *
+     * @param mixed $request
+     *
      * @return string
      */
     public function setEnvConfiguration($request)
     {
         $envDBParams = [];
 
-        /**
+        /*
          * Update params with form-data
          */
         if (isset($request['db_hostname'])) {
@@ -77,7 +83,7 @@ class EnvironmentManager
 
         foreach ($envDBParams as $key => $value) {
             if (preg_match('/\s/', $value)) {
-                $value = '"'.$value.'"';
+                $value = '"' . $value . '"';
             }
 
             $data = preg_replace("/$key=(.*)/", "$key=$value", $data);
@@ -85,7 +91,7 @@ class EnvironmentManager
 
         try {
             file_put_contents(base_path('.env'), $data);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
 

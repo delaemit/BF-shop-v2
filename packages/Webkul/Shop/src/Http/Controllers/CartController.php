@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 class CartController extends Controller
@@ -11,7 +13,7 @@ class CartController extends Controller
      */
     public function index()
     {
-        if (! core()->getConfigData('sales.checkout.shopping_cart.cart_page')) {
+        if (!core()->getConfigData('sales.checkout.shopping_cart.cart_page')) {
             abort(404);
         }
 

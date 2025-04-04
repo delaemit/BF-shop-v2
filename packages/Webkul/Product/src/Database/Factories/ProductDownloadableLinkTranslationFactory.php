@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,7 +23,7 @@ class ProductDownloadableLinkTranslationFactory extends Factory
     {
         return [
             'locale' => 'en',
-            'title'  => $this->faker->word,
+            'title' => $this->faker->word,
         ];
     }
 }

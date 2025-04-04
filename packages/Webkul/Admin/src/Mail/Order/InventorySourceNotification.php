@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Mail\Order;
 
 use Illuminate\Mail\Mailables\Address;
@@ -12,8 +14,12 @@ class InventorySourceNotification extends Mailable
 {
     /**
      * Create a new message instance.
+     *
+     * @param Shipment $shipment
      */
-    public function __construct(public Shipment $shipment) {}
+    public function __construct(public Shipment $shipment)
+    {
+    }
 
     /**
      * Get the message envelope.

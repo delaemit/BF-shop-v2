@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Payment;
 
 use Illuminate\Support\Facades\Config;
@@ -14,7 +16,7 @@ class Payment
     public function getSupportedPaymentMethods()
     {
         return [
-            'payment_methods'  => $this->getPaymentMethods(),
+            'payment_methods' => $this->getPaymentMethods(),
         ];
     }
 
@@ -32,17 +34,17 @@ class Payment
 
             if ($paymentMethod->isAvailable()) {
                 $paymentMethods[] = [
-                    'method'       => $paymentMethod->getCode(),
+                    'method' => $paymentMethod->getCode(),
                     'method_title' => $paymentMethod->getTitle(),
-                    'description'  => $paymentMethod->getDescription(),
-                    'sort'         => $paymentMethod->getSortOrder(),
-                    'image'        => $paymentMethod->getImage(),
+                    'description' => $paymentMethod->getDescription(),
+                    'sort' => $paymentMethod->getSortOrder(),
+                    'image' => $paymentMethod->getImage(),
                 ];
             }
         }
 
         usort($paymentMethods, function ($a, $b) {
-            if ($a['sort'] == $b['sort']) {
+            if ($a['sort'] === $b['sort']) {
                 return 0;
             }
 
@@ -55,12 +57,13 @@ class Payment
     /**
      * Returns payment redirect url if have any
      *
-     * @param  \Webkul\Checkout\Contracts\Cart  $cart
+     * @param \Webkul\Checkout\Contracts\Cart $cart
+     *
      * @return string
      */
     public function getRedirectUrl($cart)
     {
-        $payment = app(Config::get('payment_methods.'.$cart->payment->method.'.class'));
+        $payment = app(Config::get('payment_methods.' . $cart->payment->method . '.class'));
 
         return $payment->getRedirectUrl();
     }
@@ -68,12 +71,13 @@ class Payment
     /**
      * Returns payment method additional information
      *
-     * @param  string  $code
+     * @param string $code
+     *
      * @return array
      */
     public static function getAdditionalDetails($code)
     {
-        $paymentMethodClass = app(Config::get('payment_methods.'.$code.'.class'));
+        $paymentMethodClass = app(Config::get('payment_methods.' . $code . '.class'));
 
         return $paymentMethodClass->getAdditionalDetails();
     }

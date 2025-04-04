@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Catalog;
 
 use Illuminate\Http\JsonResponse;
@@ -16,12 +18,16 @@ class AttributeController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param AttributeRepository $attributeRepository
+     * @param ProductRepository $productRepository
+     *
      * @return void
      */
     public function __construct(
         protected AttributeRepository $attributeRepository,
         protected ProductRepository $productRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -57,9 +63,9 @@ class AttributeController extends Controller
     public function store()
     {
         $this->validate(request(), [
-            'code'          => ['required', 'not_in:type,attribute_family_id', 'unique:attributes,code', new Code],
-            'admin_name'    => 'required',
-            'type'          => 'required',
+            'code' => ['required', 'not_in:type,attribute_family_id', 'unique:attributes,code', new Code()],
+            'admin_name' => 'required',
+            'type' => 'required',
             'default_value' => 'integer',
         ]);
 
@@ -81,6 +87,8 @@ class AttributeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -95,6 +103,8 @@ class AttributeController extends Controller
     /**
      * Get attribute options associated with attribute.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function getAttributeOptions(int $id)
@@ -107,20 +117,22 @@ class AttributeController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(int $id)
     {
         $this->validate(request(), [
-            'code'          => ['required', 'unique:attributes,code,'.$id, new Code],
-            'admin_name'    => 'required',
-            'type'          => 'required',
+            'code' => ['required', 'unique:attributes,code,' . $id, new Code()],
+            'admin_name' => 'required',
+            'type' => 'required',
             'default_value' => 'integer',
         ]);
 
         $requestData = request()->all();
 
-        if (! $requestData['default_value']) {
+        if (!$requestData['default_value']) {
             $requestData['default_value'] = null;
         }
 
@@ -137,12 +149,14 @@ class AttributeController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         $attribute = $this->attributeRepository->findOrFail($id);
 
-        if (! $attribute->is_user_defined) {
+        if (!$attribute->is_user_defined) {
             return response()->json([
                 'message' => trans('admin::app.catalog.attributes.user-define-error'),
             ], 400);
@@ -168,6 +182,8 @@ class AttributeController extends Controller
 
     /**
      * Remove the specified resources from database.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {
@@ -176,7 +192,7 @@ class AttributeController extends Controller
         foreach ($indices as $index) {
             $attribute = $this->attributeRepository->find($index);
 
-            if (! $attribute->is_user_defined) {
+            if (!$attribute->is_user_defined) {
                 return response()->json([
                     'message' => trans('admin::app.catalog.attributes.delete-failed'),
                 ], 422);
@@ -205,6 +221,8 @@ class AttributeController extends Controller
     /**
      * Get super attributes of product.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function productSuperAttributes(int $id)
@@ -214,7 +232,7 @@ class AttributeController extends Controller
         $superAttributes = $this->productRepository->getSuperAttributes($product);
 
         return response()->json([
-            'data'  => $superAttributes,
+            'data' => $superAttributes,
         ]);
     }
 }

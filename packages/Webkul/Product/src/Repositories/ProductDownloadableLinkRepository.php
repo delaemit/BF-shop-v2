@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Facades\Storage;
@@ -19,21 +21,22 @@ class ProductDownloadableLinkRepository extends Repository
     /**
      * Upload.
      *
-     * @param  array  $data
-     * @param  int  $productId
+     * @param array $data
+     * @param int $productId
+     *
      * @return array
      */
     public function upload($data, $productId)
     {
         foreach ($data as $type => $file) {
-            if (! request()->hasFile($type)) {
+            if (!request()->hasFile($type)) {
                 continue;
             }
 
             return [
-                $type           => $path = request()->file($type)->store('product_downloadable_links/'.$productId, 'private'),
-                $type.'_name'   => $file->getClientOriginalName(),
-                $type.'_url'    => Storage::url($path),
+                $type => $path = request()->file($type)->store('product_downloadable_links/' . $productId, 'private'),
+                $type . '_name' => $file->getClientOriginalName(),
+                $type . '_url' => Storage::url($path),
             ];
         }
 
@@ -43,10 +46,12 @@ class ProductDownloadableLinkRepository extends Repository
     /**
      * Save links.
      *
-     * @param  \Webkul\Product\Models\Product  $product
+     * @param \Webkul\Product\Models\Product $product
+     * @param array $data
+     *
      * @return void
      */
-    public function saveLinks(array $data, $product)
+    public function saveLinks(array $data, $product): void
     {
         $previousLinkIds = $product->downloadable_links()->pluck('id');
 

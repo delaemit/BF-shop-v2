@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\Promotions;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
@@ -16,9 +17,13 @@ class CartRuleController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CartRuleRepository $cartRuleRepository
+     *
      * @return void
      */
-    public function __construct(protected CartRuleRepository $cartRuleRepository) {}
+    public function __construct(protected CartRuleRepository $cartRuleRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -48,6 +53,8 @@ class CartRuleController extends Controller
      * Copy a given Cart Rule id. Always make the copy is inactive so the
      * user is able to configure it before setting it live.
      *
+     * @param int $cartRuleId
+     *
      * @return \Illuminate\View\View
      */
     public function copy(int $cartRuleId)
@@ -56,7 +63,7 @@ class CartRuleController extends Controller
 
         $copiedCartRule = $cartRule->replicate()->fill([
             'status' => 0,
-            'name'   => trans('admin::app.marketing.promotions.cart-rules.index.datagrid.copy-of', ['value' => $cartRule->name]),
+            'name' => trans('admin::app.marketing.promotions.cart-rules.index.datagrid.copy-of', ['value' => $cartRule->name]),
         ]);
 
         $copiedCartRule->save();
@@ -76,6 +83,8 @@ class CartRuleController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param CartRuleRequest $cartRuleRequest
      *
      * @return \Illuminate\Http\Response
      */
@@ -103,6 +112,8 @@ class CartRuleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -115,6 +126,9 @@ class CartRuleController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param CartRuleRequest $cartRuleRequest
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(CartRuleRequest $cartRuleRequest, int $id)
@@ -125,7 +139,7 @@ class CartRuleController extends Controller
             if ($cartRule->coupon_type) {
                 if ($cartRule->cart_rule_coupon) {
                     $this->validate(request(), [
-                        'coupon_code' => 'required_if:use_auto_generation,==,0|unique:cart_rule_coupons,code,'.$cartRule->cart_rule_coupon->id,
+                        'coupon_code' => 'required_if:use_auto_generation,==,0|unique:cart_rule_coupons,code,' . $cartRule->cart_rule_coupon->id,
                     ]);
                 } else {
                     $this->validate(request(), [
@@ -154,6 +168,8 @@ class CartRuleController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
@@ -169,7 +185,7 @@ class CartRuleController extends Controller
             return new JsonResponse([
                 'message' => trans('admin::app.marketing.promotions.cart-rules.delete-success'
                 )]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         return new JsonResponse([

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Marketing\Promotions;
 
 use Illuminate\Http\JsonResponse;
@@ -14,12 +16,18 @@ class CartRuleCouponController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CartRuleCouponRepository $cartRuleCouponRepository
+     *
      * @return void
      */
-    public function __construct(protected CartRuleCouponRepository $cartRuleCouponRepository) {}
+    public function __construct(protected CartRuleCouponRepository $cartRuleCouponRepository)
+    {
+    }
 
     /**
      * Index.
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -31,17 +39,17 @@ class CartRuleCouponController extends Controller
     /**
      * Generate coupon code for cart rule.
      *
-     * @param  int  $id
+     * @param int $id
      */
     public function store($id): JsonResponse
     {
         $this->validate(request(), [
-            'coupon_qty'  => 'required|integer|min:1',
+            'coupon_qty' => 'required|integer|min:1',
             'code_length' => 'required|integer|min:10',
             'code_format' => 'required',
         ]);
 
-        if (! $id) {
+        if (!$id) {
             return new JsonResponse([
                 'message' => trans('admin::app.promotions.cart-rules-coupons.cart-rule-not-defined-error'),
             ], 400);
@@ -64,6 +72,8 @@ class CartRuleCouponController extends Controller
 
     /**
      * Delete Generated coupon code
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
@@ -82,6 +92,8 @@ class CartRuleCouponController extends Controller
 
     /**
      * Mass delete the coupons.
+     *
+     * @param MassDestroyRequest $massDestroyRequest
      */
     public function massDestroy(MassDestroyRequest $massDestroyRequest): JsonResponse
     {

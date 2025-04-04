@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,6 +19,13 @@ class BookingProductController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param BookingProductRepository $bookingProductRepository
+     * @param DefaultSlotHelper $defaultSlotHelper
+     * @param AppointmentSlotHelper $appointmentSlotHelper
+     * @param RentalSlotHelper $rentalSlotHelper
+     * @param EventTicketHelper $eventTicketHelper
+     * @param TableSlotHelper $tableSlotHelper
+     *
      * @return void
      */
     public function __construct(
@@ -28,16 +37,18 @@ class BookingProductController extends Controller
         protected TableSlotHelper $tableSlotHelper
     ) {
         $this->bookingHelpers = [
-            'default'     => $this->defaultSlotHelper,
+            'default' => $this->defaultSlotHelper,
             'appointment' => $this->appointmentSlotHelper,
-            'rental'      => $this->rentalSlotHelper,
-            'event'       => $this->eventTicketHelper,
-            'table'       => $this->tableSlotHelper,
+            'rental' => $this->rentalSlotHelper,
+            'event' => $this->eventTicketHelper,
+            'table' => $this->tableSlotHelper,
         ];
     }
 
     /**
      * Get available slots for the given product and the date.
+     *
+     * @param int $id
      */
     public function index(int $id): JsonResource
     {

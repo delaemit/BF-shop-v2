@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Payment\Listeners;
 
 use Webkul\Sales\Repositories\InvoiceRepository;
@@ -13,23 +15,28 @@ class GenerateInvoice
     /**
      * Create the event listener.
      *
+     * @param OrderRepository $orderRepository
+     * @param InvoiceRepository $invoiceRepository
+     *
      * @return void
      */
     public function __construct(
         protected OrderRepository $orderRepository,
         protected InvoiceRepository $invoiceRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Generate a new invoice.
      *
-     * @param  object  $order
+     * @param object $order
+     *
      * @return void
      */
-    public function handle($order)
+    public function handle($order): void
     {
         if (
-            $order->payment->method == 'cashondelivery'
+            $order->payment->method === 'cashondelivery'
             && core()->getConfigData('sales.payment_methods.cashondelivery.generate_invoice')
         ) {
             $this->invoiceRepository->create(
@@ -40,7 +47,7 @@ class GenerateInvoice
         }
 
         if (
-            $order->payment->method == 'moneytransfer'
+            $order->payment->method === 'moneytransfer'
             && core()->getConfigData('sales.payment_methods.moneytransfer.generate_invoice')
         ) {
             $this->invoiceRepository->create(
@@ -53,6 +60,8 @@ class GenerateInvoice
 
     /**
      * Prepares order's invoice data for creation.
+     *
+     * @param mixed $order
      *
      * @return array
      */

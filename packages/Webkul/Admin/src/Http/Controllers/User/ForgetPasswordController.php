@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\User;
 
 use Illuminate\Support\Facades\Password;
@@ -16,17 +18,16 @@ class ForgetPasswordController extends Controller
     {
         if (auth()->guard('admin')->check()) {
             return redirect()->route('admin.dashboard.index');
-        } else {
-            if (strpos(url()->previous(), 'admin') !== false) {
-                $intendedUrl = url()->previous();
-            } else {
-                $intendedUrl = route('admin.dashboard.index');
-            }
-
-            session()->put('url.intended', $intendedUrl);
-
-            return view('admin::users.forget-password.create');
         }
+        if (strpos(url()->previous(), 'admin') !== false) {
+            $intendedUrl = url()->previous();
+        } else {
+            $intendedUrl = route('admin.dashboard.index');
+        }
+
+        session()->put('url.intended', $intendedUrl);
+
+        return view('admin::users.forget-password.create');
     }
 
     /**
@@ -45,7 +46,7 @@ class ForgetPasswordController extends Controller
                 request(['email'])
             );
 
-            if ($response == Password::RESET_LINK_SENT) {
+            if ($response === Password::RESET_LINK_SENT) {
                 session()->flash('success', trans('admin::app.users.forget-password.create.reset-link-sent'));
 
                 return redirect()->route('admin.forget_password.create');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Sales;
 
 use Carbon\Carbon;
@@ -12,9 +14,13 @@ class BookingController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param BookingRepository $bookingRepository
+     *
      * @return void
      */
-    public function __construct(protected BookingRepository $bookingRepository) {}
+    public function __construct(protected BookingRepository $bookingRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -37,16 +43,16 @@ class BookingController extends Controller
      */
     public function get()
     {
-        if (! request('view_type')) {
+        if (!request('view_type')) {
             return app(BookingDataGrid::class)->process();
         }
 
         $startDate = request()->get('startDate')
-            ? Carbon::createFromTimeString(request()->get('startDate').' 00:00:01')
+            ? Carbon::createFromTimeString(request()->get('startDate') . ' 00:00:01')
             : Carbon::now()->startOfWeek()->format('Y-m-d H:i:s');
 
         $endDate = request()->get('endDate')
-            ? Carbon::createFromTimeString(request()->get('endDate').' 23:59:59')
+            ? Carbon::createFromTimeString(request()->get('endDate') . ' 23:59:59')
             : Carbon::now()->endOfWeek()->format('Y-m-d H:i:s');
 
         $bookings = $this->bookingRepository->getBookings([strtotime($startDate), strtotime($endDate)])

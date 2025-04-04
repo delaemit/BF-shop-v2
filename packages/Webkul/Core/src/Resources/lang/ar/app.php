@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'path-hint' => [
         'template' => 'نموذج',
-        'parents'  => 'آباء',
+        'parents' => 'آباء',
     ],
 
     'currency-position' => [
         'options' => [
-            'left'             => 'اليسار',
-            'left-with-space'  => 'اليسار مع فراغ',
-            'right'            => 'اليمين',
+            'left' => 'اليسار',
+            'left-with-space' => 'اليسار مع فراغ',
+            'right' => 'اليمين',
             'right-with-space' => 'اليمين مع فراغ',
         ],
     ],

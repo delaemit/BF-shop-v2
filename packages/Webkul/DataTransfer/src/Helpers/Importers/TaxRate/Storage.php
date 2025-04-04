@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Importers\TaxRate;
 
 use Webkul\Tax\Repositories\TaxRateRepository;
@@ -22,9 +24,13 @@ class Storage
     /**
      * Create a new helper instance.
      *
+     * @param TaxRateRepository $taxRateRepository
+     *
      * @return void
      */
-    public function __construct(protected TaxRateRepository $taxRateRepository) {}
+    public function __construct(protected TaxRateRepository $taxRateRepository)
+    {
+    }
 
     /**
      * Initialize storage
@@ -38,6 +44,8 @@ class Storage
 
     /**
      * Load the identifiers
+     *
+     * @param array $identifiers
      */
     public function load(array $identifiers = []): void
     {
@@ -54,6 +62,9 @@ class Storage
 
     /**
      * Get identifier information
+     *
+     * @param string $identifier
+     * @param int $id
      */
     public function set(string $identifier, int $id): self
     {
@@ -64,6 +75,8 @@ class Storage
 
     /**
      * Check if identifier exists
+     *
+     * @param string $identifier
      */
     public function has(string $identifier): bool
     {
@@ -72,10 +85,12 @@ class Storage
 
     /**
      * Get identifier information
+     *
+     * @param string $identifier
      */
     public function get(string $identifier): ?int
     {
-        if (! $this->has($identifier)) {
+        if (!$this->has($identifier)) {
             return null;
         }
 

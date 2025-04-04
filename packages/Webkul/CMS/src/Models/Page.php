@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CMS\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -12,6 +14,21 @@ use Webkul\Core\Models\ChannelProxy;
 class Page extends TranslatableModel implements PageContract
 {
     use HasFactory;
+
+    /**
+     * The attributes that are translatable.
+     *
+     * @var array
+     */
+    public $translatedAttributes = [
+        'content',
+        'meta_description',
+        'meta_title',
+        'page_title',
+        'meta_keywords',
+        'html_content',
+        'url_key',
+    ];
 
     /**
      * Table associated with the model.
@@ -33,21 +50,6 @@ class Page extends TranslatableModel implements PageContract
      * @var array
      */
     protected $fillable = ['layout'];
-
-    /**
-     * The attributes that are translatable.
-     *
-     * @var array
-     */
-    public $translatedAttributes = [
-        'content',
-        'meta_description',
-        'meta_title',
-        'page_title',
-        'meta_keywords',
-        'html_content',
-        'url_key',
-    ];
 
     /**
      * With the translations given attributes

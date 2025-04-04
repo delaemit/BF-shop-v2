@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -23,6 +25,8 @@ class EmailsCommand extends Command
 
     /**
      * Create a new command instance.
+     *
+     * @param Campaign $campaignHelper
      *
      * @return void
      */

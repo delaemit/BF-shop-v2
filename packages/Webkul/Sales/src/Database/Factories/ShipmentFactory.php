@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +22,7 @@ class ShipmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'total_qty'           => $this->faker->numberBetween(1, 20),
+            'total_qty' => $this->faker->numberBetween(1, 20),
         ];
     }
 }

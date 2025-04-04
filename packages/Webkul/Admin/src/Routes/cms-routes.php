@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\CMS\PageController;
 
-/**
+/*
  * CMS routes.
  */
-Route::controller(PageController::class)->prefix('cms')->group(function () {
+Route::controller(PageController::class)->prefix('cms')->group(function (): void {
     Route::get('/', 'index')->name('admin.cms.index');
 
     Route::get('create', 'create')->name('admin.cms.create');

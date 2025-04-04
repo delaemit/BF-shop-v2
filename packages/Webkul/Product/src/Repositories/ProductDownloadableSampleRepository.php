@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Facades\Storage;
@@ -17,28 +19,31 @@ class ProductDownloadableSampleRepository extends Repository
     }
 
     /**
-     * @param  array  $data
-     * @param  int  $productId
+     * @param array $data
+     * @param int $productId
+     *
      * @return mixed
      */
     public function upload($data, $productId)
     {
-        if (! request()->hasFile('file')) {
+        if (!request()->hasFile('file')) {
             return [];
         }
 
         return [
-            'file'      => $path = request()->file('file')->store('product_downloadable_links/'.$productId),
+            'file' => $path = request()->file('file')->store('product_downloadable_links/' . $productId),
             'file_name' => request()->file('file')->getClientOriginalName(),
-            'file_url'  => Storage::url($path),
+            'file_url' => Storage::url($path),
         ];
     }
 
     /**
-     * @param  Webkul\Product\Contracts\Product  $product
+     * @param Webkul\Product\Contracts\Product $product
+     * @param array $data
+     *
      * @return void
      */
-    public function saveSamples(array $data, $product)
+    public function saveSamples(array $data, $product): void
     {
         $previousSampleIds = $product->downloadable_samples()->pluck('id');
 

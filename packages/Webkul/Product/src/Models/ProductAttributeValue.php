@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -10,6 +12,11 @@ use Webkul\Attribute\Models\AttributeProxy;
 use Webkul\Product\Contracts\ProductAttributeValue as ProductAttributeValueContract;
 use Webkul\Product\Database\Factories\ProductAttributeValueFactory;
 
+/**
+ * @property \Illuminate\Support\Collection<array-key, \Webkul\Attribute\Models\Attribute> $attribute
+ * @property string $text_value
+ * @property int $product_id
+ */
 class ProductAttributeValue extends Model implements ProductAttributeValueContract
 {
     use HasFactory;
@@ -27,17 +34,17 @@ class ProductAttributeValue extends Model implements ProductAttributeValueContra
      * @var array
      */
     public static $attributeTypeFields = [
-        'text'        => 'text_value',
-        'textarea'    => 'text_value',
-        'price'       => 'float_value',
-        'boolean'     => 'boolean_value',
-        'select'      => 'integer_value',
+        'text' => 'text_value',
+        'textarea' => 'text_value',
+        'price' => 'float_value',
+        'boolean' => 'boolean_value',
+        'select' => 'integer_value',
         'multiselect' => 'text_value',
-        'datetime'    => 'datetime_value',
-        'date'        => 'date_value',
-        'file'        => 'text_value',
-        'image'       => 'text_value',
-        'checkbox'    => 'text_value',
+        'datetime' => 'datetime_value',
+        'date' => 'date_value',
+        'file' => 'text_value',
+        'image' => 'text_value',
+        'checkbox' => 'text_value',
     ];
 
     /**

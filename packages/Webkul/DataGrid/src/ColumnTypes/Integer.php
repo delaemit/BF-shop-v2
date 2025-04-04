@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataGrid\ColumnTypes;
 
 use Webkul\DataGrid\Column;
@@ -9,10 +11,13 @@ class Integer extends Column
 {
     /**
      * Process filter.
+     *
+     * @param mixed $queryBuilder
+     * @param mixed $requestedValues
      */
     public function processFilter($queryBuilder, $requestedValues)
     {
-        return $queryBuilder->where(function ($scopeQueryBuilder) use ($requestedValues) {
+        return $queryBuilder->where(function ($scopeQueryBuilder) use ($requestedValues): void {
             if (is_string($requestedValues)) {
                 $this->applyIntegerFilter($scopeQueryBuilder, $requestedValues);
             } elseif (is_array($requestedValues)) {
@@ -27,8 +32,11 @@ class Integer extends Column
 
     /**
      * Apply integer filter.
+     *
+     * @param mixed $queryBuilder
+     * @param mixed $value
      */
-    private function applyIntegerFilter($queryBuilder, $value)
+    private function applyIntegerFilter($queryBuilder, $value): void
     {
         if (preg_match('/^([<>]=?|=)\s*(-?\d+)$/', $value, $matches)) {
             $operator = $matches[1];

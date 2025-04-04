@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers;
 
 class Error
@@ -31,6 +33,9 @@ class Error
 
     /**
      * Add error message template
+     *
+     * @param string $code
+     * @param string $template
      */
     public function addErrorMessage(string $code, string $template): self
     {
@@ -41,6 +46,11 @@ class Error
 
     /**
      * Add error message.
+     *
+     * @param string $code
+     * @param ?int $rowNumber
+     * @param ?string $columnName
+     * @param ?string $message
      */
     public function addError(string $code, ?int $rowNumber = null, ?string $columnName = null, ?string $message = null): self
     {
@@ -53,8 +63,8 @@ class Error
         $message = $this->getErrorMessage($code, $message, $columnName);
 
         $this->items[$rowNumber][] = [
-            'code'    => $code,
-            'column'  => $columnName,
+            'code' => $code,
+            'column' => $columnName,
             'message' => $message,
         ];
 
@@ -65,6 +75,10 @@ class Error
 
     /**
      * Check if error is already added for the row, code and column.
+     *
+     * @param ?int $rowNumber
+     * @param string $code
+     * @param ?string $columnName
      */
     public function isErrorAlreadyAdded(?int $rowNumber, string $code, ?string $columnName): bool
     {
@@ -76,6 +90,8 @@ class Error
 
     /**
      * Add specific row to invalid list via row number
+     *
+     * @param ?int $rowNumber
      */
     protected function addRowToInvalid(?int $rowNumber): self
     {
@@ -83,7 +99,7 @@ class Error
             return $this;
         }
 
-        if (! in_array($rowNumber, $this->invalidRows)) {
+        if (!in_array($rowNumber, $this->invalidRows, true)) {
             $this->invalidRows[] = $rowNumber;
         }
 
@@ -92,6 +108,8 @@ class Error
 
     /**
      * Add specific row to invalid list via row number
+     *
+     * @param ?int $rowNumber
      */
     public function addRowToSkip(?int $rowNumber): self
     {
@@ -99,7 +117,7 @@ class Error
             return $this;
         }
 
-        if (! in_array($rowNumber, $this->skippedRows)) {
+        if (!in_array($rowNumber, $this->skippedRows, true)) {
             $this->skippedRows[] = $rowNumber;
         }
 
@@ -108,14 +126,20 @@ class Error
 
     /**
      * Check if row is invalid by row number
+     *
+     * @param int $rowNumber
      */
     public function isRowInvalid(int $rowNumber): bool
     {
-        return in_array($rowNumber, array_merge($this->invalidRows, $this->skippedRows));
+        return in_array($rowNumber, array_merge($this->invalidRows, $this->skippedRows), true);
     }
 
     /**
      * Build an error message via code, message and column name
+     *
+     * @param ?string $code
+     * @param ?string $message
+     * @param ?string $columnName
      */
     protected function getErrorMessage(?string $code, ?string $message, ?string $columnName): string
     {
@@ -133,7 +157,7 @@ class Error
             $message = sprintf($message, $columnName);
         }
 
-        if (! $message) {
+        if (!$message) {
             $message = $code;
         }
 

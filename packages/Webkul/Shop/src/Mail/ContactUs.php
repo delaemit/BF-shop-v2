@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Mail;
 
 use Illuminate\Mail\Mailables\Address;
@@ -11,9 +13,13 @@ class ContactUs extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $contactUs
+     *
      * @return void
      */
-    public function __construct(public $contactUs) {}
+    public function __construct(public $contactUs)
+    {
+    }
 
     /**
      * Get the message envelope.
@@ -27,7 +33,7 @@ class ContactUs extends Mailable
                     core()->getAdminEmailDetails()['name']
                 ),
             ],
-            subject: trans('shop::app.emails.contact-us.inquiry-from').' '.$this->contactUs['name'].' '.trans('shop::app.emails.contact-us.contact-from'),
+            subject: trans('shop::app.emails.contact-us.inquiry-from') . ' ' . $this->contactUs['name'] . ' ' . trans('shop::app.emails.contact-us.contact-from'),
         );
     }
 

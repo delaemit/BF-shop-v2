@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\Reporting\CustomerController;
 use Webkul\Admin\Http\Controllers\Reporting\ProductController;
 use Webkul\Admin\Http\Controllers\Reporting\SaleController;
 
-/**
+/*
  * Reporting routes.
  */
-Route::prefix('reporting')->group(function () {
-    /**
+Route::prefix('reporting')->group(function (): void {
+    /*
      * Customer routes.
      */
-    Route::controller(CustomerController::class)->prefix('customers')->group(function () {
+    Route::controller(CustomerController::class)->prefix('customers')->group(function (): void {
         Route::get('', 'index')->name('admin.reporting.customers.index');
 
         Route::get('stats', 'stats')->name('admin.reporting.customers.stats');
@@ -24,10 +26,10 @@ Route::prefix('reporting')->group(function () {
         Route::get('view/stats', 'viewStats')->name('admin.reporting.customers.view.stats');
     });
 
-    /**
+    /*
      * Product routes.
      */
-    Route::controller(ProductController::class)->prefix('products')->group(function () {
+    Route::controller(ProductController::class)->prefix('products')->group(function (): void {
         Route::get('', 'index')->name('admin.reporting.products.index');
 
         Route::get('stats', 'stats')->name('admin.reporting.products.stats');
@@ -39,10 +41,10 @@ Route::prefix('reporting')->group(function () {
         Route::get('view/stats', 'viewStats')->name('admin.reporting.products.view.stats');
     });
 
-    /**
+    /*
      * Sale routes.
      */
-    Route::controller(SaleController::class)->prefix('sales')->group(function () {
+    Route::controller(SaleController::class)->prefix('sales')->group(function (): void {
         Route::get('', 'index')->name('admin.reporting.sales.index');
 
         Route::get('stats', 'stats')->name('admin.reporting.sales.stats');

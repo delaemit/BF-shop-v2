@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers;
 
 use Webkul\Marketing\Repositories\SearchTermRepository;
@@ -10,12 +12,16 @@ class SearchController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param SearchTermRepository $searchTermRepository
+     * @param SearchRepository $searchRepository
+     *
      * @return void
      */
     public function __construct(
         protected SearchTermRepository $searchTermRepository,
         protected SearchRepository $searchRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Index to handle the view loaded with the search results
@@ -25,13 +31,13 @@ class SearchController extends Controller
     public function index()
     {
         $this->validate(request(), [
-            'query' => ['sometimes', 'required', 'string', 'regex:/^[^\\\\]+$/u'],
+            'query' => ['sometimes', 'required', 'string', 'regex:/^[^\\\]+$/u'],
         ]);
 
         $searchTerm = $this->searchTermRepository->findOneWhere([
-            'term'       => request()->query('query'),
+            'term' => request()->query('query'),
             'channel_id' => core()->getCurrentChannel()->id,
-            'locale'     => app()->getLocale(),
+            'locale' => app()->getLocale(),
         ]);
 
         if ($searchTerm?->redirect_url) {

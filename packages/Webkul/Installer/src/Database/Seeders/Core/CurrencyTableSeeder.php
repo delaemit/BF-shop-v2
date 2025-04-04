@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Database\Seeders\Core;
 
 use Illuminate\Database\Seeder;
@@ -84,10 +86,11 @@ class CurrencyTableSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * @param  array  $parameters
+     * @param array $parameters
+     *
      * @return void
      */
-    public function run($parameters = [])
+    public function run($parameters = []): void
     {
         DB::table('channels')->delete();
 
@@ -102,9 +105,9 @@ class CurrencyTableSeeder extends Seeder
         foreach ($currencies as $key => $currency) {
             DB::table('currencies')->insert([
                 [
-                    'id'     => $key + 1,
-                    'code'   => $currency,
-                    'name'   => trans('installer::app.seeders.core.currencies.'.$currency, [], $defaultLocale),
+                    'id' => $key + 1,
+                    'code' => $currency,
+                    'name' => trans('installer::app.seeders.core.currencies.' . $currency, [], $defaultLocale),
                     'symbol' => $this->currencySymbols[$currency] ?? '',
                 ],
             ]);

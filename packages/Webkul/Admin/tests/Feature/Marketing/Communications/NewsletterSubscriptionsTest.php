@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Core\Models\SubscribersList;
 
 use function Pest\Laravel\deleteJson;
@@ -70,7 +72,7 @@ it('should update the subscriber', function () {
     $this->loginAsAdmin();
 
     putJson(route('admin.marketing.communications.subscribers.update'), [
-        'id'            => $subscriber->id,
+        'id' => $subscriber->id,
         'is_subscribed' => $isSubscribed = rand(0, 1),
     ])
         ->assertOk()
@@ -79,7 +81,7 @@ it('should update the subscriber', function () {
     $this->assertModelWise([
         SubscribersList::class => [
             [
-                'id'            => $subscriber->id,
+                'id' => $subscriber->id,
                 'is_subscribed' => $isSubscribed,
             ],
         ],

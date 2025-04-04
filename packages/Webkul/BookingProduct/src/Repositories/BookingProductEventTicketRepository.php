@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\BookingProduct\Repositories;
 
 use Illuminate\Support\Facades\Event;
@@ -20,11 +22,14 @@ class BookingProductEventTicketRepository extends Repository
 
     /**
      * Summary of save Event Tickets.
+     *
+     * @param array $data
+     * @param BookingProduct $bookingProduct
      */
     public function saveEventTickets(array $data, BookingProduct $bookingProduct): void
     {
         Event::dispatch('booking_product.booking.event-ticket.save.before', [
-            'data'           => $data,
+            'data' => $data,
             'bookingProduct' => $bookingProduct,
         ]);
 
@@ -32,7 +37,7 @@ class BookingProductEventTicketRepository extends Repository
 
         $savedTickets = [];
 
-        if (! empty($data['tickets'])) {
+        if (!empty($data['tickets'])) {
             foreach ($data['tickets'] as $ticketId => &$ticketInputs) {
                 $this->sanitizeInput('special_price', $ticketInputs);
 
@@ -45,7 +50,7 @@ class BookingProductEventTicketRepository extends Repository
                         'booking_product_id' => $bookingProduct->id,
                     ], $ticketInputs));
                 } else {
-                    if (($index = array_search($ticketId, $previousTicketIds)) !== false) {
+                    if (($index = array_search($ticketId, $previousTicketIds, true)) !== false) {
                         unset($previousTicketIds[$index]);
                     }
 
@@ -53,7 +58,7 @@ class BookingProductEventTicketRepository extends Repository
                 }
 
                 $savedTickets[$ticketId] = [
-                    'ticket'       => $ticket,
+                    'ticket' => $ticket,
                     'ticketInputs' => $ticketInputs,
                 ];
             }
@@ -61,7 +66,7 @@ class BookingProductEventTicketRepository extends Repository
             Event::dispatch('booking_product.booking.event-ticket.save.after', ['tickets' => $savedTickets]);
         }
 
-        if (! empty($previousTicketIds)) {
+        if (!empty($previousTicketIds)) {
             $this->destroy($previousTicketIds);
         }
     }
@@ -69,15 +74,15 @@ class BookingProductEventTicketRepository extends Repository
     /**
      * Summary of sanitize Input.
      *
-     * @param  string  $fieldName
-     * @param  array  $inputs
+     * @param string $fieldName
+     * @param array $inputs
      */
-    private function sanitizeInput($fieldName, &$inputs)
+    private function sanitizeInput($fieldName, &$inputs): void
     {
         $fieldValue = $inputs[$fieldName] ?? null;
 
         if (
-            ! isset($fieldValue)
+            !isset($fieldValue)
             || empty($fieldValue)
             || $fieldValue === '0.0000'
             || $fieldValue === '0000-00-00 00:00:00'

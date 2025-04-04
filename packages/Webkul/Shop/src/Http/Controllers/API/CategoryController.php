@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -15,13 +17,18 @@ class CategoryController extends APIController
     /**
      * Create a new controller instance.
      *
+     * @param AttributeRepository $attributeRepository
+     * @param CategoryRepository $categoryRepository
+     * @param ProductRepository $productRepository
+     *
      * @return void
      */
     public function __construct(
         protected AttributeRepository $attributeRepository,
         protected CategoryRepository $categoryRepository,
         protected ProductRepository $productRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Get all categories.
@@ -57,7 +64,7 @@ class CategoryController extends APIController
      */
     public function getAttributes(): JsonResource
     {
-        if (! request('category_id')) {
+        if (!request('category_id')) {
             $filterableAttributes = $this->attributeRepository->getFilterableAttributes();
 
             return AttributeResource::collection($filterableAttributes);
@@ -74,6 +81,8 @@ class CategoryController extends APIController
 
     /**
      * Get product maximum price.
+     *
+     * @param mixed|null $categoryId
      */
     public function getProductMaxPrice($categoryId = null): JsonResource
     {

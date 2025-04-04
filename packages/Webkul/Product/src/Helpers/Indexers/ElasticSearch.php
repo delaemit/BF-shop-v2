@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers;
 
 use Elastic\Elasticsearch\Exception\ClientResponseException;
@@ -11,11 +13,6 @@ use Webkul\Product\Repositories\ProductRepository;
 
 class ElasticSearch extends AbstractIndexer
 {
-    /**
-     * @var int
-     */
-    private $batchSize;
-
     /**
      * Attributes
      *
@@ -59,7 +56,17 @@ class ElasticSearch extends AbstractIndexer
     protected $locale;
 
     /**
+     * @var int
+     */
+    private $batchSize;
+
+    /**
      * Create a new indexer instance.
+     *
+     * @param ChannelRepository $channelRepository
+     * @param CustomerGroupRepository $customerGroupRepository
+     * @param AttributeRepository $attributeRepository
+     * @param ProductRepository $productRepository
      *
      * @return void
      */
@@ -75,7 +82,8 @@ class ElasticSearch extends AbstractIndexer
     /**
      * Set current product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return \Webkul\Product\Helpers\Indexers\ElasticSearch\Product
      */
     public function setProduct($product)
@@ -88,7 +96,9 @@ class ElasticSearch extends AbstractIndexer
     /**
      * Set Channel
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     * @param mixed $channel
+     *
      * @return \Webkul\Product\Helpers\Indexers\ElasticSearch\Product
      */
     public function setChannel($channel)
@@ -101,7 +111,9 @@ class ElasticSearch extends AbstractIndexer
     /**
      * Set Locale
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     * @param mixed $locale
+     *
      * @return \Webkul\Product\Helpers\Indexers\ElasticSearch\Product
      */
     public function setLocale($locale)
@@ -116,7 +128,7 @@ class ElasticSearch extends AbstractIndexer
      *
      * @return void
      */
-    public function reindexFull()
+    public function reindexFull(): void
     {
         while (true) {
             $paginator = $this->productRepository
@@ -141,7 +153,7 @@ class ElasticSearch extends AbstractIndexer
 
             $this->reindexBatch($paginator->items());
 
-            if (! $cursor = $paginator->nextCursor()) {
+            if (!$cursor = $paginator->nextCursor()) {
                 break;
             }
 
@@ -154,9 +166,11 @@ class ElasticSearch extends AbstractIndexer
     /**
      * Reindex products by batch size
      *
+     * @param mixed $products
+     *
      * @return void
      */
-    public function reindexBatch($products)
+    public function reindexBatch($products): void
     {
         $refreshIndices = ['body' => []];
 
@@ -173,11 +187,11 @@ class ElasticSearch extends AbstractIndexer
 
                     $indexName = $this->getIndexName();
 
-                    if (in_array($channel->id, $product->channels->pluck('id')->toArray())) {
+                    if (in_array($channel->id, $product->channels->pluck('id')->toArray(), true)) {
                         $refreshIndices['body'][] = [
                             'index' => [
                                 '_index' => $indexName,
-                                '_id'    => $product->id,
+                                '_id' => $product->id,
                             ],
                         ];
 
@@ -189,11 +203,11 @@ class ElasticSearch extends AbstractIndexer
             }
         }
 
-        if (! empty($refreshIndices['body'])) {
+        if (!empty($refreshIndices['body'])) {
             ElasticsearchClient::bulk($refreshIndices);
         }
 
-        if (! empty($removeIndices)) {
+        if (!empty($removeIndices)) {
             $this->deleteIndices($removeIndices);
         }
     }
@@ -201,16 +215,17 @@ class ElasticSearch extends AbstractIndexer
     /**
      * Delete product indices
      *
-     * @param  array  $indices
+     * @param array $indices
+     *
      * @return void
      */
-    public function deleteIndices($indices)
+    public function deleteIndices($indices): void
     {
         foreach ($indices as $indexName => $productIds) {
             foreach ($productIds as $id) {
                 $params = [
                     'index' => $indexName,
-                    'id'    => $id,
+                    'id' => $id,
                 ];
 
                 try {
@@ -228,7 +243,7 @@ class ElasticSearch extends AbstractIndexer
      */
     public function getIndexName()
     {
-        return 'products_'.$this->channel->code.'_'.$this->locale->code.'_index';
+        return 'products_' . $this->channel->code . '_' . $this->locale->code . '_index';
     }
 
     /**
@@ -239,12 +254,12 @@ class ElasticSearch extends AbstractIndexer
     public function getIndices()
     {
         $properties = array_merge([
-            'id'                  => $this->product->id,
-            'type'                => $this->product->type,
-            'sku'                 => $this->product->sku,
+            'id' => $this->product->id,
+            'type' => $this->product->type,
+            'sku' => $this->product->sku,
             'attribute_family_id' => $this->product->attribute_family_id,
-            'category_ids'        => $this->product->categories->pluck('id')->toArray(),
-            'created_at'          => $this->product->created_at,
+            'category_ids' => $this->product->categories->pluck('id')->toArray(),
+            'created_at' => $this->product->created_at,
         ], $this->product->additional ?? []);
 
         $attributes = $this->getAttributes();
@@ -252,11 +267,11 @@ class ElasticSearch extends AbstractIndexer
         foreach ($attributes as $attribute) {
             $attributeValue = $this->getAttributeValue($attribute);
 
-            if ($attribute->code == 'price') {
+            if ($attribute->code === 'price') {
                 $properties[$attribute->code] = (float) $attributeValue?->{$attribute->column_name};
 
                 foreach ($this->getCustomerGroups() as $customerGroup) {
-                    if (! app()->runningInConsole()) {
+                    if (!app()->runningInConsole()) {
                         $this->product->load('price_indices');
                     }
 
@@ -271,10 +286,10 @@ class ElasticSearch extends AbstractIndexer
                         $groupPrice = $this->product->getTypeInstance()->getMinimalPrice();
                     }
 
-                    $properties[$attribute->code.'_'.$customerGroup->id] = (float) $groupPrice;
+                    $properties[$attribute->code . '_' . $customerGroup->id] = (float) $groupPrice;
                 }
-            } elseif ($attribute->type == 'boolean') {
-                $properties[$attribute->code] = intval($attributeValue?->{$attribute->column_name});
+            } elseif ($attribute->type === 'boolean') {
+                $properties[$attribute->code] = (int) $attributeValue?->{$attribute->column_name};
             } else {
                 $properties[$attribute->code] = strip_tags($attributeValue?->{$attribute->column_name});
             }
@@ -282,7 +297,7 @@ class ElasticSearch extends AbstractIndexer
 
         foreach ($this->product->super_attributes as $attribute) {
             foreach ($this->product->variants as $variant) {
-                $properties['ca_'.$attribute->code][] = $variant->{$attribute->code};
+                $properties['ca_' . $attribute->code][] = $variant->{$attribute->code};
             }
         }
 
@@ -300,21 +315,17 @@ class ElasticSearch extends AbstractIndexer
             return $this->attributes;
         }
 
-        $this->attributes = $this->attributeRepository->scopeQuery(function ($query) {
-            return $query->where(function ($qb) {
-                return $qb->orWhereIn('code', [
-                    'name',
-                    'status',
-                    'visible_individually',
-                    'new',
-                    'featured',
-                    'url_key',
-                    'short_description',
-                    'description',
-                ])
-                    ->orWhere('is_filterable', 1);
-            });
-        })->get();
+        $this->attributes = $this->attributeRepository->scopeQuery(fn($query) => $query->where(fn($qb) => $qb->orWhereIn('code', [
+            'name',
+            'status',
+            'visible_individually',
+            'new',
+            'featured',
+            'url_key',
+            'short_description',
+            'description',
+        ])
+            ->orWhere('is_filterable', 1)))->get();
 
         return $this->attributes;
     }
@@ -322,8 +333,9 @@ class ElasticSearch extends AbstractIndexer
     /**
      * Returns filterable attribute values
      *
-     * @param  \Webkul\Attribute\Contracts\Attribute  $attribute
+     * @param \Webkul\Attribute\Contracts\Attribute $attribute
      * @param  \Webkul\Product\Contracts\ProductAttributeValue
+     *
      * @return void
      */
     public function getAttributeValue($attribute)

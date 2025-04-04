@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\GDPR\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -17,6 +19,9 @@ class GDPRDataRequestRepository extends Repository
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param array $data
+     * @param mixed $id
      */
     public function update(array $data, $id)
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,7 +19,8 @@ class CompareItemResource extends JsonResource
     /**
      * Create a new anonymous resource collection.
      *
-     * @param  mixed  $resource
+     * @param mixed $resource
+     *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public static function collection($resource)
@@ -30,7 +33,8 @@ class CompareItemResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return array
      */
     public function toArray($request)
@@ -39,11 +43,11 @@ class CompareItemResource extends JsonResource
             ->toArray($this->resource);
 
         foreach (self::$comparableAttributes as $attribute) {
-            if (in_array($attribute->code, ['name', 'price'])) {
+            if (in_array($attribute->code, ['name', 'price'], true)) {
                 continue;
             }
 
-            if (in_array($attribute->type, ['select', 'multiselect', 'checkbox'])) {
+            if (in_array($attribute->type, ['select', 'multiselect', 'checkbox'], true)) {
                 $labels = [];
 
                 $attributeOptions = $attribute->options->whereIn('id', explode(',', $this->{$attribute->code}));

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,9 +22,9 @@ class EventFactory extends Factory
     public function definition()
     {
         return [
-            'name'        => preg_replace('/[^a-zA-Z ]/', '', $this->faker->name()),
+            'name' => preg_replace('/[^a-zA-Z ]/', '', $this->faker->name()),
             'description' => substr($this->faker->paragraph, 0, 50),
-            'date'        => $this->faker->date,
+            'date' => $this->faker->date,
         ];
     }
 }

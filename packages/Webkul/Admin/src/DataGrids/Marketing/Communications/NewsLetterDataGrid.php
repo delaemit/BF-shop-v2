@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Marketing\Communications;
 
 use Illuminate\Support\Facades\DB;
@@ -31,24 +33,24 @@ class NewsLetterDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.marketing.communications.subscribers.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.marketing.communications.subscribers.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'status',
-            'label'      => trans('admin::app.marketing.communications.subscribers.index.datagrid.subscribed'),
-            'type'       => 'boolean',
+            'index' => 'status',
+            'label' => trans('admin::app.marketing.communications.subscribers.index.datagrid.subscribed'),
+            'type' => 'boolean',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($value) {
+            'sortable' => true,
+            'closure' => function ($value) {
                 if ($value->status) {
                     return trans('admin::app.marketing.communications.subscribers.index.datagrid.true');
                 }
@@ -58,12 +60,12 @@ class NewsLetterDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index'      => 'email',
-            'label'      => trans('admin::app.marketing.communications.subscribers.index.datagrid.email'),
-            'type'       => 'string',
+            'index' => 'email',
+            'label' => trans('admin::app.marketing.communications.subscribers.index.datagrid.email'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
@@ -72,29 +74,25 @@ class NewsLetterDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('marketing.communications.subscribers.edit')) {
             $this->addAction([
-                'index'  => 'edit',
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.marketing.communications.subscribers.index.datagrid.edit'),
+                'index' => 'edit',
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.marketing.communications.subscribers.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.marketing.communications.subscribers.edit', $row->id);
-                },
+                'url' => fn($row) => route('admin.marketing.communications.subscribers.edit', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('marketing.communications.subscribers.delete')) {
             $this->addAction([
-                'index'  => 'delete',
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.marketing.communications.subscribers.index.datagrid.delete'),
+                'index' => 'delete',
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.marketing.communications.subscribers.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.marketing.communications.subscribers.delete', $row->id);
-                },
+                'url' => fn($row) => route('admin.marketing.communications.subscribers.delete', $row->id),
             ]);
         }
     }

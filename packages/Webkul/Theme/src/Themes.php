@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme;
 
 use Illuminate\Support\Facades\Config;
@@ -14,7 +16,7 @@ class Themes
      *
      * @var string
      */
-    protected $activeTheme = null;
+    protected $activeTheme;
 
     /**
      * Contains all themes.
@@ -44,7 +46,7 @@ class Themes
      */
     public function __construct()
     {
-        if (! Str::contains(request()->url(), config('app.admin_url').'/')) {
+        if (!Str::contains(request()->url(), config('app.admin_url') . '/')) {
             $this->defaultThemeCode = Config::get('themes.admin-default', null);
         } else {
             $this->defaultThemeCode = Config::get('themes.shop-default', null);
@@ -82,10 +84,10 @@ class Themes
                 $data['name'] ?? '',
                 $data['assets_path'] ?? '',
                 $data['views_path'] ?? '',
-                isset($data['vite']) ? $data['vite'] : [],
+                $data['vite'] ?? [],
             );
 
-            if (! empty($data['parent'])) {
+            if (!empty($data['parent'])) {
                 $parentThemes[$code] = $data['parent'];
             }
         }
@@ -96,12 +98,14 @@ class Themes
     /**
      * Check if specified exists.
      *
+     * @param string $themeName
+     *
      * @return bool
      */
     public function exists(string $themeName)
     {
         foreach ($this->themes as $theme) {
-            if ($theme->code == $themeName) {
+            if ($theme->code === $themeName) {
                 return true;
             }
         }
@@ -114,11 +118,11 @@ class Themes
      *
      * @return void
      */
-    public function loadThemes()
+    public function loadThemes(): void
     {
         $parentThemes = [];
 
-        if (Str::contains(request()->url(), config('app.admin_url').'/')) {
+        if (Str::contains(request()->url(), config('app.admin_url') . '/')) {
             $themes = config('themes.admin', []);
         } else {
             $themes = config('themes.shop', []);
@@ -133,7 +137,7 @@ class Themes
                 $data['vite'] ?? [],
             );
 
-            if (! empty($data['parent'])) {
+            if (!empty($data['parent'])) {
                 $parentThemes[$code] = $data['parent'];
             }
         }
@@ -154,6 +158,8 @@ class Themes
     /**
      * Enable theme.
      *
+     * @param string $themeName
+     *
      * @return \Webkul\Theme\Theme
      */
     public function set(string $themeName)
@@ -169,7 +175,7 @@ class Themes
         $paths = $theme->getViewPaths();
 
         foreach ($this->laravelViewsPath as $path) {
-            if (! in_array($path, $paths)) {
+            if (!in_array($path, $paths, true)) {
                 $paths[] = $path;
             }
         }
@@ -206,12 +212,14 @@ class Themes
     /**
      * Find a theme by it's name.
      *
+     * @param string $themeName
+     *
      * @return \Webkul\Theme\Theme
      */
     public function find(string $themeName)
     {
         foreach ($this->themes as $theme) {
-            if ($theme->code == $themeName) {
+            if ($theme->code === $themeName) {
                 return $theme;
             }
         }
@@ -232,13 +240,16 @@ class Themes
     /**
      * Return the asset URL of the current theme if a theme is found; otherwise, check from the namespace.
      *
+     * @param string $filename
+     * @param ?string $namespace
+     *
      * @return string
      */
     public function url(string $filename, ?string $namespace = null)
     {
         $url = trim($filename, '/');
 
-        /**
+        /*
          * If the namespace is null, it means the theming system is activated. We use the request URI to
          * detect the theme and provide Vite assets based on the current theme.
          */
@@ -256,7 +267,7 @@ class Themes
             throw new ViterNotFound($namespace);
         }
 
-        $viteUrl = trim($viters[$namespace]['package_assets_directory'], '/').'/'.$url;
+        $viteUrl = trim($viters[$namespace]['package_assets_directory'], '/') . '/' . $url;
 
         return Vite::useHotFile($viters[$namespace]['hot_file'])
             ->useBuildDirectory($viters[$namespace]['build_directory'])
@@ -266,12 +277,14 @@ class Themes
     /**
      * Set bagisto vite in current theme.
      *
-     * @param  mixed  $entryPoints
+     * @param mixed $entryPoints
+     * @param ?string $namespace
+     *
      * @return mixed
      */
     public function setBagistoVite($entryPoints, ?string $namespace = null)
     {
-        /**
+        /*
          * If the namespace is null, it means the theming system is activated. We use the request URI to
          * detect the theme and provide Vite assets based on the current theme.
          */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -12,9 +14,9 @@ class Indexer extends Command
 {
     protected $indexers = [
         'inventory' => Inventory::class,
-        'price'     => Price::class,
-        'flat'      => Flat::class,
-        'elastic'   => ElasticSearch::class,
+        'price' => Price::class,
+        'flat' => Flat::class,
+        'elastic' => ElasticSearch::class,
     ];
 
     /**
@@ -42,13 +44,13 @@ class Indexer extends Command
 
         $indexerIds = ['inventory', 'price', 'flat', 'elastic'];
 
-        if (! empty($this->option('type'))) {
+        if (!empty($this->option('type'))) {
             $indexerIds = $this->option('type');
         }
 
         $mode = 'selective';
 
-        if (! empty($this->option('mode'))) {
+        if (!empty($this->option('mode'))) {
             $mode = current($this->option('mode'));
         }
 

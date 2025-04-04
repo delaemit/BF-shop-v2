@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers;
 
 use Illuminate\Support\Facades\Schema;
@@ -9,11 +11,6 @@ use Webkul\Product\Repositories\ProductRepository;
 
 class Flat extends AbstractIndexer
 {
-    /**
-     * @var int
-     */
-    private $batchSize;
-
     /**
      * Attribute codes that can be fill during flat creation.
      *
@@ -47,7 +44,15 @@ class Flat extends AbstractIndexer
     protected $familyAttributes = [];
 
     /**
+     * @var int
+     */
+    private $batchSize;
+
+    /**
      * Create a new listener instance.
+     *
+     * @param ProductRepository $productRepository
+     * @param ProductFlatRepository $productFlatRepository
      *
      * @return void
      */
@@ -65,7 +70,7 @@ class Flat extends AbstractIndexer
      *
      * @return void
      */
-    public function reindexFull()
+    public function reindexFull(): void
     {
         while (true) {
             $paginator = $this->productRepository
@@ -80,7 +85,7 @@ class Flat extends AbstractIndexer
 
             $this->reindexBatch($paginator->items());
 
-            if (! $cursor = $paginator->nextCursor()) {
+            if (!$cursor = $paginator->nextCursor()) {
                 break;
             }
 
@@ -93,9 +98,11 @@ class Flat extends AbstractIndexer
     /**
      * Reindex products by batch size
      *
+     * @param mixed $products
+     *
      * @return void
      */
-    public function reindexBatch($products)
+    public function reindexBatch($products): void
     {
         foreach ($products as $product) {
             $this->refresh($product);
@@ -105,14 +112,15 @@ class Flat extends AbstractIndexer
     /**
      * Refresh product flat indices
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function refresh($product)
+    public function refresh($product): void
     {
         $this->updateOrCreate($product);
 
-        if (! ProductType::hasVariants($product->type)) {
+        if (!ProductType::hasVariants($product->type)) {
             return;
         }
 
@@ -124,10 +132,11 @@ class Flat extends AbstractIndexer
     /**
      * Creates product flat
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function updateOrCreate($product)
+    public function updateOrCreate($product): void
     {
         $familyAttributes = $this->getCachedFamilyAttributes($product);
 
@@ -140,22 +149,22 @@ class Flat extends AbstractIndexer
         $attributeValues = $product->attribute_values()->get();
 
         foreach (core()->getAllChannels() as $channel) {
-            if (in_array($channel->id, $channelIds)) {
+            if (in_array($channel->id, $channelIds, true)) {
                 foreach ($channel->locales as $locale) {
                     $productFlat = $this->productFlatRepository->updateOrCreate([
-                        'product_id'          => $product->id,
-                        'channel'             => $channel->code,
-                        'locale'              => $locale->code,
+                        'product_id' => $product->id,
+                        'channel' => $channel->code,
+                        'locale' => $locale->code,
                     ], [
-                        'type'                => $product->type,
-                        'sku'                 => $product->sku,
+                        'type' => $product->type,
+                        'sku' => $product->sku,
                         'attribute_family_id' => $product->attribute_family_id,
                     ]);
 
                     foreach ($familyAttributes as $attribute) {
                         if (
-                            ! in_array($attribute->code, $this->flatColumns)
-                            || $attribute->code == 'sku'
+                            !in_array($attribute->code, $this->flatColumns, true)
+                            || $attribute->code === 'sku'
                         ) {
                             continue;
                         }
@@ -184,10 +193,10 @@ class Flat extends AbstractIndexer
                     $productFlat->save();
                 }
             } else {
-                if (request()->route()?->getName() == 'admin.catalog.products.update') {
+                if (request()->route()?->getName() === 'admin.catalog.products.update') {
                     $this->productFlatRepository->deleteWhere([
                         'product_id' => $product->id,
-                        'channel'    => $channel->code,
+                        'channel' => $channel->code,
                     ]);
                 }
             }
@@ -195,7 +204,8 @@ class Flat extends AbstractIndexer
     }
 
     /**
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return mixed
      */
     public function getCachedFamilyAttributes($product)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Mail\Order;
 
 use Illuminate\Mail\Mailables\Address;
@@ -13,9 +15,13 @@ class RefundedNotification extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param Refund $refund
+     *
      * @return void
      */
-    public function __construct(public Refund $refund) {}
+    public function __construct(public Refund $refund)
+    {
+    }
 
     /**
      * Get the message envelope.

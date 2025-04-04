@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,8 +22,8 @@ class AttributeOptionFactory extends Factory
     public function definition(): array
     {
         return [
-            'admin_name'   => $this->faker->word,
-            'sort_order'   => $this->faker->randomDigit(),
+            'admin_name' => $this->faker->word,
+            'sort_order' => $this->faker->randomDigit(),
             'swatch_value' => null,
         ];
     }

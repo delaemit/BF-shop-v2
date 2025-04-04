@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Contracts;
 
-interface AttributeGroup {}
+use Webkul\Core\Contracts\ModelContract;
+
+interface AttributeGroup extends ModelContract
+{
+}

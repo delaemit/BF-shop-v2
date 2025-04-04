@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings;
 
 use Illuminate\Http\JsonResponse;
@@ -14,9 +16,13 @@ class CurrencyController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CurrencyRepository $currencyRepository
+     *
      * @return void
      */
-    public function __construct(protected CurrencyRepository $currencyRepository) {}
+    public function __construct(protected CurrencyRepository $currencyRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -40,7 +46,7 @@ class CurrencyController extends Controller
     public function store(): JsonResponse
     {
         $this->validate(request(), [
-            'code' => ['required', 'min:3', 'max:3', 'unique:currencies,code', new Code],
+            'code' => ['required', 'min:3', 'max:3', 'unique:currencies,code', new Code()],
             'name' => 'required',
         ]);
 
@@ -61,6 +67,8 @@ class CurrencyController extends Controller
 
     /**
      * Currency details.
+     *
+     * @param int $id
      */
     public function edit(int $id): JsonResponse
     {
@@ -96,12 +104,14 @@ class CurrencyController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         $this->currencyRepository->findOrFail($id);
 
-        if ($this->currencyRepository->count() == 1) {
+        if ($this->currencyRepository->count() === 1) {
             return new JsonResponse([
                 'message' => trans('admin::app.settings.currencies.index.last-delete-error'),
             ], 400);

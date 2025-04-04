@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Settings;
 
 use Illuminate\Support\Facades\DB;
@@ -27,32 +29,32 @@ class TaxCategoryDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.settings.taxes.categories.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.settings.taxes.categories.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'name',
-            'label'      => trans('admin::app.settings.taxes.categories.index.datagrid.name'),
-            'type'       => 'string',
+            'index' => 'name',
+            'label' => trans('admin::app.settings.taxes.categories.index.datagrid.name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'code',
-            'label'      => trans('admin::app.settings.taxes.categories.index.datagrid.code'),
-            'type'       => 'string',
+            'index' => 'code',
+            'label' => trans('admin::app.settings.taxes.categories.index.datagrid.code'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
@@ -61,29 +63,25 @@ class TaxCategoryDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('settings.taxes.tax_categories.edit')) {
             $this->addAction([
-                'index'  => 'edit',
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.settings.taxes.categories.index.datagrid.edit'),
+                'index' => 'edit',
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.settings.taxes.categories.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.settings.taxes.categories.edit', $row->id);
-                },
+                'url' => fn($row) => route('admin.settings.taxes.categories.edit', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('settings.taxes.tax_categories.delete')) {
             $this->addAction([
-                'index'  => 'delete',
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.settings.taxes.categories.index.datagrid.delete'),
+                'index' => 'delete',
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.settings.taxes.categories.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.settings.taxes.categories.delete', $row->id);
-                },
+                'url' => fn($row) => route('admin.settings.taxes.categories.delete', $row->id),
             ]);
         }
     }

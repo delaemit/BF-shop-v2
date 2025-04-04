@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\User\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -47,7 +49,7 @@ class Admin extends Authenticatable implements AdminContract
      */
     public function image_url()
     {
-        if (! $this->image) {
+        if (!$this->image) {
             return;
         }
 
@@ -87,28 +89,30 @@ class Admin extends Authenticatable implements AdminContract
     /**
      * Checks if admin has permission to perform certain action.
      *
-     * @param  string  $permission
+     * @param string $permission
+     *
      * @return bool
      */
     public function hasPermission($permission)
     {
         if (
-            $this->role->permission_type == 'custom'
-            && ! $this->role->permissions
+            $this->role->permission_type === 'custom'
+            && !$this->role->permissions
         ) {
             return false;
         }
 
-        return in_array($permission, $this->role->permissions);
+        return in_array($permission, $this->role->permissions, true);
     }
 
     /**
      * Send the password reset notification.
      *
-     * @param  string  $token
+     * @param string $token
+     *
      * @return void
      */
-    public function sendPasswordResetNotification($token)
+    public function sendPasswordResetNotification($token): void
     {
         $this->notify(new ResetPasswordNotification($token));
     }

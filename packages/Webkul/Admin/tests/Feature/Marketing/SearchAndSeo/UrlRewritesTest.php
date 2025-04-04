@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Marketing\Models\URLRewrite;
 
 use function Pest\Laravel\deleteJson;
@@ -35,11 +37,11 @@ it('should store the newly created url', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.marketing.search_seo.url_rewrites.store'), [
-        'entity_type'   => $entityType = fake()->randomElement(['product', 'category', 'cms_page']),
-        'request_path'  => $requestPath = fake()->url(),
-        'target_path'   => $targetPath = fake()->url(),
+        'entity_type' => $entityType = fake()->randomElement(['product', 'category', 'cms_page']),
+        'request_path' => $requestPath = fake()->url(),
+        'target_path' => $targetPath = fake()->url(),
         'redirect_type' => $redirectType = fake()->randomElement([302, 301]),
-        'locale'        => $localeCode = core()->getCurrentLocale()->code,
+        'locale' => $localeCode = core()->getCurrentLocale()->code,
     ])
         ->assertOk()
         ->assertSeeText(trans('admin::app.marketing.search-seo.url-rewrites.index.create.success'));
@@ -47,11 +49,11 @@ it('should store the newly created url', function () {
     $this->assertModelWise([
         URLRewrite::class => [
             [
-                'entity_type'   => $entityType,
-                'request_path'  => $requestPath,
-                'target_path'   => $targetPath,
+                'entity_type' => $entityType,
+                'request_path' => $requestPath,
+                'target_path' => $targetPath,
                 'redirect_type' => $redirectType,
-                'locale'        => $localeCode,
+                'locale' => $localeCode,
             ],
         ],
     ]);
@@ -81,12 +83,12 @@ it('should update the existing url rewrite', function () {
     $this->loginAsAdmin();
 
     putJson(route('admin.marketing.search_seo.url_rewrites.update'), [
-        'id'            => $urlRewrite->id,
-        'entity_type'   => $entityType = fake()->randomElement(['product', 'category', 'cms_page']),
-        'request_path'  => $requestPath = fake()->url(),
-        'target_path'   => $targetPath = fake()->url(),
+        'id' => $urlRewrite->id,
+        'entity_type' => $entityType = fake()->randomElement(['product', 'category', 'cms_page']),
+        'request_path' => $requestPath = fake()->url(),
+        'target_path' => $targetPath = fake()->url(),
         'redirect_type' => $redirectType = fake()->randomElement([302, 301]),
-        'locale'        => $localeCode = core()->getCurrentLocale()->code,
+        'locale' => $localeCode = core()->getCurrentLocale()->code,
     ])
         ->assertOk()
         ->assertSeeText(trans('admin::app.marketing.search-seo.url-rewrites.index.edit.success'));
@@ -94,12 +96,12 @@ it('should update the existing url rewrite', function () {
     $this->assertModelWise([
         URLRewrite::class => [
             [
-                'id'            => $urlRewrite->id,
-                'entity_type'   => $entityType,
-                'request_path'  => $requestPath,
-                'target_path'   => $targetPath,
+                'id' => $urlRewrite->id,
+                'entity_type' => $entityType,
+                'request_path' => $requestPath,
+                'target_path' => $targetPath,
                 'redirect_type' => $redirectType,
-                'locale'        => $localeCode,
+                'locale' => $localeCode,
             ],
         ],
     ]);

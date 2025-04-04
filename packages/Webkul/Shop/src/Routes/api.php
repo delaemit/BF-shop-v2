@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Shop\Http\Controllers\API\AddressController;
 use Webkul\Shop\Http\Controllers\API\CartController;
@@ -12,14 +14,14 @@ use Webkul\Shop\Http\Controllers\API\ProductController;
 use Webkul\Shop\Http\Controllers\API\ReviewController;
 use Webkul\Shop\Http\Controllers\API\WishlistController;
 
-Route::group(['prefix' => 'api'], function () {
-    Route::controller(CoreController::class)->prefix('core')->group(function () {
+Route::group(['prefix' => 'api'], function (): void {
+    Route::controller(CoreController::class)->prefix('core')->group(function (): void {
         Route::get('countries', 'getCountries')->name('shop.api.core.countries');
 
         Route::get('states', 'getStates')->name('shop.api.core.states');
     });
 
-    Route::controller(CategoryController::class)->prefix('categories')->group(function () {
+    Route::controller(CategoryController::class)->prefix('categories')->group(function (): void {
         Route::get('', 'index')->name('shop.api.categories.index');
 
         Route::get('tree', 'tree')->name('shop.api.categories.tree');
@@ -29,7 +31,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('max-price/{id?}', 'getProductMaxPrice')->name('shop.api.categories.max_price');
     });
 
-    Route::controller(ProductController::class)->prefix('products')->group(function () {
+    Route::controller(ProductController::class)->prefix('products')->group(function (): void {
         Route::get('', 'index')->name('shop.api.products.index');
 
         Route::get('{id}/related', 'relatedProducts')->name('shop.api.products.related.index');
@@ -37,7 +39,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('{id}/up-sell', 'upSellProducts')->name('shop.api.products.up-sell.index');
     });
 
-    Route::controller(ReviewController::class)->prefix('product/{id}')->group(function () {
+    Route::controller(ReviewController::class)->prefix('product/{id}')->group(function (): void {
         Route::get('reviews', 'index')->name('shop.api.products.reviews.index');
 
         Route::post('review', 'store')->name('shop.api.products.reviews.store');
@@ -45,7 +47,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('reviews/{review_id}/translate', 'translate')->name('shop.api.products.reviews.translate');
     });
 
-    Route::controller(CompareController::class)->prefix('compare-items')->group(function () {
+    Route::controller(CompareController::class)->prefix('compare-items')->group(function (): void {
         Route::get('', 'index')->name('shop.api.compare.index');
 
         Route::post('', 'store')->name('shop.api.compare.store');
@@ -55,7 +57,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::delete('all', 'destroyAll')->name('shop.api.compare.destroy_all');
     });
 
-    Route::controller(CartController::class)->prefix('checkout/cart')->group(function () {
+    Route::controller(CartController::class)->prefix('checkout/cart')->group(function (): void {
         Route::get('', 'index')->name('shop.api.checkout.cart.index');
 
         Route::post('', 'store')->name('shop.api.checkout.cart.store');
@@ -77,7 +79,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('cross-sell', 'crossSellProducts')->name('shop.api.checkout.cart.cross-sell.index');
     });
 
-    Route::controller(OnepageController::class)->prefix('checkout/onepage')->group(function () {
+    Route::controller(OnepageController::class)->prefix('checkout/onepage')->group(function (): void {
         Route::get('summary', 'summary')->name('shop.checkout.onepage.summary');
 
         Route::post('addresses', 'storeAddress')->name('shop.checkout.onepage.addresses.store');
@@ -89,16 +91,15 @@ Route::group(['prefix' => 'api'], function () {
         Route::post('orders', 'storeOrder')->name('shop.checkout.onepage.orders.store');
     });
 
-    /**
+    /*
      * Login routes.
      */
-    Route::controller(CustomerController::class)->prefix('customer')->group(function () {
+    Route::controller(CustomerController::class)->prefix('customer')->group(function (): void {
         Route::post('login', 'login')->name('shop.api.customers.session.create');
     });
 
-    Route::group(['middleware' => ['customer'], 'prefix' => 'customer'], function () {
-
-        Route::controller(AddressController::class)->prefix('addresses')->group(function () {
+    Route::group(['middleware' => ['customer'], 'prefix' => 'customer'], function (): void {
+        Route::controller(AddressController::class)->prefix('addresses')->group(function (): void {
             Route::get('', 'index')->name('shop.api.customers.account.addresses.index');
 
             Route::post('', 'store')->name('shop.api.customers.account.addresses.store');
@@ -106,7 +107,7 @@ Route::group(['prefix' => 'api'], function () {
             Route::put('edit/{id?}', 'update')->name('shop.api.customers.account.addresses.update');
         });
 
-        Route::controller(WishlistController::class)->prefix('wishlist')->group(function () {
+        Route::controller(WishlistController::class)->prefix('wishlist')->group(function (): void {
             Route::get('', 'index')->name('shop.api.customers.account.wishlist.index');
 
             Route::post('', 'store')->name('shop.api.customers.account.wishlist.store');

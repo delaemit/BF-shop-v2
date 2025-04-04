@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -10,19 +12,20 @@ class ProductReviewResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request
+     * @param mixed $request
+     *
      * @return array
      */
     public function toArray($request)
     {
-
         return [
-            'id'         => $this->id,
-            'name'       => $this->name,
-            'title'      => $this->title,
-            'comment'    => $this->comment,
-            'rating'     => $this->rating,
-            'images'     => $this->images,
-            'profile'    => $this->customer?->image_url,
+            'id' => $this->id,
+            'name' => $this->name,
+            'title' => $this->title,
+            'comment' => $this->comment,
+            'rating' => $this->rating,
+            'images' => $this->images,
+            'profile' => $this->customer?->image_url,
             'created_at' => $this->created_at->format('M d, Y'),
         ];
     }

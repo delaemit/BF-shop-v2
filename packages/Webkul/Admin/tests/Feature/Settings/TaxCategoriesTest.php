@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Arr;
 use Webkul\Tax\Models\TaxCategory;
 use Webkul\Tax\Models\TaxRate;
@@ -36,10 +38,10 @@ it('should store the tax category', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.settings.taxes.categories.store'), $data = [
-        'code'        => fake()->numerify('code#######'),
-        'name'        => fake()->words(2, true),
+        'code' => fake()->numerify('code#######'),
+        'name' => fake()->words(2, true),
         'description' => fake()->sentence(10),
-        'taxrates'    => TaxRate::factory()->count(2)->create()->pluck('id')->toArray(),
+        'taxrates' => TaxRate::factory()->count(2)->create()->pluck('id')->toArray(),
     ])
         ->assertOk()
         ->assertSeeText(trans('admin::app.settings.taxes.categories.index.create-success'));
@@ -47,8 +49,8 @@ it('should store the tax category', function () {
     $this->assertModelWise([
         TaxCategory::class => [
             [
-                'code'        => $data['code'],
-                'name'        => $data['name'],
+                'code' => $data['code'],
+                'name' => $data['name'],
                 'description' => $data['description'],
             ],
         ],
@@ -92,11 +94,11 @@ it('should update the tax category', function () {
     $this->loginAsAdmin();
 
     putJson(route('admin.settings.taxes.categories.update'), $data = [
-        'id'          => $taxCategory->id,
-        'code'        => fake()->numerify('code#######'),
-        'name'        => fake()->words(2, true),
+        'id' => $taxCategory->id,
+        'code' => fake()->numerify('code#######'),
+        'name' => fake()->words(2, true),
         'description' => fake()->sentence(10),
-        'taxrates'    => TaxRate::factory()->count(2)->create()->pluck('id')->toArray(),
+        'taxrates' => TaxRate::factory()->count(2)->create()->pluck('id')->toArray(),
     ])
         ->assertOk()
         ->assertJsonPath('message', trans('admin::app.settings.taxes.categories.index.update-success'));
@@ -104,8 +106,8 @@ it('should update the tax category', function () {
     $this->assertModelWise([
         TaxCategory::class => [
             [
-                'code'        => $data['code'],
-                'name'        => $data['name'],
+                'code' => $data['code'],
+                'name' => $data['name'],
                 'description' => $data['description'],
             ],
         ],

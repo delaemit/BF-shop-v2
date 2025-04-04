@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\MagicAI\Services;
 
 use Illuminate\Support\Facades\Http;
@@ -18,6 +20,11 @@ class GroqAI
 
     /**
      * New service instance.
+     *
+     * @param string $model
+     * @param string $prompt
+     * @param float $temperature
+     * @param bool $stream
      */
     public function __construct(
         protected string $model,
@@ -45,14 +52,14 @@ class GroqAI
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.config('groq.api_key'),
-                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer ' . config('groq.api_key'),
+                'Content-Type' => 'application/json',
             ])->post(self::API_URL, [
-                'model'       => $this->model,
+                'model' => $this->model,
                 'temperature' => $this->temperature,
-                'messages'    => [
+                'messages' => [
                     [
-                        'role'    => 'user',
+                        'role' => 'user',
                         'content' => $this->prompt,
                     ],
                 ],
@@ -62,7 +69,7 @@ class GroqAI
 
             return $result['choices'][0]['message']['content'] ?? '';
         } catch (\Exception $e) {
-            return 'Exception: '.$e->getMessage();
+            return 'Exception: ' . $e->getMessage();
         }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\BookingProduct\Repositories;
 
 use Carbon\Carbon;
@@ -21,13 +23,15 @@ class BookingRepository extends Repository
 
     /**
      * Create Booking Product.
+     *
+     * @param array $data
      */
     public function create(array $data): void
     {
         $order = $data['order'];
 
         foreach ($order->items()->get() as $item) {
-            if ($item->type != 'booking') {
+            if ($item->type !== 'booking') {
                 continue;
             }
 
@@ -50,18 +54,18 @@ class BookingRepository extends Repository
                     $to = $timestamps[1];
                 }
             } elseif (isset($bookingItem['date_from'], $bookingItem['date_to'])) {
-                $from = Carbon::createFromTimeString($bookingItem['date_from'].' 00:00:00')->getTimestamp();
+                $from = Carbon::createFromTimeString($bookingItem['date_from'] . ' 00:00:00')->getTimestamp();
 
-                $to = Carbon::createFromTimeString($bookingItem['date_to'].' 23:59:59')->getTimestamp();
+                $to = Carbon::createFromTimeString($bookingItem['date_to'] . ' 23:59:59')->getTimestamp();
             }
 
             $booking = parent::create([
-                'qty'                             => $item->qty_ordered,
-                'from'                            => $from,
-                'to'                              => $to,
-                'order_id'                        => $order->id,
-                'order_item_id'                   => $item->id,
-                'product_id'                      => $item->product_id,
+                'qty' => $item->qty_ordered,
+                'from' => $from,
+                'to' => $to,
+                'order_id' => $order->id,
+                'order_item_id' => $item->id,
+                'product_id' => $item->product_id,
                 'booking_product_event_ticket_id' => $bookingItem['ticket_id'] ?? null,
             ]);
 
@@ -71,6 +75,8 @@ class BookingRepository extends Repository
 
     /**
      * Get all bookings for the given date and time range.
+     *
+     * @param array $dateRange
      */
     public function getBookings(array $dateRange): Collection
     {

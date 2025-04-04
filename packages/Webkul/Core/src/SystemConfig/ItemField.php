@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\SystemConfig;
 
 use Illuminate\Support\Str;
@@ -13,18 +15,32 @@ class ItemField
      */
     protected $veeValidateMappings = [
         'max' => [
-            'text'   => 'max',
+            'text' => 'max',
             'number' => 'max_value',
         ],
 
         'min' => [
-            'text'   => 'min',
+            'text' => 'min',
             'number' => 'min_value',
         ],
     ];
 
     /**
      * Create a new ItemField instance.
+     *
+     * @param string $item_key
+     * @param string $name
+     * @param string $title
+     * @param ?string $info
+     * @param string $type
+     * @param ?string $path
+     * @param ?string $validation
+     * @param ?string $depends
+     * @param ?string $default
+     * @param ?bool $channel_based
+     * @param ?bool $locale_based
+     * @param array|string $options
+     * @param bool $is_visible
      */
     public function __construct(
         public string $item_key,
@@ -102,7 +118,7 @@ class ItemField
         }
 
         foreach ($this->veeValidateMappings as $laravelRule => $veeValidateRule) {
-            if (! array_key_exists($this->getType(), $veeValidateRule)) {
+            if (!array_key_exists($this->getType(), $veeValidateRule)) {
                 continue;
             }
 
@@ -149,7 +165,7 @@ class ItemField
      */
     public function getNameKey(): string
     {
-        return $this->item_key.'.'.$this->name;
+        return $this->item_key . '.' . $this->name;
     }
 
     /**
@@ -166,13 +182,13 @@ class ItemField
     public function getOptions(): array
     {
         if (is_array($this->options)) {
-            return collect($this->options)->map(fn ($option) => [
+            return collect($this->options)->map(fn($option) => [
                 'title' => trans($option['title']),
                 'value' => $option['value'],
             ])->toArray();
         }
 
-        return collect($this->getFieldOptions($this->options))->map(fn ($option) => [
+        return collect($this->getFieldOptions($this->options))->map(fn($option) => [
             'title' => trans($option['title']),
             'value' => $option['value'],
         ])->toArray();
@@ -184,37 +200,38 @@ class ItemField
     public function toArray()
     {
         return [
-            'name'          => $this->getName(),
-            'title'         => $this->getTitle(),
-            'info'          => $this->getInfo(),
-            'type'          => $this->getType(),
-            'path'          => $this->getPath(),
-            'depends'       => $this->getDepends(),
-            'validation'    => $this->getValidations(),
-            'default'       => $this->getDefault(),
+            'name' => $this->getName(),
+            'title' => $this->getTitle(),
+            'info' => $this->getInfo(),
+            'type' => $this->getType(),
+            'path' => $this->getPath(),
+            'depends' => $this->getDepends(),
+            'validation' => $this->getValidations(),
+            'default' => $this->getDefault(),
             'channel_based' => $this->getChannelBased(),
-            'locale_based'  => $this->getLocaleBased(),
-            'options'       => $this->getOptions(),
-            'item_key'      => $this->getItemKey(),
+            'locale_based' => $this->getLocaleBased(),
+            'options' => $this->getOptions(),
+            'item_key' => $this->getItemKey(),
         ];
     }
 
     /**
      * Get name field for forms in configuration page.
      *
-     * @param  string  $key
+     * @param string $key
+     *
      * @return string
      */
     public function getNameField($key = null)
     {
-        if (! $key) {
-            $key = $this->item_key.'.'.$this->name;
+        if (!$key) {
+            $key = $this->item_key . '.' . $this->name;
         }
 
         $nameField = '';
 
         foreach (explode('.', $key) as $key => $field) {
-            $nameField .= $key === 0 ? $field : '['.$field.']';
+            $nameField .= $key === 0 ? $field : '[' . $field . ']';
         }
 
         return $nameField;
@@ -229,13 +246,15 @@ class ItemField
             return '';
         }
 
-        $dependNameKey = $this->getItemKey().'.'.collect(explode(':', $depends))->first();
+        $dependNameKey = $this->getItemKey() . '.' . collect(explode(':', $depends))->first();
 
         return $this->getNameField($dependNameKey);
     }
 
     /**
      * Returns the select options for the field.
+     *
+     * @param string $options
      */
     protected function getFieldOptions(string $options): array
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Sales;
 
 use Illuminate\Http\JsonResponse;
@@ -20,6 +22,11 @@ class TransactionController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param OrderRepository $orderRepository
+     * @param InvoiceRepository $invoiceRepository
+     * @param ShipmentRepository $shipmentRepository
+     * @param OrderTransactionRepository $orderTransactionRepository
+     *
      * @return void
      */
     public function __construct(
@@ -27,7 +34,8 @@ class TransactionController extends Controller
         protected InvoiceRepository $invoiceRepository,
         protected ShipmentRepository $shipmentRepository,
         protected OrderTransactionRepository $orderTransactionRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -47,18 +55,20 @@ class TransactionController extends Controller
 
     /**
      * Save the transaction.
+     *
+     * @param Request $request
      */
     public function store(Request $request): JsonResponse
     {
         $this->validate(request(), [
-            'invoice_id'     => 'required',
+            'invoice_id' => 'required',
             'payment_method' => 'required',
-            'amount'         => 'required|numeric',
+            'amount' => 'required|numeric',
         ]);
 
         $invoice = $this->invoiceRepository->where('id', $request->invoice_id)->first();
 
-        if (! $invoice) {
+        if (!$invoice) {
             return new JsonResponse([
                 'message' => trans('admin::app.sales.transactions.index.create.invoice-missing'),
             ], 400);
@@ -68,7 +78,7 @@ class TransactionController extends Controller
 
         $transactionAmtFinal = $request->amount + $transactionAmtBefore;
 
-        if ($invoice->state == 'paid') {
+        if ($invoice->state === 'paid') {
             return new JsonResponse([
                 'message' => trans('admin::app.sales.transactions.index.create.already-paid'),
             ], 400);
@@ -90,13 +100,13 @@ class TransactionController extends Controller
 
         $this->orderTransactionRepository->create([
             'transaction_id' => bin2hex(random_bytes(20)),
-            'type'           => $request->payment_method,
+            'type' => $request->payment_method,
             'payment_method' => $request->payment_method,
-            'invoice_id'     => $invoice->id,
-            'order_id'       => $invoice->order_id,
-            'amount'         => $request->amount,
-            'status'         => 'paid',
-            'data'           => json_encode([
+            'invoice_id' => $invoice->id,
+            'order_id' => $invoice->order_id,
+            'amount' => $request->amount,
+            'status' => 'paid',
+            'data' => json_encode([
                 'paidAmount' => $request->amount,
             ]),
         ]);
@@ -122,6 +132,8 @@ class TransactionController extends Controller
 
     /**
      * Show the view for the specified resource.
+     *
+     * @param int $id
      */
     public function view(int $id): TransactionResource
     {

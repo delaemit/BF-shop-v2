@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\Marketing\Communications\CampaignController;
 use Webkul\Admin\Http\Controllers\Marketing\Communications\EventController;
@@ -13,18 +15,18 @@ use Webkul\Admin\Http\Controllers\Marketing\SearchSEO\SearchTermController;
 use Webkul\Admin\Http\Controllers\Marketing\SearchSEO\SitemapController;
 use Webkul\Admin\Http\Controllers\Marketing\SearchSEO\URLRewriteController;
 
-/**
+/*
  * Marketing routes.
  */
-Route::prefix('marketing')->group(function () {
-    /**
+Route::prefix('marketing')->group(function (): void {
+    /*
      * Promotions routes.
      */
-    Route::prefix('promotions')->group(function () {
-        /**
+    Route::prefix('promotions')->group(function (): void {
+        /*
          * Cart rules routes.
          */
-        Route::controller(CartRuleController::class)->prefix('cart-rules')->group(function () {
+        Route::controller(CartRuleController::class)->prefix('cart-rules')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.promotions.cart_rules.index');
 
             Route::get('create', 'create')->name('admin.marketing.promotions.cart_rules.create');
@@ -40,10 +42,10 @@ Route::prefix('marketing')->group(function () {
             Route::delete('edit/{id}', 'destroy')->name('admin.marketing.promotions.cart_rules.delete');
         });
 
-        /**
+        /*
          * Cart rule coupons routes.
          */
-        Route::controller(CartRuleCouponController::class)->prefix('cart-rules/coupons')->group(function () {
+        Route::controller(CartRuleCouponController::class)->prefix('cart-rules/coupons')->group(function (): void {
             Route::post('mass-delete', 'massDestroy')->name('admin.marketing.promotions.cart_rules.coupons.mass_delete');
 
             Route::get('{id}', 'index')->name('admin.marketing.promotions.cart_rules.coupons.index');
@@ -53,10 +55,10 @@ Route::prefix('marketing')->group(function () {
             Route::delete('edit/{id}', 'destroy')->name('admin.marketing.promotions.cart_rules.coupons.delete');
         });
 
-        /**
+        /*
          * Catalog rules routes.
          */
-        Route::controller(CatalogRuleController::class)->prefix('catalog-rules')->group(function () {
+        Route::controller(CatalogRuleController::class)->prefix('catalog-rules')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.promotions.catalog_rules.index');
 
             Route::get('create', 'create')->name('admin.marketing.promotions.catalog_rules.create');
@@ -71,14 +73,14 @@ Route::prefix('marketing')->group(function () {
         });
     });
 
-    /**
+    /*
      * Communication routes.
      */
-    Route::prefix('communications')->group(function () {
-        /**
+    Route::prefix('communications')->group(function (): void {
+        /*
          * Emails templates routes.
          */
-        Route::controller(TemplateController::class)->prefix('email-templates')->group(function () {
+        Route::controller(TemplateController::class)->prefix('email-templates')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.communications.email_templates.index');
 
             Route::get('create', 'create')->name('admin.marketing.communications.email_templates.create');
@@ -92,10 +94,10 @@ Route::prefix('marketing')->group(function () {
             Route::delete('edit/{id}', 'destroy')->name('admin.marketing.communications.email_templates.delete');
         });
 
-        /**
+        /*
          * Events routes.
          */
-        Route::controller(EventController::class)->prefix('events')->group(function () {
+        Route::controller(EventController::class)->prefix('events')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.communications.events.index');
 
             Route::post('create', 'store')->name('admin.marketing.communications.events.store');
@@ -107,10 +109,10 @@ Route::prefix('marketing')->group(function () {
             Route::delete('edit/{id}', 'destroy')->name('admin.marketing.communications.events.delete');
         });
 
-        /**
+        /*
          * Campaigns routes.
          */
-        Route::controller(CampaignController::class)->prefix('campaigns')->group(function () {
+        Route::controller(CampaignController::class)->prefix('campaigns')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.communications.campaigns.index');
 
             Route::get('create', 'create')->name('admin.marketing.communications.campaigns.create');
@@ -124,10 +126,10 @@ Route::prefix('marketing')->group(function () {
             Route::delete('edit/{id}', 'destroy')->name('admin.marketing.communications.campaigns.delete');
         });
 
-        /**
+        /*
          * subscribers routes.
          */
-        Route::controller(SubscriptionController::class)->prefix('subscribers')->group(function () {
+        Route::controller(SubscriptionController::class)->prefix('subscribers')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.communications.subscribers.index');
 
             Route::get('edit/{id}', 'edit')->name('admin.marketing.communications.subscribers.edit');
@@ -138,14 +140,14 @@ Route::prefix('marketing')->group(function () {
         });
     });
 
-    /**
+    /*
      * Search and SEO routes.
      */
-    Route::prefix('search-seo')->group(function () {
-        /**
+    Route::prefix('search-seo')->group(function (): void {
+        /*
          * URL Rewrite routes.
          */
-        Route::controller(URLRewriteController::class)->prefix('url-rewrites')->group(function () {
+        Route::controller(URLRewriteController::class)->prefix('url-rewrites')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.search_seo.url_rewrites.index');
 
             Route::post('create', 'store')->name('admin.marketing.search_seo.url_rewrites.store');
@@ -157,10 +159,10 @@ Route::prefix('marketing')->group(function () {
             Route::post('mass-delete', 'massDestroy')->name('admin.marketing.search_seo.url_rewrites.mass_delete');
         });
 
-        /**
+        /*
          * Search Terms routes.
          */
-        Route::controller(SearchTermController::class)->prefix('search-terms')->group(function () {
+        Route::controller(SearchTermController::class)->prefix('search-terms')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.search_seo.search_terms.index');
 
             Route::post('create', 'store')->name('admin.marketing.search_seo.search_terms.store');
@@ -172,10 +174,10 @@ Route::prefix('marketing')->group(function () {
             Route::post('mass-delete', 'massDestroy')->name('admin.marketing.search_seo.search_terms.mass_delete');
         });
 
-        /**
+        /*
          * Search Synonyms routes.
          */
-        Route::controller(SearchSynonymController::class)->prefix('search-synonyms')->group(function () {
+        Route::controller(SearchSynonymController::class)->prefix('search-synonyms')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.search_seo.search_synonyms.index');
 
             Route::post('create', 'store')->name('admin.marketing.search_seo.search_synonyms.store');
@@ -187,10 +189,10 @@ Route::prefix('marketing')->group(function () {
             Route::post('mass-delete', 'massDestroy')->name('admin.marketing.search_seo.search_synonyms.mass_delete');
         });
 
-        /**
+        /*
          * Sitemaps routes.
          */
-        Route::controller(SitemapController::class)->prefix('sitemaps')->group(function () {
+        Route::controller(SitemapController::class)->prefix('sitemaps')->group(function (): void {
             Route::get('', 'index')->name('admin.marketing.search_seo.sitemaps.index');
 
             Route::post('create', 'store')->name('admin.marketing.search_seo.sitemaps.store');

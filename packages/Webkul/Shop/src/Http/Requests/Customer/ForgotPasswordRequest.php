@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Requests\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -13,7 +15,7 @@ class ForgotPasswordRequest extends FormRequest
      * @var array
      */
     private $rules = [
-        'email'    => 'required|email',
+        'email' => 'required|email',
     ];
 
     /**

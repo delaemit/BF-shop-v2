@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings;
 
 use Illuminate\Http\JsonResponse;
@@ -16,9 +18,13 @@ class ThemeController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param ThemeCustomizationRepository $themeCustomizationRepository
+     *
      * @return void
      */
-    public function __construct(public ThemeCustomizationRepository $themeCustomizationRepository) {}
+    public function __construct(public ThemeCustomizationRepository $themeCustomizationRepository)
+    {
+    }
 
     /**
      * Display a listing resource for the available tax rates.
@@ -43,7 +49,7 @@ class ThemeController extends Controller
     {
         if (request()->has('id')) {
             $this->validate(request(), [
-                core()->getRequestedLocaleCode().'.options.*.image' => 'image|extensions:jpeg,jpg,png,svg,webp',
+                core()->getRequestedLocaleCode() . '.options.*.image' => 'image|extensions:jpeg,jpg,png,svg,webp',
             ]);
 
             $theme = $this->themeCustomizationRepository->find(request()->input('id'));
@@ -52,10 +58,10 @@ class ThemeController extends Controller
         }
 
         $validated = $this->validate(request(), [
-            'name'       => 'required',
+            'name' => 'required',
             'sort_order' => 'required|numeric',
-            'type'       => 'required|in:product_carousel,category_carousel,static_content,image_carousel,footer_links,services_content',
-            'channel_id' => 'required|in:'.implode(',', (core()->getAllChannels()->pluck('id')->toArray())),
+            'type' => 'required|in:product_carousel,category_carousel,static_content,image_carousel,footer_links,services_content',
+            'channel_id' => 'required|in:' . implode(',', core()->getAllChannels()->pluck('id')->toArray()),
             'theme_code' => 'required',
         ]);
 
@@ -73,6 +79,8 @@ class ThemeController extends Controller
     /**
      * Edit the theme
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -85,15 +93,17 @@ class ThemeController extends Controller
     /**
      * Update the specified resource
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(int $id)
     {
         $this->validate(request(), [
-            'name'       => 'required',
+            'name' => 'required',
             'sort_order' => 'required|numeric',
-            'type'       => 'required|in:product_carousel,category_carousel,static_content,image_carousel,footer_links,services_content',
-            'channel_id' => 'required|in:'.implode(',', (core()->getAllChannels()->pluck('id')->toArray())),
+            'type' => 'required|in:product_carousel,category_carousel,static_content,image_carousel,footer_links,services_content',
+            'channel_id' => 'required|in:' . implode(',', core()->getAllChannels()->pluck('id')->toArray()),
             'theme_code' => 'required',
         ]);
 
@@ -112,7 +122,7 @@ class ThemeController extends Controller
 
         Event::dispatch('theme_customization.update.before', $id);
 
-        $data['status'] = request()->input('status') == 'on';
+        $data['status'] = request()->input('status') === 'on';
 
         $theme = $this->themeCustomizationRepository->update($data, $id);
 
@@ -126,6 +136,8 @@ class ThemeController extends Controller
     /**
      * Delete a specified theme.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(int $id)
@@ -134,7 +146,7 @@ class ThemeController extends Controller
 
         $this->themeCustomizationRepository->delete($id);
 
-        Storage::deleteDirectory('theme/'.$id);
+        Storage::deleteDirectory('theme/' . $id);
 
         Event::dispatch('theme_customization.delete.after', $id);
 

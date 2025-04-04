@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Paypal\Http\Controllers;
 
 use Webkul\Checkout\Facades\Cart;
@@ -12,12 +14,16 @@ class StandardController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param OrderRepository $orderRepository
+     * @param Ipn $ipnHelper
+     *
      * @return void
      */
     public function __construct(
         protected OrderRepository $orderRepository,
         protected Ipn $ipnHelper
-    ) {}
+    ) {
+    }
 
     /**
      * Redirects to the paypal.

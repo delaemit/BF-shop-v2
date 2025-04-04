@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\BookingProduct\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,14 +10,14 @@ use Webkul\BookingProduct\Contracts\BookingProductDefaultSlot as BookingProductD
 class BookingProductDefaultSlot extends Model implements BookingProductDefaultSlotContract
 {
     /**
-     * The table associated with the model.
-     */
-    protected $table = 'booking_product_default_slots';
-
-    /**
      * Indicates if the model should be timestamped.
      */
     public $timestamps = false;
+
+    /**
+     * The table associated with the model.
+     */
+    protected $table = 'booking_product_default_slots';
 
     /**
      * The attributes that should be cast.

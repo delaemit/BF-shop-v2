@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Models;
 
-use Exception;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,22 @@ use Webkul\Product\Contracts\Product as ProductContract;
 use Webkul\Product\Database\Factories\ProductFactory;
 use Webkul\Product\Type\AbstractType;
 
+/**
+ * @property \Webkul\Attribute\Models\AttributeFamily $attribute_family
+ * @property \Illuminate\Support\Collection<array-key, Product> $variants
+ * @property \Illuminate\Support\Collection<array-key, \Webkul\Product\Models\ProductAttributeValue> $attribute_values
+ * @property \Illuminate\Support\Collection<array-key, \Webkul\Attribute\Models\Attribute> $super_attributes
+ * @property \Illuminate\Support\Collection<array-key, \Webkul\Product\Models\ProductPriceIndex> $price_indices
+ * @property Product $parent
+ * @property ?int $parent_id
+ * @property ?int $attribute_family_id
+ * @property string $type
+ * @property string $sku
+ * @property string $description
+ * @property string $url_key
+ * @property bool $visible_individually
+ * @property int $status
+ */
 class Product extends Model implements ProductContract
 {
     use HasFactory, Visitable;
@@ -178,6 +195,8 @@ class Product extends Model implements ProductContract
     /**
      * Get inventory source quantity.
      *
+     * @param mixed $inventorySourceId
+     *
      * @return bool
      */
     public function inventory_source_qty($inventorySourceId)
@@ -295,7 +314,7 @@ class Product extends Model implements ProductContract
     /**
      * Is saleable.
      *
-     * @param  string  $key
+     * @param string $key
      *
      * @throws \Exception
      */
@@ -308,7 +327,6 @@ class Product extends Model implements ProductContract
     /**
      * Is stockable.
      *
-     *
      * @throws \Exception
      */
     public function isStockable(): bool
@@ -319,7 +337,6 @@ class Product extends Model implements ProductContract
 
     /**
      * Total quantity.
-     *
      *
      * @throws \Exception
      */
@@ -332,8 +349,9 @@ class Product extends Model implements ProductContract
     /**
      * Have sufficient quantity.
      *
-     *
      * @throws \Exception
+     *
+     * @param int $qty
      */
     public function haveSufficientQuantity(int $qty): bool
     {
@@ -344,7 +362,6 @@ class Product extends Model implements ProductContract
     /**
      * Get type instance.
      *
-     *
      * @throws \Exception
      */
     public function getTypeInstance(): AbstractType
@@ -353,10 +370,10 @@ class Product extends Model implements ProductContract
             return $this->typeInstance;
         }
 
-        $this->typeInstance = app(config('product_types.'.$this->type.'.class'));
+        $this->typeInstance = app(config('product_types.' . $this->type . '.class'));
 
-        if (! $this->typeInstance instanceof AbstractType) {
-            throw new Exception("Please ensure the product type '{$this->type}' is configured in your application.");
+        if (!$this->typeInstance instanceof AbstractType) {
+            throw new \Exception("Please ensure the product type '{$this->type}' is configured in your application.");
         }
 
         $this->typeInstance->setProduct($this);
@@ -379,18 +396,19 @@ class Product extends Model implements ProductContract
     /**
      * Get an attribute from the model.
      *
-     * @param  string  $key
+     * @param string $key
+     *
      * @return mixed
      */
     public function getAttribute($key)
     {
-        if (! method_exists(static::class, $key)
-            && ! in_array($key, [
+        if (!method_exists(static::class, $key)
+            && !in_array($key, [
                 'pivot',
                 'parent_id',
                 'attribute_family_id',
-            ])
-            && ! isset($this->attributes[$key])
+            ], true)
+            && !isset($this->attributes[$key])
         ) {
             if (isset($this->id)) {
                 $attribute = $this->checkInLoadedFamilyAttributes()->where('code', $key)->first();
@@ -407,8 +425,8 @@ class Product extends Model implements ProductContract
     /**
      * Retrieve product attributes.
      *
-     * @param  Group  $group
-     * @param  bool  $skipSuperAttribute
+     * @param Group $group
+     * @param bool $skipSuperAttribute
      *
      * @throws \Exception
      */
@@ -421,11 +439,13 @@ class Product extends Model implements ProductContract
     /**
      * Get an product attribute value.
      *
+     * @param mixed $attribute
+     *
      * @return mixed
      */
     public function getCustomAttributeValue($attribute)
     {
-        if (! $attribute) {
+        if (!$attribute) {
             return;
         }
 
@@ -494,7 +514,7 @@ class Product extends Model implements ProductContract
             $familyAttributes = $this->checkInLoadedFamilyAttributes();
 
             foreach ($familyAttributes as $attribute) {
-                if (in_array($attribute->code, $hiddenAttributes)) {
+                if (in_array($attribute->code, $hiddenAttributes, true)) {
                     continue;
                 }
 

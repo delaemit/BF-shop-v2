@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -17,17 +19,18 @@ class RefundItemRepository extends Repository
     /**
      * Returns qty to product inventory after order refund
      *
-     * @param  \Webkul\Sales\Contracts\Order  $orderItem
-     * @param  int  $quantity
+     * @param \Webkul\Sales\Contracts\Order $orderItem
+     * @param int $quantity
+     *
      * @return void
      */
-    public function returnQtyToProductInventory($orderItem, $quantity)
+    public function returnQtyToProductInventory($orderItem, $quantity): void
     {
-        if (! $product = $orderItem->product) {
+        if (!$product = $orderItem->product) {
             return;
         }
 
-        if (! $product->manage_stock) {
+        if (!$product->manage_stock) {
             return;
         }
 
@@ -41,11 +44,11 @@ class RefundItemRepository extends Repository
                 $shipmentItems = $orderItem->parent ? $orderItem->parent->shipment_items : $orderItem->shipment_items;
 
                 foreach ($shipmentItems as $shipmentItem) {
-                    if (! $totalShippedQtyToRefund) {
+                    if (!$totalShippedQtyToRefund) {
                         break;
                     }
 
-                    if (! $shipmentItem->shipment->inventory_source_id) {
+                    if (!$shipmentItem->shipment->inventory_source_id) {
                         continue;
                     }
 
@@ -72,7 +75,7 @@ class RefundItemRepository extends Repository
                 $quantity -= $totalShippedQtyToRefund;
             }
         } elseif (
-            ! $orderItem->getTypeInstance()->isStockable()
+            !$orderItem->getTypeInstance()->isStockable()
             && $orderItem->getTypeInstance()->showQuantityBox()
         ) {
             $inventory = $orderItem->product->inventories()
@@ -91,7 +94,7 @@ class RefundItemRepository extends Repository
                 ->where('channel_id', $orderItem->order->channel->id)
                 ->first();
 
-            if (! $orderedInventory) {
+            if (!$orderedInventory) {
                 return;
             }
 

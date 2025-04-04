@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Mail\Customer;
 
 use Illuminate\Mail\Mailables\Address;
@@ -13,9 +15,13 @@ class RegistrationNotification extends Mailable
     /**
      * Create a new mailable instance.
      *
+     * @param Customer $customer
+     *
      * @return void
      */
-    public function __construct(public Customer $customer) {}
+    public function __construct(public Customer $customer)
+    {
+    }
 
     /**
      * Get the message envelope.

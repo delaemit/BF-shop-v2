@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core;
 
 use Illuminate\Support\Arr;
@@ -8,6 +10,16 @@ use Webkul\Core\Menu\MenuItem;
 
 class Menu
 {
+    /**
+     * Menu area for admin.
+     */
+    public const ADMIN = 'admin';
+
+    /**
+     * Menu area for customer.
+     */
+    public const CUSTOMER = 'customer';
+
     /**
      * Menu items.
      */
@@ -24,17 +36,9 @@ class Menu
     private string $currentKey = '';
 
     /**
-     * Menu area for admin.
-     */
-    const ADMIN = 'admin';
-
-    /**
-     * Menu area for customer.
-     */
-    const CUSTOMER = 'customer';
-
-    /**
      * Add a new menu item.
+     *
+     * @param MenuItem $menuItem
      */
     public function addItem(MenuItem $menuItem): void
     {
@@ -43,10 +47,12 @@ class Menu
 
     /**
      * Get all menu items.
+     *
+     * @param ?string $area
      */
     public function getItems(?string $area = null): Collection
     {
-        if (! $area) {
+        if (!$area) {
             throw new \Exception('Area must be provided to get menu items.');
         }
 
@@ -55,27 +61,25 @@ class Menu
         switch ($area) {
             case self::ADMIN:
                 $this->configMenu = $configMenu
-                    ->filter(fn ($item) => bouncer()->hasPermission($item['key']))
+                    ->filter(fn($item) => bouncer()->hasPermission($item['key']))
                     ->toArray();
                 break;
-
             case self::CUSTOMER:
-                $canShowWishlist = ! (bool) core()->getConfigData('customer.settings.wishlist.wishlist_option');
+                $canShowWishlist = !(bool) core()->getConfigData('customer.settings.wishlist.wishlist_option');
 
-                $canShowGdpr = ! (bool) core()->getConfigData('general.gdpr.settings.enabled');
+                $canShowGdpr = !(bool) core()->getConfigData('general.gdpr.settings.enabled');
 
                 $this->configMenu = $configMenu
-                    ->reject(fn ($item) => ($item['key'] == 'account.wishlist' && $canShowWishlist) || ($item['key'] == 'account.gdpr_data_request' && $canShowGdpr))
+                    ->reject(fn($item) => ($item['key'] === 'account.wishlist' && $canShowWishlist) || ($item['key'] === 'account.gdpr_data_request' && $canShowGdpr))
                     ->toArray();
                 break;
-
             default:
                 $this->configMenu = $configMenu->toArray();
 
                 break;
         }
 
-        if (! $this->items) {
+        if (!$this->items) {
             $this->prepareMenuItems();
         }
 
@@ -116,12 +120,14 @@ class Menu
 
     /**
      * Process sub menu items.
+     *
+     * @param mixed $menuItem
      */
     private function processSubMenuItems($menuItem): Collection
     {
         return collect($menuItem)
             ->sortBy('sort')
-            ->filter(fn ($value) => is_array($value))
+            ->filter(fn($value) => is_array($value))
             ->map(function ($subMenuItem) {
                 $subSubMenuItems = $this->processSubMenuItems($subMenuItem);
 
@@ -138,6 +144,8 @@ class Menu
 
     /**
      * Get current active menu.
+     *
+     * @param ?string $area
      */
     public function getCurrentActiveMenu(?string $area = null): ?MenuItem
     {
@@ -148,11 +156,14 @@ class Menu
 
     /**
      * Finding the matching item.
+     *
+     * @param mixed $items
+     * @param mixed $currentKey
      */
     private function findMatchingItem($items, $currentKey): ?MenuItem
     {
         foreach ($items as $item) {
-            if ($item->key == $currentKey) {
+            if ($item->key === $currentKey) {
                 return $item;
             }
 
@@ -182,6 +193,8 @@ class Menu
 
     /**
      * Remove unauthorized menuItem's children. This will handle all levels.
+     *
+     * @param MenuItem $menuItem
      */
     private function removeChildrenUnauthorizedMenuItem(MenuItem &$menuItem): void
     {

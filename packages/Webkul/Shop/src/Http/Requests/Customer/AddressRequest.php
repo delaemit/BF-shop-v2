@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Requests\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,16 +30,16 @@ class AddressRequest extends FormRequest
     {
         return [
             'company_name' => ['nullable'],
-            'first_name'   => ['required'],
-            'last_name'    => ['required'],
-            'address'      => ['required', 'array', 'min:1'],
-            'country'      => core()->isCountryRequired() ? ['required'] : ['nullable'],
-            'state'        => core()->isStateRequired() ? ['required'] : ['nullable'],
-            'city'         => ['required', 'string'],
-            'postcode'     => core()->isPostCodeRequired() ? ['required', new PostCode] : [new PostCode],
-            'phone'        => ['required', new PhoneNumber],
-            'vat_id'       => [new VatIdRule],
-            'email'        => ['required'],
+            'first_name' => ['required'],
+            'last_name' => ['required'],
+            'address' => ['required', 'array', 'min:1'],
+            'country' => core()->isCountryRequired() ? ['required'] : ['nullable'],
+            'state' => core()->isStateRequired() ? ['required'] : ['nullable'],
+            'city' => ['required', 'string'],
+            'postcode' => core()->isPostCodeRequired() ? ['required', new PostCode()] : [new PostCode()],
+            'phone' => ['required', new PhoneNumber()],
+            'vat_id' => [new VatIdRule()],
+            'email' => ['required'],
         ];
     }
 

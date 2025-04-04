@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings;
 
 use Illuminate\Http\JsonResponse;
@@ -13,9 +15,13 @@ class ChannelController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param ChannelRepository $channelRepository
+     *
      * @return void
      */
-    public function __construct(protected ChannelRepository $channelRepository) {}
+    public function __construct(protected ChannelRepository $channelRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -50,33 +56,33 @@ class ChannelController extends Controller
     {
         $data = $this->validate(request(), [
             /* general */
-            'code'                  => ['required', 'unique:channels,code', new \Webkul\Core\Rules\Code],
-            'name'                  => 'required',
-            'description'           => 'nullable',
-            'inventory_sources'     => 'required|array|min:1',
-            'root_category_id'      => 'required',
-            'hostname'              => 'unique:channels,hostname',
+            'code' => ['required', 'unique:channels,code', new \Webkul\Core\Rules\Code()],
+            'name' => 'required',
+            'description' => 'nullable',
+            'inventory_sources' => 'required|array|min:1',
+            'root_category_id' => 'required',
+            'hostname' => 'unique:channels,hostname',
 
             /* currencies and locales */
-            'locales'               => 'required|array|min:1',
-            'default_locale_id'     => 'required|in_array:locales.*',
-            'currencies'            => 'required|array|min:1',
-            'base_currency_id'      => 'required|in_array:currencies.*',
+            'locales' => 'required|array|min:1',
+            'default_locale_id' => 'required|in_array:locales.*',
+            'currencies' => 'required|array|min:1',
+            'base_currency_id' => 'required|in_array:currencies.*',
 
             /* design */
-            'theme'                 => 'nullable',
-            'logo.*'                => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
-            'favicon.*'             => 'nullable|mimes:bmp,jpeg,jpg,png,webp,ico',
+            'theme' => 'nullable',
+            'logo.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
+            'favicon.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp,ico',
 
             /* seo */
-            'seo_title'             => 'required|string',
-            'seo_description'       => 'required|string',
-            'seo_keywords'          => 'required|string',
+            'seo_title' => 'required|string',
+            'seo_description' => 'required|string',
+            'seo_keywords' => 'required|string',
 
             /* maintenance mode */
-            'is_maintenance_on'     => 'boolean',
+            'is_maintenance_on' => 'boolean',
             'maintenance_mode_text' => 'nullable',
-            'allowed_ips'           => 'nullable',
+            'allowed_ips' => 'nullable',
         ]);
 
         $data = $this->setSEOContent($data);
@@ -95,6 +101,8 @@ class ChannelController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -107,6 +115,8 @@ class ChannelController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(int $id)
@@ -115,36 +125,36 @@ class ChannelController extends Controller
 
         $data = $this->validate(request(), [
             /* general */
-            'code'                             => ['required', 'unique:channels,code,'.$id, new \Webkul\Core\Rules\Code],
-            $locale.'.name'                    => 'required',
-            $locale.'.description'             => 'nullable',
-            'inventory_sources'                => 'required|array|min:1',
-            'root_category_id'                 => 'required',
-            'hostname'                         => 'unique:channels,hostname,'.$id,
+            'code' => ['required', 'unique:channels,code,' . $id, new \Webkul\Core\Rules\Code()],
+            $locale . '.name' => 'required',
+            $locale . '.description' => 'nullable',
+            'inventory_sources' => 'required|array|min:1',
+            'root_category_id' => 'required',
+            'hostname' => 'unique:channels,hostname,' . $id,
 
             /* currencies and locales */
-            'locales'                          => 'required|array|min:1',
-            'default_locale_id'                => 'required|in_array:locales.*',
-            'currencies'                       => 'required|array|min:1',
-            'base_currency_id'                 => 'required|in_array:currencies.*',
+            'locales' => 'required|array|min:1',
+            'default_locale_id' => 'required|in_array:locales.*',
+            'currencies' => 'required|array|min:1',
+            'base_currency_id' => 'required|in_array:currencies.*',
 
             /* design */
-            'theme'                            => 'nullable',
-            'logo.*'                           => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
-            'favicon.*'                        => 'nullable|mimes:bmp,jpeg,jpg,png,webp,ico',
+            'theme' => 'nullable',
+            'logo.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
+            'favicon.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp,ico',
 
             /* seo */
-            $locale.'.seo_title'               => 'required|string',
-            $locale.'.seo_description'         => 'required|string',
-            $locale.'.seo_keywords'            => 'required|string',
+            $locale . '.seo_title' => 'required|string',
+            $locale . '.seo_description' => 'required|string',
+            $locale . '.seo_keywords' => 'required|string',
 
             /* maintenance mode */
-            'is_maintenance_on'                => 'boolean',
-            $locale.'.maintenance_mode_text'   => 'nullable',
-            'allowed_ips'                      => 'nullable',
+            'is_maintenance_on' => 'boolean',
+            $locale . '.maintenance_mode_text' => 'nullable',
+            'allowed_ips' => 'nullable',
         ]);
 
-        $data['is_maintenance_on'] = request()->input('is_maintenance_on') == '1';
+        $data['is_maintenance_on'] = request()->input('is_maintenance_on') === '1';
 
         $data = $this->setSEOContent($data, $locale);
 
@@ -165,14 +175,16 @@ class ChannelController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         $channel = $this->channelRepository->findOrFail($id);
 
-        if ($channel->code == config('app.channel')) {
+        if ($channel->code === config('app.channel')) {
             return new JsonResponse([
-                'message'    => trans('admin::app.settings.channels.index.last-delete-error'),
+                'message' => trans('admin::app.settings.channels.index.last-delete-error'),
             ], 400);
         }
 
@@ -184,20 +196,22 @@ class ChannelController extends Controller
             Event::dispatch('core.channel.delete.after', $id);
 
             return new JsonResponse([
-                'message'    => trans('admin::app.settings.channels.index.delete-success'),
+                'message' => trans('admin::app.settings.channels.index.delete-success'),
             ], 200);
         } catch (\Exception $e) {
         }
 
         return new JsonResponse([
-            'message'    => trans('admin::app.settings.channels.index.delete-failed'),
+            'message' => trans('admin::app.settings.channels.index.delete-failed'),
         ], 500);
     }
 
     /**
      * Set the seo content and return back the updated array.
      *
-     * @param  string  $locale
+     * @param string $locale
+     * @param array $data
+     *
      * @return array
      */
     private function setSEOContent(array $data, $locale = null)
@@ -225,7 +239,9 @@ class ChannelController extends Controller
     /**
      * Unset keys.
      *
-     * @param  array  $keys
+     * @param array $keys
+     * @param mixed $data
+     *
      * @return array
      */
     private function unsetKeys($data, $keys)

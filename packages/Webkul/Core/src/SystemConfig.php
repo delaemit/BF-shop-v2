@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core;
 
 use Illuminate\Support\Arr;
@@ -19,12 +21,18 @@ class SystemConfig
     /**
      * Create a new class instance.
      *
+     * @param CoreConfigRepository $coreConfigRepository
+     *
      * @return void
      */
-    public function __construct(protected CoreConfigRepository $coreConfigRepository) {}
+    public function __construct(protected CoreConfigRepository $coreConfigRepository)
+    {
+    }
 
     /**
      * Add Item.
+     *
+     * @param Item $item
      */
     public function addItem(Item $item): void
     {
@@ -36,7 +44,7 @@ class SystemConfig
      */
     public function getItems(): Collection
     {
-        if (! $this->items) {
+        if (!$this->items) {
             $this->prepareConfigurationItems();
         }
 
@@ -61,7 +69,7 @@ class SystemConfig
     /**
      * Prepare configuration items.
      */
-    public function prepareConfigurationItems()
+    public function prepareConfigurationItems(): void
     {
         $configWithDotNotation = [];
 
@@ -90,12 +98,14 @@ class SystemConfig
 
     /**
      * Process sub config items.
+     *
+     * @param mixed $configItem
      */
     private function processSubConfigItems($configItem): Collection
     {
         return collect($configItem)
             ->sortBy('sort')
-            ->filter(fn ($value) => is_array($value) && isset($value['name']))
+            ->filter(fn($value) => is_array($value) && isset($value['name']))
             ->map(function ($subConfigItem) {
                 $configItemChildren = $this->processSubConfigItems($subConfigItem);
 
@@ -118,13 +128,13 @@ class SystemConfig
      */
     public function getActiveConfigurationItem(): ?Item
     {
-        if (! $slug = request()->route('slug')) {
+        if (!$slug = request()->route('slug')) {
             return null;
         }
 
         $activeItem = $this->getItems()->where('key', $slug)->first() ?? null;
 
-        if (! $activeItem) {
+        if (!$activeItem) {
             return null;
         }
 
@@ -137,18 +147,20 @@ class SystemConfig
 
     /**
      * Get config field.
+     *
+     * @param string $fieldName
      */
     public function getConfigField(string $fieldName): ?array
     {
         foreach ($this->retrieveCoreConfig() as $coreData) {
-            if (! isset($coreData['fields'])) {
+            if (!isset($coreData['fields'])) {
                 continue;
             }
 
             foreach ($coreData['fields'] as $field) {
-                $name = $coreData['key'].'.'.$field['name'];
+                $name = $coreData['key'] . '.' . $field['name'];
 
-                if ($name == $fieldName) {
+                if ($name === $fieldName) {
                     return $field;
                 }
             }
@@ -159,28 +171,32 @@ class SystemConfig
 
     /**
      * Get core config values.
+     *
+     * @param string $field
+     * @param ?string $channel
+     * @param ?string $locale
      */
     protected function getCoreConfig(string $field, ?string $channel, ?string $locale): ?CoreConfig
     {
         $fields = $this->getConfigField($field);
 
-        if (! empty($fields['channel_based'])) {
-            if (! empty($fields['locale_based'])) {
+        if (!empty($fields['channel_based'])) {
+            if (!empty($fields['locale_based'])) {
                 $coreConfigValue = $this->coreConfigRepository->findOneWhere([
-                    'code'         => $field,
+                    'code' => $field,
                     'channel_code' => $channel,
-                    'locale_code'  => $locale,
+                    'locale_code' => $locale,
                 ]);
             } else {
                 $coreConfigValue = $this->coreConfigRepository->findOneWhere([
-                    'code'         => $field,
+                    'code' => $field,
                     'channel_code' => $channel,
                 ]);
             }
         } else {
-            if (! empty($fields['locale_based'])) {
+            if (!empty($fields['locale_based'])) {
                 $coreConfigValue = $this->coreConfigRepository->findOneWhere([
-                    'code'        => $field,
+                    'code' => $field,
                     'locale_code' => $locale,
                 ]);
             } else {
@@ -195,6 +211,8 @@ class SystemConfig
 
     /**
      * Get default config.
+     *
+     * @param string $field
      */
     protected function getDefaultConfig(string $field): mixed
     {
@@ -211,6 +229,10 @@ class SystemConfig
 
     /**
      * Get the config data.
+     *
+     * @param string $field
+     * @param ?string $currentChannelCode
+     * @param ?string $currentLocaleCode
      */
     public function getConfigData(string $field, ?string $currentChannelCode = null, ?string $currentLocaleCode = null): mixed
     {
@@ -224,7 +246,7 @@ class SystemConfig
 
         $coreConfig = $this->getCoreConfig($field, $currentChannelCode, $currentLocaleCode);
 
-        if (! $coreConfig) {
+        if (!$coreConfig) {
             return $this->getDefaultConfig($field);
         }
 

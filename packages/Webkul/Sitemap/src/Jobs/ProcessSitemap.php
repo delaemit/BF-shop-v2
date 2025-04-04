@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sitemap\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -38,68 +40,71 @@ class ProcessSitemap implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param SitemapContract $sitemap
      */
     public function __construct(
         public SitemapContract $sitemap
-    ) {}
+    ) {
+    }
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        /**
+        /*
          * If sitemap is disabled then return.
          */
-        if (! core()->getConfigData('general.sitemap.settings.enabled')) {
+        if (!core()->getConfigData('general.sitemap.settings.enabled')) {
             return;
         }
 
-        /**
+        /*
          * If the sitemap is already generated then delete the existing sitemap.
          */
         $this->sitemap->deleteFromStorage();
 
-        /**
+        /*
          * Process the store URL.
          */
         $this->processItems([Url::create('/')]);
 
-        /**
+        /*
          * Process the categories.
          */
-        Category::query()->chunk(100, fn ($items) => $this->processItems($items));
+        Category::query()->chunk(100, fn($items) => $this->processItems($items));
 
-        /**
+        /*
          * Process the products.
          */
-        Product::query()->chunk(100, fn ($items) => $this->processItems($items));
+        Product::query()->chunk(100, fn($items) => $this->processItems($items));
 
-        /**
+        /*
          * Process the CMS pages.
          */
-        Page::query()->chunk(100, fn ($items) => $this->processItems($items));
+        Page::query()->chunk(100, fn($items) => $this->processItems($items));
 
-        /**
+        /*
          * If there are any items left to be processed then generate the sitemap.
          */
-        if (! empty($this->itemsToBeProcessed)) {
+        if (!empty($this->itemsToBeProcessed)) {
             $this->generateSitemap();
         }
 
-        /**
+        /*
          * After generating all the sitemaps, we will generate the index.
          */
         $this->generateSitemapIndex();
 
-        /**
+        /*
          * Update the sitemap with the generated sitemap index and sitemaps.
          */
         $this->sitemap->update([
             'generated_at' => now(),
 
-            'additional'   => array_merge($this->sitemap->additional ?? [], [
-                'index'    => $this->sitemap->index_file_name,
+            'additional' => array_merge($this->sitemap->additional ?? [], [
+                'index' => $this->sitemap->index_file_name,
                 'sitemaps' => $this->generatedSitemaps,
             ]),
         ]);
@@ -108,7 +113,7 @@ class ProcessSitemap implements ShouldQueue
     /**
      * Process items.
      *
-     * @param  mixed  $items
+     * @param mixed $items
      */
     protected function processItems($items): void
     {
@@ -134,7 +139,7 @@ class ProcessSitemap implements ShouldQueue
             $sitemap->add($item);
         }
 
-        $sitemapFilePath = clean_path($this->sitemap->path.'/'.File::name($this->sitemap->file_name).'-'.$this->sitemap->id.'-'.$this->batchProcessed.'.'.File::extension($this->sitemap->file_name));
+        $sitemapFilePath = clean_path($this->sitemap->path . '/' . File::name($this->sitemap->file_name) . '-' . $this->sitemap->id . '-' . $this->batchProcessed . '.' . File::extension($this->sitemap->file_name));
 
         $sitemap->writeToDisk('public', $sitemapFilePath);
 

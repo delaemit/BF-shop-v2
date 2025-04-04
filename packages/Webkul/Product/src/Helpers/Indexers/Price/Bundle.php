@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers\Price;
 
 class Bundle extends AbstractType
@@ -12,12 +14,12 @@ class Bundle extends AbstractType
     public function getIndices()
     {
         return [
-            'min_price'         => $this->getMinimalPrice() ?? 0,
+            'min_price' => $this->getMinimalPrice() ?? 0,
             'regular_min_price' => $this->getRegularMinimalPrice() ?? 0,
-            'max_price'         => $this->getMaximumPrice() ?? 0,
+            'max_price' => $this->getMaximumPrice() ?? 0,
             'regular_max_price' => $this->getRegularMaximumPrice() ?? 0,
-            'product_id'        => $this->product->id,
-            'channel_id'        => $this->channel->id,
+            'product_id' => $this->product->id,
+            'channel_id' => $this->channel->id,
             'customer_group_id' => $this->customerGroup->id,
         ];
     }
@@ -25,7 +27,8 @@ class Bundle extends AbstractType
     /**
      * Get product minimal price.
      *
-     * @param  int  $qty
+     * @param int $qty
+     *
      * @return float
      */
     public function getMinimalPrice($qty = null)
@@ -39,7 +42,7 @@ class Bundle extends AbstractType
         foreach ($this->product->bundle_options as $option) {
             $optionProductsPrices = $this->getOptionProductsPrices($option);
 
-            if (! count($optionProductsPrices)) {
+            if (!count($optionProductsPrices)) {
                 continue;
             }
 
@@ -47,12 +50,12 @@ class Bundle extends AbstractType
 
             if ($option->is_required) {
                 $minPrice += $selectionMinPrice;
-            } elseif (! $haveRequiredOptions) {
+            } elseif (!$haveRequiredOptions) {
                 $minPrices[] = $selectionMinPrice;
             }
         }
 
-        if (! $haveRequiredOptions) {
+        if (!$haveRequiredOptions) {
             $minPrice = count($minPrices) ? min($minPrices) : 0;
         }
 
@@ -75,7 +78,7 @@ class Bundle extends AbstractType
         foreach ($this->product->bundle_options as $option) {
             $optionProductsPrices = $this->getOptionProductsPrices($option, false);
 
-            if (! count($optionProductsPrices)) {
+            if (!count($optionProductsPrices)) {
                 continue;
             }
 
@@ -83,13 +86,13 @@ class Bundle extends AbstractType
 
             if ($option->is_required) {
                 $minPrice += $selectionMinPrice;
-            } elseif (! $haveRequiredOptions) {
+            } elseif (!$haveRequiredOptions) {
                 $minPrices[] = $selectionMinPrice;
             }
         }
 
         if (
-            ! $haveRequiredOptions
+            !$haveRequiredOptions
             && count($minPrices)
         ) {
             $minPrice = min($minPrices);
@@ -111,7 +114,7 @@ class Bundle extends AbstractType
             foreach ($option->bundle_option_products as $bundleOptionProduct) {
                 $variant = $bundleOptionProduct->product;
 
-                if (! $variant->getTypeInstance()->isSaleable()) {
+                if (!$variant->getTypeInstance()->isSaleable()) {
                     continue;
                 }
 
@@ -121,8 +124,8 @@ class Bundle extends AbstractType
                     ->setCustomerGroup($this->customerGroup)
                     ->setProduct($variant);
 
-                if (in_array($option->type, ['multiselect', 'checkbox'])) {
-                    if (! isset($optionPrices[$option->id][0])) {
+                if (in_array($option->type, ['multiselect', 'checkbox'], true)) {
+                    if (!isset($optionPrices[$option->id][0])) {
                         $optionPrices[$option->id][0] = 0;
                     }
 
@@ -130,7 +133,6 @@ class Bundle extends AbstractType
                 } else {
                     $optionPrices[$option->id][] = $bundleOptionProduct->qty * $variantIndexer->getMinimalPrice();
                 }
-
             }
         }
 
@@ -156,12 +158,12 @@ class Bundle extends AbstractType
             foreach ($option->bundle_option_products as $index => $bundleOptionProduct) {
                 $variant = $bundleOptionProduct->product;
 
-                if (! $variant->getTypeInstance()->isSaleable()) {
+                if (!$variant->getTypeInstance()->isSaleable()) {
                     continue;
                 }
 
-                if (in_array($option->type, ['multiselect', 'checkbox'])) {
-                    if (! isset($optionPrices[$option->id][0])) {
+                if (in_array($option->type, ['multiselect', 'checkbox'], true)) {
+                    if (!isset($optionPrices[$option->id][0])) {
                         $optionPrices[$option->id][0] = 0;
                     }
 
@@ -169,7 +171,6 @@ class Bundle extends AbstractType
                 } else {
                     $optionPrices[$option->id][] = $bundleOptionProduct->qty * $variant->price;
                 }
-
             }
         }
 
@@ -201,8 +202,9 @@ class Bundle extends AbstractType
     /**
      * Get product regular minimal price.
      *
-     * @param  \Webkul\Product\Contracts\ProductBundleOption  $option
-     * @param  bool  $minPrice
+     * @param \Webkul\Product\Contracts\ProductBundleOption $option
+     * @param bool $minPrice
+     *
      * @return float
      */
     public function getOptionProductsPrices($option, $minPrice = true)
@@ -212,7 +214,7 @@ class Bundle extends AbstractType
         foreach ($option->bundle_option_products as $bundleOptionProduct) {
             $variant = $bundleOptionProduct->product;
 
-            if (! $variant->getTypeInstance()->isSaleable()) {
+            if (!$variant->getTypeInstance()->isSaleable()) {
                 continue;
             }
 

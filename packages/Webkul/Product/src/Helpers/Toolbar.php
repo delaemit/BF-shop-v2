@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers;
 
 use Illuminate\Support\Collection;
@@ -13,45 +15,45 @@ class Toolbar
     {
         return collect([
             [
-                'title'    => trans('product::app.sort-by.options.from-a-z'),
-                'value'    => 'name-asc',
-                'sort'     => 'name',
-                'order'    => 'asc',
+                'title' => trans('product::app.sort-by.options.from-a-z'),
+                'value' => 'name-asc',
+                'sort' => 'name',
+                'order' => 'asc',
                 'position' => 1,
             ],
             [
-                'title'    => trans('product::app.sort-by.options.from-z-a'),
-                'value'    => 'name-desc',
-                'sort'     => 'name',
-                'order'    => 'desc',
+                'title' => trans('product::app.sort-by.options.from-z-a'),
+                'value' => 'name-desc',
+                'sort' => 'name',
+                'order' => 'desc',
                 'position' => 2,
             ],
             [
-                'title'    => trans('product::app.sort-by.options.latest-first'),
-                'value'    => 'created_at-desc',
-                'sort'     => 'created_at',
-                'order'    => 'desc',
+                'title' => trans('product::app.sort-by.options.latest-first'),
+                'value' => 'created_at-desc',
+                'sort' => 'created_at',
+                'order' => 'desc',
                 'position' => 3,
             ],
             [
-                'title'    => trans('product::app.sort-by.options.oldest-first'),
-                'value'    => 'created_at-asc',
-                'sort'     => 'created_at',
-                'order'    => 'asc',
+                'title' => trans('product::app.sort-by.options.oldest-first'),
+                'value' => 'created_at-asc',
+                'sort' => 'created_at',
+                'order' => 'asc',
                 'position' => 4,
             ],
             [
-                'title'    => trans('product::app.sort-by.options.cheapest-first'),
-                'value'    => 'price-asc',
-                'sort'     => 'price',
-                'order'    => 'asc',
+                'title' => trans('product::app.sort-by.options.cheapest-first'),
+                'value' => 'price-asc',
+                'sort' => 'price',
+                'order' => 'asc',
                 'position' => 5,
             ],
             [
-                'title'    => trans('product::app.sort-by.options.expensive-first'),
-                'value'    => 'price-desc',
-                'sort'     => 'price',
-                'order'    => 'desc',
+                'title' => trans('product::app.sort-by.options.expensive-first'),
+                'value' => 'price-desc',
+                'sort' => 'price',
+                'order' => 'desc',
                 'position' => 6,
             ],
         ]);
@@ -70,10 +72,12 @@ class Toolbar
 
     /**
      * Get order.
+     *
+     * @param array $params
      */
     public function getOrder(array $params = []): array
     {
-        if (! isset($params['sort'])) {
+        if (!isset($params['sort'])) {
             return $this->getDefaultOrder();
         }
 
@@ -109,6 +113,8 @@ class Toolbar
 
     /**
      * Get limit.
+     *
+     * @param array $params
      */
     public function getLimit(array $params): int
     {
@@ -118,11 +124,11 @@ class Toolbar
          */
         $limit = (int) ($params['limit'] ?? $this->getDefaultLimit());
 
-        /**
+        /*
          * If the 'limit' parameter is present but value not present
          * in available limits, use the default value instead.
          */
-        return in_array($limit, $this->getAvailableLimits()->toArray())
+        return in_array($limit, $this->getAvailableLimits()->toArray(), true)
             ? $limit
             : $this->getDefaultLimit();
     }
@@ -147,6 +153,8 @@ class Toolbar
 
     /**
      * Get mode.
+     *
+     * @param array $params
      */
     public function getMode(array $params): string
     {
@@ -156,11 +164,11 @@ class Toolbar
          */
         $mode = $params['mode'] ?? $this->getDefaultMode();
 
-        /**
+        /*
          * If the 'mode' parameter is present but value not present
          * in available modes, use the default mode instead.
          */
-        return in_array($mode, $this->getAvailableModes()->toArray())
+        return in_array($mode, $this->getAvailableModes()->toArray(), true)
             ? $mode
             : $this->getDefaultMode();
     }

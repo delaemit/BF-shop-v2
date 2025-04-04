@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\ConfigurationController;
 
-/**
+/*
  * Configuration routes.
  */
 Route::get('configuration/search', [ConfigurationController::class, 'search'])->name('admin.configuration.search');
 
-Route::controller(ConfigurationController::class)->prefix('configuration/{slug?}/{slug2?}')->group(function () {
-
+Route::controller(ConfigurationController::class)->prefix('configuration/{slug?}/{slug2?}')->group(function (): void {
     Route::get('', 'index')->name('admin.configuration.index');
 
     Route::post('', 'store')->name('admin.configuration.store');

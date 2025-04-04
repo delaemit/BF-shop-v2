@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Str;
@@ -18,11 +20,12 @@ class ProductGroupedProductRepository extends Repository
     /**
      * Save grouped products.
      *
-     * @param  array  $data
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param array $data
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function saveGroupedProducts($data, $product)
+    public function saveGroupedProducts($data, $product): void
     {
         $previousGroupedProductIds = $product->grouped_products()->pluck('id');
 
@@ -37,7 +40,7 @@ class ProductGroupedProductRepository extends Repository
                      * existing grouped product otherwise we will create a new grouped product.
                      */
                     $groupedProduct = $this->firstWhere([
-                        'product_id'            => $product->id,
+                        'product_id' => $product->id,
                         'associated_product_id' => $linkInputs['associated_product_id'],
                     ]);
 
@@ -46,7 +49,7 @@ class ProductGroupedProductRepository extends Repository
                             'product_id' => $product->id,
                         ], $linkInputs));
 
-                        /**
+                        /*
                          * Remove the grouped product id from the previous grouped product ids array so that we
                          * can delete the grouped product which is not in the updated grouped products.
                          */
@@ -59,7 +62,7 @@ class ProductGroupedProductRepository extends Repository
                         ], $linkInputs));
                     }
                 } else {
-                    /**
+                    /*
                      * Remove the grouped product id from the previous grouped product ids array so that we
                      * can delete the grouped product which is not in the updated grouped products.
                      */
@@ -72,7 +75,7 @@ class ProductGroupedProductRepository extends Repository
             }
         }
 
-        /**
+        /*
          * Delete all the previous grouped products which are not in the updated grouped products.
          */
         foreach ($previousGroupedProductIds as $previousGroupedProductId) {

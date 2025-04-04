@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Sources;
 
 use Illuminate\Support\Arr;
@@ -10,11 +12,25 @@ use PhpOffice\PhpSpreadsheet\Writer\Csv as CSVWriter;
 class CSV extends AbstractSource
 {
     /**
+     * Close file handle.
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        if (!is_object($this->reader)) {
+            return;
+        }
+
+        $this->reader->close();
+    }
+
+    /**
      * Initialize.
      */
     public function initialize(): void
     {
-        $this->reader = fopen(Storage::disk('private')->path($this->filePath), 'r');
+        $this->reader = fopen(Storage::disk('private')->path($this->filePath), 'rb');
 
         $this->columnNames = fgetcsv($this->reader, 4096, $this->delimiter);
 
@@ -28,7 +44,7 @@ class CSV extends AbstractSource
     {
         $parsed = fgetcsv($this->reader, 4096, $this->delimiter);
 
-        if (is_array($parsed) && count($parsed) != $this->totalColumns) {
+        if (is_array($parsed) && count($parsed) !== $this->totalColumns) {
             foreach ($parsed as $element) {
                 if ($element && strpos($element, "'") !== false) {
                     $this->foundWrongQuoteFlag = true;
@@ -55,16 +71,18 @@ class CSV extends AbstractSource
 
     /**
      * Generate error report.
+     *
+     * @param array $errors
      */
     public function generateErrorReport(array $errors): string
     {
         $this->rewind();
 
-        $spreadsheet = new Spreadsheet;
+        $spreadsheet = new Spreadsheet();
 
         $sheet = $spreadsheet->getActiveSheet();
 
-        /**
+        /*
          * Add headers with extra error column.
          */
         $sheet->fromArray(
@@ -88,13 +106,13 @@ class CSV extends AbstractSource
 
             $rowErrors = $errors[$this->getCurrentRowNumber()] ?? [];
 
-            if (! empty($rowErrors)) {
+            if (!empty($rowErrors)) {
                 $rowErrors = Arr::pluck($rowErrors, 'message');
             }
 
             $rowData[] = implode('|', $rowErrors);
 
-            $sheet->fromArray([$rowData], null, 'A'.$rowNumber++);
+            $sheet->fromArray([$rowData], null, 'A' . $rowNumber++);
 
             $this->next();
         }
@@ -106,19 +124,5 @@ class CSV extends AbstractSource
         $writer->save(Storage::disk('private')->path($this->errorFilePath()));
 
         return $this->errorFilePath();
-    }
-
-    /**
-     * Close file handle.
-     *
-     * @return void
-     */
-    public function __destruct()
-    {
-        if (! is_object($this->reader)) {
-            return;
-        }
-
-        $this->reader->close();
     }
 }

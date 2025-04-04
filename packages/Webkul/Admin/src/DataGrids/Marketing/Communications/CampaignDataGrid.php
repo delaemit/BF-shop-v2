@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Marketing\Communications;
 
 use Illuminate\Support\Facades\DB;
@@ -32,41 +34,41 @@ class CampaignDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.marketing.communications.campaigns.index.datagrid.id'),
-            'type'       => 'integer',
-            'sortable'   => true,
+            'index' => 'id',
+            'label' => trans('admin::app.marketing.communications.campaigns.index.datagrid.id'),
+            'type' => 'integer',
+            'sortable' => true,
             'filterable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'name',
-            'label'      => trans('admin::app.marketing.communications.campaigns.index.datagrid.name'),
-            'type'       => 'string',
+            'index' => 'name',
+            'label' => trans('admin::app.marketing.communications.campaigns.index.datagrid.name'),
+            'type' => 'string',
             'searchable' => true,
-            'sortable'   => true,
+            'sortable' => true,
             'filterable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'subject',
-            'label'      => trans('admin::app.marketing.communications.campaigns.index.datagrid.subject'),
-            'type'       => 'string',
+            'index' => 'subject',
+            'label' => trans('admin::app.marketing.communications.campaigns.index.datagrid.subject'),
+            'type' => 'string',
             'searchable' => true,
-            'sortable'   => true,
+            'sortable' => true,
             'filterable' => true,
         ]);
 
         $this->addColumn([
-            'index'              => 'status',
-            'label'              => trans('admin::app.marketing.communications.campaigns.index.datagrid.status'),
-            'type'               => 'boolean',
-            'searchable'         => true,
-            'sortable'           => true,
-            'filterable'         => true,
+            'index' => 'status',
+            'label' => trans('admin::app.marketing.communications.campaigns.index.datagrid.status'),
+            'type' => 'boolean',
+            'searchable' => true,
+            'sortable' => true,
+            'filterable' => true,
             'filterable_options' => [
                 [
                     'label' => trans('admin::app.marketing.communications.campaigns.index.datagrid.active'),
@@ -77,7 +79,7 @@ class CampaignDataGrid extends DataGrid
                     'value' => 0,
                 ],
             ],
-            'closure'    => function ($value) {
+            'closure' => function ($value) {
                 if ($value->status) {
                     return trans('admin::app.marketing.communications.campaigns.index.datagrid.active');
                 }
@@ -92,27 +94,23 @@ class CampaignDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('marketing.communications.campaigns.edit')) {
             $this->addAction([
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.marketing.communications.campaigns.index.datagrid.edit'),
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.marketing.communications.campaigns.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.marketing.communications.campaigns.edit', $row->id);
-                },
+                'url' => fn($row) => route('admin.marketing.communications.campaigns.edit', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('marketing.communications.campaigns.delete')) {
             $this->addAction([
-                'icon'         => 'icon-delete',
-                'title'        => trans('admin::app.marketing.communications.campaigns.index.datagrid.delete'),
-                'method'       => 'DELETE',
-                'url'          => function ($row) {
-                    return route('admin.marketing.communications.campaigns.delete', $row->id);
-                },
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.marketing.communications.campaigns.index.datagrid.delete'),
+                'method' => 'DELETE',
+                'url' => fn($row) => route('admin.marketing.communications.campaigns.delete', $row->id),
             ]);
         }
     }

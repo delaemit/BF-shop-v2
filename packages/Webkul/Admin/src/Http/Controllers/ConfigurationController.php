@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
@@ -14,8 +16,12 @@ class ConfigurationController extends Controller
 {
     /**
      * Create a new controller instance.
+     *
+     * @param CoreConfigRepository $coreConfigRepository
      */
-    public function __construct(protected CoreConfigRepository $coreConfigRepository) {}
+    public function __construct(protected CoreConfigRepository $coreConfigRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -49,6 +55,8 @@ class ConfigurationController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param ConfigurationForm $request
      */
     public function store(ConfigurationForm $request): RedirectResponse
     {
@@ -65,7 +73,7 @@ class ConfigurationController extends Controller
                 }
             }
 
-            if (! $atLeastOneCarrierEnabled) {
+            if (!$atLeastOneCarrierEnabled) {
                 session()->flash('error', trans('admin::app.configuration.index.enable-at-least-one-shipping'));
 
                 return redirect()->back();
@@ -81,7 +89,7 @@ class ConfigurationController extends Controller
                 }
             }
 
-            if (! $atLeastOnePaymentMethodEnabled) {
+            if (!$atLeastOnePaymentMethodEnabled) {
                 session()->flash('error', trans('admin::app.configuration.index.enable-at-least-one-payment'));
 
                 return redirect()->back();
@@ -102,7 +110,7 @@ class ConfigurationController extends Controller
     {
         $path = request()->route()->parameters()['path'];
 
-        $fileName = 'configuration/'.$path;
+        $fileName = 'configuration/' . $path;
 
         $config = $this->coreConfigRepository->findOneByField('value', $fileName);
 

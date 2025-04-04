@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -55,7 +57,7 @@ class OrderItem extends Model implements OrderItemContract
             return $this->typeInstance;
         }
 
-        $this->typeInstance = app(config('product_types.'.$this->type.'.class'));
+        $this->typeInstance = app(config('product_types.' . $this->type . '.class'));
 
         if ($this->product) {
             $this->typeInstance->setProduct($this->product);
@@ -74,7 +76,7 @@ class OrderItem extends Model implements OrderItemContract
      */
     public function canShip(): bool
     {
-        if (! $this->isStockable()) {
+        if (!$this->isStockable()) {
             return false;
         }
 
@@ -90,7 +92,7 @@ class OrderItem extends Model implements OrderItemContract
      */
     public function getQtyToShipAttribute()
     {
-        if (! $this->isStockable()) {
+        if (!$this->isStockable()) {
             return 0;
         }
 
@@ -217,7 +219,7 @@ class OrderItem extends Model implements OrderItemContract
     {
         $array = parent::toArray();
 
-        if (! $this->id) {
+        if (!$this->id) {
             return $array;
         }
 
@@ -229,7 +231,7 @@ class OrderItem extends Model implements OrderItemContract
 
         $array['qty_to_refund'] = $this->qty_to_refund;
 
-        if ($this->type == 'downloadable') {
+        if ($this->type === 'downloadable') {
             $array['downloadable_links'] = $this->downloadable_link_purchased;
         }
 

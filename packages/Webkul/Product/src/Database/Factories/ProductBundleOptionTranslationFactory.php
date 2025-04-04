@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +22,7 @@ class ProductBundleOptionTranslationFactory extends Factory
     public function definition(): array
     {
         return [
-            'label'  => $this->faker->words(3, true),
+            'label' => $this->faker->words(3, true),
             'locale' => app()->getLocale(),
         ];
     }

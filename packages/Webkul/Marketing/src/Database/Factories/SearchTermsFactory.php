@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,10 +24,10 @@ class SearchTermsFactory extends Factory
         $terms = ['jackets', 'phone', 'computers', 'electronics'];
 
         return [
-            'term'         => $terms[array_rand($terms)],
+            'term' => $terms[array_rand($terms)],
             'redirect_url' => $this->faker->url,
-            'channel_id'   => core()->getCurrentChannel()->id,
-            'locale'       => core()->getCurrentLocale()->code,
+            'channel_id' => core()->getCurrentChannel()->id,
+            'locale' => core()->getCurrentLocale()->code,
         ];
     }
 }

@@ -1,5 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Contracts;
 
-interface ProductAttributeValue {}
+use Webkul\Core\Contracts\ModelContract;
+
+/**
+ * @mixin \Webkul\Product\Models\ProductAttributeValue
+ */
+interface ProductAttributeValue extends ModelContract
+{
+}

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CartRule\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -12,7 +14,7 @@ class CartRuleCouponRepository extends Repository
     protected $charset = [
         'alphanumeric' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
         'alphabetical' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        'numeric'      => '0123456789',
+        'numeric' => '0123456789',
     ];
 
     /**
@@ -25,6 +27,9 @@ class CartRuleCouponRepository extends Repository
 
     /**
      * Creates coupons for cart rule
+     *
+     * @param array $data
+     * @param int $cartRuleId
      */
     public function generateCoupons(array $data, int $cartRuleId): void
     {
@@ -32,25 +37,28 @@ class CartRuleCouponRepository extends Repository
 
         for ($i = 0; $i < $data['coupon_qty']; $i++) {
             parent::create([
-                'cart_rule_id'       => $cartRuleId,
-                'code'               => $data['code_prefix'].$this->getRandomString($data['code_format'], $data['code_length']).$data['code_suffix'],
-                'usage_limit'        => $cartRule->uses_per_coupon ?? 0,
+                'cart_rule_id' => $cartRuleId,
+                'code' => $data['code_prefix'] . $this->getRandomString($data['code_format'], $data['code_length']) . $data['code_suffix'],
+                'usage_limit' => $cartRule->uses_per_coupon ?? 0,
                 'usage_per_customer' => $cartRule->usage_per_customer ?? 0,
-                'is_primary'         => 0,
-                'expired_at'         => $cartRule->ends_till ?: null,
+                'is_primary' => 0,
+                'expired_at' => $cartRule->ends_till ?: null,
             ]);
         }
     }
 
     /**
      * Creates coupons for cart rule
+     *
+     * @param string $format
+     * @param int $length
      */
     public function getRandomString(string $format, int $length): string
     {
         $couponCode = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $couponCode .= $this->charset[$format][rand(0, strlen($this->charset[$format]) - 1)];
+            $couponCode .= $this->charset[$format][random_int(0, strlen($this->charset[$format]) - 1)];
         }
 
         return $couponCode;

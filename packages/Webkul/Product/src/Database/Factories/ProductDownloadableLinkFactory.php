@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,12 +26,12 @@ class ProductDownloadableLinkFactory extends Factory
         $filename = 'ProductImageExampleForUpload.jpg';
 
         return [
-            'url'        => '',
-            'file'       => '/tests/_data/'.$filename,
-            'file_name'  => $filename,
-            'type'       => 'file',
-            'price'      => 0.0000,
-            'downloads'  => $this->faker->randomNumber(1),
+            'url' => '',
+            'file' => '/tests/_data/' . $filename,
+            'file_name' => $filename,
+            'type' => 'file',
+            'price' => 0.0000,
+            'downloads' => $this->faker->randomNumber(1),
             'created_at' => $now,
             'updated_at' => $now,
         ];

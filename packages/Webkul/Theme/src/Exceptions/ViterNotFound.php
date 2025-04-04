@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme\Exceptions;
 
 class ViterNotFound extends \Exception
@@ -7,7 +9,9 @@ class ViterNotFound extends \Exception
     /**
      * Create an instance.
      *
-     * @param  string  $theme
+     * @param string $theme
+     * @param mixed $namespace
+     *
      * @return void
      */
     public function __construct($namespace)

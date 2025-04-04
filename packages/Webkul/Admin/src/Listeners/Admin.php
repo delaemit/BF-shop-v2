@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Listeners;
 
 class Admin
@@ -7,8 +9,11 @@ class Admin
     /**
      * Send mail on updating password.
      *
-     * @param  \Webkul\User\Models\Admin  $admin
+     * @param \Webkul\User\Models\Admin $admin
+     *
      * @return void
      */
-    public function afterPasswordUpdated($admin) {}
+    public function afterPasswordUpdated($admin): void
+    {
+    }
 }

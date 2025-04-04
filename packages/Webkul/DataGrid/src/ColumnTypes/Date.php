@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataGrid\ColumnTypes;
 
 use Webkul\DataGrid\Column;
@@ -12,6 +14,8 @@ class Date extends Column
 {
     /**
      * Set filterable type.
+     *
+     * @param ?string $filterableType
      */
     public function setFilterableType(?string $filterableType): void
     {
@@ -27,6 +31,8 @@ class Date extends Column
 
     /**
      * Set filterable options.
+     *
+     * @param mixed $filterableOptions
      */
     public function setFilterableOptions(mixed $filterableOptions): void
     {
@@ -39,21 +45,24 @@ class Date extends Column
 
     /**
      * Process filter.
+     *
+     * @param mixed $queryBuilder
+     * @param mixed $requestedDates
      */
     public function processFilter($queryBuilder, $requestedDates)
     {
-        return $queryBuilder->where(function ($scopeQueryBuilder) use ($requestedDates) {
+        return $queryBuilder->where(function ($scopeQueryBuilder) use ($requestedDates): void {
             if (is_string($requestedDates)) {
                 $rangeOption = collect($this->filterableOptions)->firstWhere('name', $requestedDates);
 
-                $requestedDates = ! $rangeOption
+                $requestedDates = !$rangeOption
                     ? [[$requestedDates, $requestedDates]]
                     : [[$rangeOption['from'], $rangeOption['to']]];
             } elseif (is_array($requestedDates)) {
                 foreach ($requestedDates as $value) {
                     $scopeQueryBuilder->whereBetween($this->columnName, [
-                        $value[0] ? (str_contains($value[0], ' ') ? $value[0] : $value[0].' 00:00:01') : '',
-                        $value[1] ? (str_contains($value[1], ' ') ? $value[1] : $value[1].' 23:59:59') : '',
+                        $value[0] ? (str_contains($value[0], ' ') ? $value[0] : $value[0] . ' 00:00:01') : '',
+                        $value[1] ? (str_contains($value[1], ' ') ? $value[1] : $value[1] . ' 23:59:59') : '',
                     ]);
                 }
             } else {

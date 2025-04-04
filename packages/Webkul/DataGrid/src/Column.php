@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataGrid;
 
 use Webkul\DataGrid\Enums\ColumnTypeEnum;
@@ -74,6 +76,8 @@ class Column
 
     /**
      * Create a column instance.
+     *
+     * @param array $column
      */
     public function __construct(array $column)
     {
@@ -82,6 +86,8 @@ class Column
 
     /**
      * Initialize all necessary settings for the columns.
+     *
+     * @param array $column
      */
     public function init(array $column): void
     {
@@ -114,6 +120,8 @@ class Column
 
     /**
      * Set index.
+     *
+     * @param string $index
      */
     public function setIndex(string $index): void
     {
@@ -130,6 +138,8 @@ class Column
 
     /**
      * Set label.
+     *
+     * @param string $label
      */
     public function setLabel(string $label): void
     {
@@ -146,6 +156,8 @@ class Column
 
     /**
      * Set type.
+     *
+     * @param string $type
      */
     public function setType(string $type): void
     {
@@ -162,6 +174,8 @@ class Column
 
     /**
      * Set searchable.
+     *
+     * @param bool $searchable
      */
     public function setSearchable(bool $searchable): void
     {
@@ -178,6 +192,8 @@ class Column
 
     /**
      * Set filterable.
+     *
+     * @param bool $filterable
      */
     public function setFilterable(bool $filterable): void
     {
@@ -194,6 +210,8 @@ class Column
 
     /**
      * Set filterable type.
+     *
+     * @param ?string $filterableType
      */
     public function setFilterableType(?string $filterableType): void
     {
@@ -210,6 +228,8 @@ class Column
 
     /**
      * Set filterable options.
+     *
+     * @param mixed $filterableOptions
      */
     public function setFilterableOptions(mixed $filterableOptions): void
     {
@@ -230,6 +250,8 @@ class Column
 
     /**
      * Set allow multiple values.
+     *
+     * @param bool $allowMultipleValues
      */
     public function setAllowMultipleValues(bool $allowMultipleValues): void
     {
@@ -246,6 +268,8 @@ class Column
 
     /**
      * Set sortable.
+     *
+     * @param ?bool $sortable
      */
     public function setSortable(?bool $sortable = null): void
     {
@@ -262,6 +286,8 @@ class Column
 
     /**
      * Set exportable.
+     *
+     * @param bool $exportable
      */
     public function setExportable(bool $exportable): void
     {
@@ -278,6 +304,8 @@ class Column
 
     /**
      * Set visibility.
+     *
+     * @param bool $visibility
      */
     public function setVisibility(bool $visibility): void
     {
@@ -294,6 +322,8 @@ class Column
 
     /**
      * Set closure.
+     *
+     * @param mixed $closure
      */
     public function setClosure(mixed $closure): void
     {
@@ -311,6 +341,8 @@ class Column
     /**
      * Define the table's column name. Initially, it will match the index. However, after adding an alias,
      * the column name may change.
+     *
+     * @param mixed $columnName
      */
     public function setColumnName(mixed $columnName): void
     {
@@ -331,22 +363,24 @@ class Column
     public function toArray(): array
     {
         return [
-            'index'                 => $this->index,
-            'label'                 => $this->label,
-            'type'                  => $this->type,
-            'searchable'            => $this->searchable,
-            'filterable'            => $this->filterable,
-            'filterable_type'       => $this->filterableType,
-            'filterable_options'    => $this->filterableOptions,
+            'index' => $this->index,
+            'label' => $this->label,
+            'type' => $this->type,
+            'searchable' => $this->searchable,
+            'filterable' => $this->filterable,
+            'filterable_type' => $this->filterableType,
+            'filterable_options' => $this->filterableOptions,
             'allow_multiple_values' => $this->allowMultipleValues,
-            'sortable'              => $this->sortable,
-            'exportable'            => $this->exportable,
-            'visibility'            => $this->visibility,
+            'sortable' => $this->sortable,
+            'exportable' => $this->exportable,
+            'visibility' => $this->visibility,
         ];
     }
 
     /**
      * Validate the column.
+     *
+     * @param array $column
      */
     public static function validate(array $column): void
     {
@@ -365,6 +399,8 @@ class Column
 
     /**
      * Resolve the column type class.
+     *
+     * @param array $column
      */
     public static function resolveType(array $column): self
     {

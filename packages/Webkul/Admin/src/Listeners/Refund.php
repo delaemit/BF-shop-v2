@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Listeners;
 
 use Webkul\Admin\Mail\Order\RefundedNotification;
@@ -10,15 +12,16 @@ class Refund extends Base
     /**
      * After order is created
      *
-     * @param  \Webkul\Sales\Contracts\Refund  $refund
+     * @param \Webkul\Sales\Contracts\Refund $refund
+     *
      * @return void
      */
-    public function afterCreated($refund)
+    public function afterCreated($refund): void
     {
         $this->refundOrder($refund);
 
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.new_refund_mail_to_admin')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.new_refund_mail_to_admin')) {
                 return;
             }
 
@@ -31,16 +34,17 @@ class Refund extends Base
     /**
      * After Refund is created
      *
-     * @param  \Webkul\Sales\Contracts\Refund  $refund
+     * @param \Webkul\Sales\Contracts\Refund $refund
+     *
      * @return void
      */
-    public function refundOrder($refund)
+    public function refundOrder($refund): void
     {
         $order = $refund->order;
 
         if ($order->payment->method === 'paypal_smart_button') {
             /* getting smart button instance */
-            $smartButton = new SmartButton;
+            $smartButton = new SmartButton();
 
             /* getting paypal oder id */
             $paypalOrderID = $order->payment->additional['orderID'];
@@ -51,7 +55,7 @@ class Refund extends Base
             /* now refunding order on the basis of capture id and refund data */
             $smartButton->refundOrder($captureID, [
                 'amount' => [
-                    'value'         => round($refund->grand_total, 2),
+                    'value' => round($refund->grand_total, 2),
                     'currency_code' => $refund->order_currency_code,
                 ],
             ]);

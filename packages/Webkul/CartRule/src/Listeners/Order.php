@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CartRule\Listeners;
 
 use Webkul\CartRule\Repositories\CartRuleCouponRepository;
@@ -12,6 +14,11 @@ class Order
     /**
      * Create a new listener instance.
      *
+     * @param CartRuleRepository $cartRuleRepository
+     * @param CartRuleCustomerRepository $cartRuleCustomerRepository
+     * @param CartRuleCouponRepository $cartRuleCouponRepository
+     * @param CartRuleCouponUsageRepository $cartRuleCouponUsageRepository
+     *
      * @return void
      */
     public function __construct(
@@ -19,17 +26,19 @@ class Order
         protected CartRuleCustomerRepository $cartRuleCustomerRepository,
         protected CartRuleCouponRepository $cartRuleCouponRepository,
         protected CartRuleCouponUsageRepository $cartRuleCouponUsageRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Save cart rule and cart rule coupon properties after place order
      *
-     * @param  \Webkul\Sales\Contracts\Order  $order
+     * @param \Webkul\Sales\Contracts\Order $order
+     *
      * @return void
      */
-    public function manageCartRule($order)
+    public function manageCartRule($order): void
     {
-        if (! $order->discount_amount) {
+        if (!$order->discount_amount) {
             return;
         }
 
@@ -40,18 +49,18 @@ class Order
         foreach ($cartRuleIds as $ruleId) {
             $rule = $this->cartRuleRepository->find($ruleId);
 
-            if (! $rule) {
+            if (!$rule) {
                 continue;
             }
 
             $rule->update(['times_used' => $rule->times_used + 1]);
 
-            if (! $order->customer_id) {
+            if (!$order->customer_id) {
                 continue;
             }
 
             $ruleCustomer = $this->cartRuleCustomerRepository->findOneWhere([
-                'customer_id'  => $order->customer_id,
+                'customer_id' => $order->customer_id,
                 'cart_rule_id' => $ruleId,
             ]);
 
@@ -59,14 +68,14 @@ class Order
                 $this->cartRuleCustomerRepository->update(['times_used' => $ruleCustomer->times_used + 1], $ruleCustomer->id);
             } else {
                 $this->cartRuleCustomerRepository->create([
-                    'customer_id'  => $order->customer_id,
+                    'customer_id' => $order->customer_id,
                     'cart_rule_id' => $ruleId,
-                    'times_used'   => 1,
+                    'times_used' => 1,
                 ]);
             }
         }
 
-        if (! $order->coupon_code) {
+        if (!$order->coupon_code) {
             return;
         }
 
@@ -77,7 +86,7 @@ class Order
 
             if ($order->customer_id) {
                 $couponUsage = $this->cartRuleCouponUsageRepository->findOneWhere([
-                    'customer_id'         => $order->customer_id,
+                    'customer_id' => $order->customer_id,
                     'cart_rule_coupon_id' => $coupon->id,
                 ]);
 
@@ -85,9 +94,9 @@ class Order
                     $this->cartRuleCouponUsageRepository->update(['times_used' => $couponUsage->times_used + 1], $couponUsage->id);
                 } else {
                     $this->cartRuleCouponUsageRepository->create([
-                        'customer_id'         => $order->customer_id,
+                        'customer_id' => $order->customer_id,
                         'cart_rule_coupon_id' => $coupon->id,
-                        'times_used'          => 1,
+                        'times_used' => 1,
                     ]);
                 }
             }

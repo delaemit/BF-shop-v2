@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Webkul\Admin\Http\Controllers\NotificationController;
 
-/**
+/*
  * Notification routes.
  */
-Route::controller(NotificationController::class)->group(function () {
+Route::controller(NotificationController::class)->group(function (): void {
     Route::get('notifications', 'index')->name('admin.notification.index');
 
     Route::get('get-notifications', 'getNotifications')->name('admin.notification.get_notification');

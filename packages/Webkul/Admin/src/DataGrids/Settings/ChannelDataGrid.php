@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Settings;
 
 use Illuminate\Support\Facades\DB;
@@ -15,7 +17,7 @@ class ChannelDataGrid extends DataGrid
     public function prepareQueryBuilder()
     {
         $queryBuilder = DB::table('channels')
-            ->leftJoin('channel_translations', function ($leftJoin) {
+            ->leftJoin('channel_translations', function ($leftJoin): void {
                 $leftJoin->on('channel_translations.channel_id', '=', 'channels.id')
                     ->where('channel_translations.locale', core()->getRequestedLocaleCode());
             })
@@ -35,65 +37,61 @@ class ChannelDataGrid extends DataGrid
         return $queryBuilder;
     }
 
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.settings.channels.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.settings.channels.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'code',
-            'label'      => trans('admin::app.settings.channels.index.datagrid.code'),
-            'type'       => 'string',
+            'index' => 'code',
+            'label' => trans('admin::app.settings.channels.index.datagrid.code'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'translated_name',
-            'label'      => trans('admin::app.settings.channels.index.datagrid.name'),
-            'type'       => 'string',
+            'index' => 'translated_name',
+            'label' => trans('admin::app.settings.channels.index.datagrid.name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'hostname',
-            'label'      => trans('admin::app.settings.channels.index.datagrid.host-name'),
-            'type'       => 'string',
+            'index' => 'hostname',
+            'label' => trans('admin::app.settings.channels.index.datagrid.host-name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('settings.channels.edit')) {
             $this->addAction([
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.settings.channels.index.datagrid.edit'),
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.settings.channels.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.settings.channels.edit', $row->id);
-                },
+                'url' => fn($row) => route('admin.settings.channels.edit', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('settings.channels.delete')) {
             $this->addAction([
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.settings.channels.index.datagrid.delete'),
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.settings.channels.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.settings.channels.delete', $row->id);
-                },
+                'url' => fn($row) => route('admin.settings.channels.delete', $row->id),
             ]);
         }
     }

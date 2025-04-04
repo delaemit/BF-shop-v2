@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | OpenAI API Key and Organization
@@ -12,7 +13,7 @@ return [
     | and organization on your OpenAI dashboard, at https://openai.com.
     */
 
-    'api_key'      => env('OPENAI_API_KEY'),
+    'api_key' => env('OPENAI_API_KEY'),
     'organization' => env('OPENAI_ORGANIZATION'),
 
     /*

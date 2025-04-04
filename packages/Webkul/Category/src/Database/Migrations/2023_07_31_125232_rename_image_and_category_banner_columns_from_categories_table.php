@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,7 +16,7 @@ return new class extends Migration
             Schema::dropColumns('categories', ['image', 'category_banner']);
         }
 
-        Schema::table('categories', function (Blueprint $table) {
+        Schema::table('categories', function (Blueprint $table): void {
             $table->text('logo_path')->nullable()->after('position');
             $table->text('banner_path')->nullable()->after('additional');
         });
@@ -30,7 +31,7 @@ return new class extends Migration
             Schema::dropColumns('categories', ['logo_path', 'banner_path']);
         }
 
-        Schema::table('categories', function (Blueprint $table) {
+        Schema::table('categories', function (Blueprint $table): void {
             $table->text('image')->nullable()->after('position');
             $table->text('category_banner')->nullable()->after('additional');
         });

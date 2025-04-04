@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'next'     => 'आगे &raquo;',
+    'next' => 'आगे &raquo;',
     'previous' => '&laquo; पिछला',
 
 ];

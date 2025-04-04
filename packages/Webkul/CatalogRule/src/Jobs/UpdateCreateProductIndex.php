@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -16,7 +18,8 @@ class UpdateCreateProductIndex implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
     public function __construct(protected $product)
@@ -29,7 +32,7 @@ class UpdateCreateProductIndex implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app(CatalogRuleIndex::class)->reIndexProduct($this->product);
     }

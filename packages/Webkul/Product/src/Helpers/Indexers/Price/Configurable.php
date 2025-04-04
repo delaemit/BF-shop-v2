@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers\Price;
 
 class Configurable extends AbstractType
@@ -12,18 +14,20 @@ class Configurable extends AbstractType
     public function getIndices()
     {
         return [
-            'min_price'         => $this->getMinimalPrice() ?? 0,
+            'min_price' => $this->getMinimalPrice() ?? 0,
             'regular_min_price' => $this->getRegularMinimalPrice() ?? 0,
-            'max_price'         => $this->getMaximumPrice() ?? 0,
+            'max_price' => $this->getMaximumPrice() ?? 0,
             'regular_max_price' => $this->getRegularMaximumPrice() ?? 0,
-            'product_id'        => $this->product->id,
-            'channel_id'        => $this->channel->id,
+            'product_id' => $this->product->id,
+            'channel_id' => $this->channel->id,
             'customer_group_id' => $this->customerGroup->id,
         ];
     }
 
     /**
      * Get product minimal price.
+     *
+     * @param mixed|null $qty
      *
      * @return float
      */
@@ -32,7 +36,7 @@ class Configurable extends AbstractType
         $minPrices = [];
 
         foreach ($this->product->variants as $variant) {
-            if (! $variant->getTypeInstance()->isSaleable()) {
+            if (!$variant->getTypeInstance()->isSaleable()) {
                 continue;
             }
 
@@ -62,7 +66,7 @@ class Configurable extends AbstractType
         $minPrices = [];
 
         foreach ($this->product->variants as $variant) {
-            if (! $variant->getTypeInstance()->isSaleable()) {
+            if (!$variant->getTypeInstance()->isSaleable()) {
                 continue;
             }
 
@@ -86,7 +90,7 @@ class Configurable extends AbstractType
         $maxPrices = [];
 
         foreach ($this->product->variants as $variant) {
-            if (! $variant->getTypeInstance()->isSaleable()) {
+            if (!$variant->getTypeInstance()->isSaleable()) {
                 continue;
             }
 
@@ -116,7 +120,7 @@ class Configurable extends AbstractType
         $maxPrices = [];
 
         foreach ($this->product->variants as $variant) {
-            if (! $variant->getTypeInstance()->isSaleable()) {
+            if (!$variant->getTypeInstance()->isSaleable()) {
                 continue;
             }
 

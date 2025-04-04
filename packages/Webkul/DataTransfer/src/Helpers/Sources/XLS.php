@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Sources;
 
 use Illuminate\Support\Arr;
@@ -60,16 +62,18 @@ class XLS extends AbstractSource
 
     /**
      * Generate error report.
+     *
+     * @param array $errors
      */
     public function generateErrorReport(array $errors): string
     {
         $this->rewind();
 
-        $spreadsheet = new Spreadsheet;
+        $spreadsheet = new Spreadsheet();
 
         $sheet = $spreadsheet->getActiveSheet();
 
-        /**
+        /*
          * Add headers with extra error column.
          */
         $sheet->fromArray(
@@ -93,13 +97,13 @@ class XLS extends AbstractSource
 
             $rowErrors = $errors[$this->getCurrentRowNumber()] ?? [];
 
-            if (! empty($rowErrors)) {
+            if (!empty($rowErrors)) {
                 $rowErrors = Arr::pluck($rowErrors, 'message');
             }
 
             $rowData[] = implode('|', $rowErrors);
 
-            $sheet->fromArray([$rowData], null, 'A'.$rowNumber++);
+            $sheet->fromArray([$rowData], null, 'A' . $rowNumber++);
 
             $this->next();
         }

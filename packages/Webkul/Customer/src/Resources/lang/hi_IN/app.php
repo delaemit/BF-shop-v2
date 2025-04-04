@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'validations' => [
         'captcha' => [
-            'captcha'  => 'कुछ गलती हुई! कृपया पुन: प्रयास करें।',
+            'captcha' => 'कुछ गलती हुई! कृपया पुन: प्रयास करें।',
             'required' => 'कृपया CAPTCHA का चयन करें',
         ],
 

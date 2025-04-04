@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\SystemConfig;
 
 use Illuminate\Support\Collection;
@@ -8,6 +10,16 @@ class Item
 {
     /**
      * Create a new Item instance.
+     *
+     * @param Collection $children
+     * @param ?array $fields
+     * @param ?string $icon
+     * @param ?string $icon_class
+     * @param ?string $info
+     * @param string $key
+     * @param string $name
+     * @param ?string $route
+     * @param ?int $sort
      */
     public function __construct(
         public Collection $children,
@@ -19,7 +31,8 @@ class Item
         public string $name,
         public ?string $route = null,
         public ?int $sort = null
-    ) {}
+    ) {
+    }
 
     /**
      * Get name of config item.
@@ -31,6 +44,8 @@ class Item
 
     /**
      * Format options.
+     *
+     * @param mixed $options
      */
     private function formatOptions($options)
     {
@@ -42,23 +57,21 @@ class Item
      */
     public function getFields(): Collection
     {
-        return collect($this->fields)->map(function ($field) {
-            return new ItemField(
-                item_key: $this->key,
-                name: $field['name'],
-                title: $field['title'],
-                info: $field['info'] ?? null,
-                type: $field['type'],
-                depends: $field['depends'] ?? null,
-                path: $field['path'] ?? null,
-                validation: $field['validation'] ?? null,
-                default: $field['default'] ?? null,
-                channel_based: $field['channel_based'] ?? null,
-                locale_based: $field['locale_based'] ?? null,
-                options: $this->formatOptions($field['options'] ?? null),
-                is_visible: true,
-            );
-        });
+        return collect($this->fields)->map(fn($field) => new ItemField(
+            item_key: $this->key,
+            name: $field['name'],
+            title: $field['title'],
+            info: $field['info'] ?? null,
+            type: $field['type'],
+            depends: $field['depends'] ?? null,
+            path: $field['path'] ?? null,
+            validation: $field['validation'] ?? null,
+            default: $field['default'] ?? null,
+            channel_based: $field['channel_based'] ?? null,
+            locale_based: $field['locale_based'] ?? null,
+            options: $this->formatOptions($field['options'] ?? null),
+            is_visible: true,
+        ));
     }
 
     /**
@@ -122,7 +135,7 @@ class Item
      */
     public function getChildren(): Collection
     {
-        if (! $this->haveChildren()) {
+        if (!$this->haveChildren()) {
             return collect();
         }
 

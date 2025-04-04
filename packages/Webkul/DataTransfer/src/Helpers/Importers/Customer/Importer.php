@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Helpers\Importers\Customer;
 
 use Illuminate\Support\Arr;
@@ -19,28 +21,28 @@ class Importer extends AbstractImporter
      *
      * @var string
      */
-    const ERROR_EMAIL_NOT_FOUND_FOR_DELETE = 'email_not_found_to_delete';
+    public const ERROR_EMAIL_NOT_FOUND_FOR_DELETE = 'email_not_found_to_delete';
 
     /**
      * Error code for duplicated email.
      *
      * @var string
      */
-    const ERROR_DUPLICATE_EMAIL = 'duplicated_email';
+    public const ERROR_DUPLICATE_EMAIL = 'duplicated_email';
 
     /**
      * Error code for duplicated phone.
      *
      * @var string
      */
-    const ERROR_DUPLICATE_PHONE = 'duplicated_phone';
+    public const ERROR_DUPLICATE_PHONE = 'duplicated_phone';
 
     /**
      * Error code for invalid attribute family code.
      *
      * @var string
      */
-    const ERROR_INVALID_CUSTOMER_GROUP_CODE = 'customer_group_code_not_found';
+    public const ERROR_INVALID_CUSTOMER_GROUP_CODE = 'customer_group_code_not_found';
 
     /**
      * Permanent entity columns.
@@ -63,9 +65,9 @@ class Importer extends AbstractImporter
      * @var string[]
      */
     protected array $messages = [
-        self::ERROR_EMAIL_NOT_FOUND_FOR_DELETE  => 'data_transfer::app.importers.customers.validation.errors.email-not-found',
-        self::ERROR_DUPLICATE_EMAIL             => 'data_transfer::app.importers.customers.validation.errors.duplicate-email',
-        self::ERROR_DUPLICATE_PHONE             => 'data_transfer::app.importers.customers.validation.errors.duplicate-phone',
+        self::ERROR_EMAIL_NOT_FOUND_FOR_DELETE => 'data_transfer::app.importers.customers.validation.errors.email-not-found',
+        self::ERROR_DUPLICATE_EMAIL => 'data_transfer::app.importers.customers.validation.errors.duplicate-email',
+        self::ERROR_DUPLICATE_PHONE => 'data_transfer::app.importers.customers.validation.errors.duplicate-phone',
         self::ERROR_INVALID_CUSTOMER_GROUP_CODE => 'data_transfer::app.importers.customers.validation.errors.invalid-customer-group',
     ];
 
@@ -98,6 +100,11 @@ class Importer extends AbstractImporter
 
     /**
      * Create a new helper instance.
+     *
+     * @param ImportBatchRepository $importBatchRepository
+     * @param CustomerRepository $customerRepository
+     * @param CustomerGroupRepository $customerGroupRepository
+     * @param Storage $customerStorage
      *
      * @return void
      */
@@ -144,23 +151,26 @@ class Importer extends AbstractImporter
 
     /**
      * Validates row.
+     *
+     * @param array $rowData
+     * @param int $rowNumber
      */
     public function validateRow(array $rowData, int $rowNumber): bool
     {
-        /**
+        /*
          * If row is already validated than no need for further validation.
          */
         if (isset($this->validatedRows[$rowNumber])) {
-            return ! $this->errorHelper->isRowInvalid($rowNumber);
+            return !$this->errorHelper->isRowInvalid($rowNumber);
         }
 
         $this->validatedRows[$rowNumber] = true;
 
-        /**
+        /*
          * If import action is delete than no need for further validation.
          */
-        if ($this->import->action == Import::ACTION_DELETE) {
-            if (! $this->isEmailExist($rowData['email'])) {
+        if ($this->import->action === Import::ACTION_DELETE) {
+            if (!$this->isEmailExist($rowData['email'])) {
                 $this->skipRow($rowNumber, self::ERROR_EMAIL_NOT_FOUND_FOR_DELETE);
 
                 return false;
@@ -169,10 +179,10 @@ class Importer extends AbstractImporter
             return true;
         }
 
-        /**
+        /*
          * Check if customer group code exists.
          */
-        if (! $this->customerGroups->where('code', $rowData['customer_group_code'])->first()) {
+        if (!$this->customerGroups->where('code', $rowData['customer_group_code'])->first()) {
             $this->skipRow($rowNumber, self::ERROR_INVALID_CUSTOMER_GROUP_CODE, 'customer_group_code');
 
             return false;
@@ -183,17 +193,17 @@ class Importer extends AbstractImporter
          */
         $validator = Validator::make($rowData, [
             'customer_group_code' => 'required',
-            'first_name'          => 'required|string',
-            'last_name'           => 'required|string',
-            'gender'              => 'required:in,Male,Female,Other',
-            'email'               => 'required|email',
-            'date_of_birth'       => [
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'gender' => 'required:in,Male,Female,Other',
+            'email' => 'required|email',
+            'date_of_birth' => [
                 'required',
                 'date_format:Y-m-d',
                 'before:today',
                 'regex:/^\d{4}-\d{2}-\d{2}$/',
             ],
-            'phone'               => 'regex:/^\+?[0-9]{7,15}$/',
+            'phone' => 'regex:/^\+?[0-9]{7,15}$/',
         ]);
 
         if ($validator->fails()) {
@@ -206,10 +216,10 @@ class Importer extends AbstractImporter
             }
         }
 
-        /**
+        /*
          * Check if email is unique.
          */
-        if (! in_array($rowData['email'], $this->emails)) {
+        if (!in_array($rowData['email'], $this->emails, true)) {
             $this->emails[] = $rowData['email'];
         } else {
             $message = sprintf(
@@ -220,11 +230,11 @@ class Importer extends AbstractImporter
             $this->skipRow($rowNumber, self::ERROR_DUPLICATE_EMAIL, 'email', $message);
         }
 
-        /**
+        /*
          * Check if phone is unique.
          */
-        if (! in_array($rowData['phone'], $this->phones)) {
-            if (! empty($rowData['phone'])) {
+        if (!in_array($rowData['phone'], $this->phones, true)) {
+            if (!empty($rowData['phone'])) {
                 $this->phones[] = $rowData['phone'];
             }
         } else {
@@ -236,17 +246,19 @@ class Importer extends AbstractImporter
             $this->skipRow($rowNumber, self::ERROR_DUPLICATE_PHONE, 'phone', $message);
         }
 
-        return ! $this->errorHelper->isRowInvalid($rowNumber);
+        return !$this->errorHelper->isRowInvalid($rowNumber);
     }
 
     /**
      * Start the import process.
+     *
+     * @param ImportBatchContract $batch
      */
     public function importBatch(ImportBatchContract $batch): bool
     {
         Event::dispatch('data_transfer.imports.batch.import.before', $batch);
 
-        if ($batch->import->action == Import::ACTION_DELETE) {
+        if ($batch->import->action === Import::ACTION_DELETE) {
             $this->deleteCustomers($batch);
         } else {
             $this->saveCustomersData($batch);
@@ -258,7 +270,7 @@ class Importer extends AbstractImporter
         $batch = $this->importBatchRepository->update([
             'state' => Import::STATE_PROCESSED,
 
-            'summary'      => [
+            'summary' => [
                 'created' => $this->getCreatedItemsCount(),
                 'updated' => $this->getUpdatedItemsCount(),
                 'deleted' => $this->getDeletedItemsCount(),
@@ -272,10 +284,12 @@ class Importer extends AbstractImporter
 
     /**
      * Delete customers from current batch.
+     *
+     * @param ImportBatchContract $batch
      */
     protected function deleteCustomers(ImportBatchContract $batch): bool
     {
-        /**
+        /*
          * Load customer storage with batch emails.
          */
         $this->customerStorage->load(Arr::pluck($batch->data, 'email'));
@@ -283,7 +297,7 @@ class Importer extends AbstractImporter
         $idsToDelete = [];
 
         foreach ($batch->data as $rowData) {
-            if (! $this->isEmailExist($rowData['email'])) {
+            if (!$this->isEmailExist($rowData['email'])) {
                 continue;
             }
 
@@ -301,10 +315,12 @@ class Importer extends AbstractImporter
 
     /**
      * Save customers from current batch.
+     *
+     * @param ImportBatchContract $batch
      */
     protected function saveCustomersData(ImportBatchContract $batch): bool
     {
-        /**
+        /*
          * Load customer storage with batch email.
          */
         $this->customerStorage->load(Arr::pluck($batch->data, 'email'));
@@ -312,7 +328,7 @@ class Importer extends AbstractImporter
         $customers = [];
 
         foreach ($batch->data as $rowData) {
-            /**
+            /*
              * Prepare customers for import
              */
             $this->prepareCustomers($rowData, $customers);
@@ -325,6 +341,9 @@ class Importer extends AbstractImporter
 
     /**
      * Prepare customers from current batch.
+     *
+     * @param array $rowData
+     * @param array $customers
      */
     public function prepareCustomers(array $rowData, array &$customers): void
     {
@@ -341,18 +360,20 @@ class Importer extends AbstractImporter
         } else {
             $customers['insert'][$rowData['email']] = array_merge($attributes, [
                 'customer_group_id' => $customerGroupId,
-                'created_at'        => $rowData['created_at'] ?? now(),
-                'updated_at'        => $rowData['updated_at'] ?? now(),
+                'created_at' => $rowData['created_at'] ?? now(),
+                'updated_at' => $rowData['updated_at'] ?? now(),
             ]);
         }
     }
 
     /**
      * Save customers from current batch.
+     *
+     * @param array $customers
      */
     public function saveCustomers(array $customers): void
     {
-        if (! empty($customers['update'])) {
+        if (!empty($customers['update'])) {
             $this->updatedItemsCount += count($customers['update']);
 
             $this->customerRepository->upsert(
@@ -361,7 +382,7 @@ class Importer extends AbstractImporter
             );
         }
 
-        if (! empty($customers['insert'])) {
+        if (!empty($customers['insert'])) {
             $this->createdItemsCount += count($customers['insert']);
 
             $this->customerRepository->insert($customers['insert']);
@@ -370,6 +391,8 @@ class Importer extends AbstractImporter
 
     /**
      * Check if email exists.
+     *
+     * @param string $email
      */
     public function isEmailExist(string $email): bool
     {

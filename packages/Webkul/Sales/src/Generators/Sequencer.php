@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Generators;
 
 use Webkul\Sales\Contracts\Sequencer as SequencerContract;
@@ -44,10 +46,11 @@ class Sequencer implements SequencerContract
     /**
      * Set length from the core config.
      *
-     * @param  string  $configKey
+     * @param string $configKey
+     *
      * @return void
      */
-    public function setLength($configKey)
+    public function setLength($configKey): void
     {
         $this->length = core()->getConfigData($configKey);
     }
@@ -55,10 +58,11 @@ class Sequencer implements SequencerContract
     /**
      * Set prefix from the core config.
      *
-     * @param  string  $configKey
+     * @param string $configKey
+     *
      * @return void
      */
-    public function setPrefix($configKey)
+    public function setPrefix($configKey): void
     {
         $this->prefix = core()->getConfigData($configKey);
     }
@@ -66,10 +70,11 @@ class Sequencer implements SequencerContract
     /**
      * Set suffix from the core config.
      *
-     * @param  string  $configKey
+     * @param string $configKey
+     *
      * @return void
      */
-    public function setSuffix($configKey)
+    public function setSuffix($configKey): void
     {
         $this->suffix = core()->getConfigData($configKey);
     }
@@ -77,10 +82,11 @@ class Sequencer implements SequencerContract
     /**
      * Set generator class from the core config.
      *
-     * @param  string  $configKey
+     * @param string $configKey
+     *
      * @return void
      */
-    public function setGeneratorClass($configKey)
+    public function setGeneratorClass($configKey): void
     {
         $this->generatorClass = core()->getConfigData($configKey);
     }
@@ -108,9 +114,9 @@ class Sequencer implements SequencerContract
      */
     public function generate(): string
     {
-        return $this->prefix.sprintf(
+        return $this->prefix . sprintf(
             "%0{$this->length}d",
-            ($this->lastId + 1)
-        ).($this->suffix);
+            $this->lastId + 1
+        ) . $this->suffix;
     }
 }

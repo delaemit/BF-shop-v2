@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    /**
+    /*
      * Skip attribute during product copy.
      *
      * Supported Relations: ['categories', 'inventories', 'customer_group_prices', 'images', 'videos', 'product_relations']

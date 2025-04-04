@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -33,18 +35,16 @@ class LocaleFactory extends Factory
             ->exists());
 
         return [
-            'code'      => $languageCode,
-            'name'      => $this->faker->country,
+            'code' => $languageCode,
+            'name' => $this->faker->country,
             'direction' => 'ltr',
         ];
     }
 
-    public function rtl(): LocaleFactory
+    public function rtl(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'direction' => 'rtl',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'direction' => 'rtl',
+        ]);
     }
 }

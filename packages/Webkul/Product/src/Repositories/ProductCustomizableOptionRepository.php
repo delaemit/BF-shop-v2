@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Container\Container;
@@ -11,6 +13,9 @@ class ProductCustomizableOptionRepository extends Repository
 {
     /**
      * Create a new repository instance.
+     *
+     * @param ProductCustomizableOptionPriceRepository $productCustomizableOptionPriceRepository
+     * @param Container $container
      *
      * @return void
      */
@@ -32,11 +37,12 @@ class ProductCustomizableOptionRepository extends Repository
     /**
      * Save customizable options.
      *
-     * @param  array  $data
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param array $data
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function saveCustomizableOptions($data, $product)
+    public function saveCustomizableOptions($data, $product): void
     {
         $previousCustomizableOptionIds = $product->customizable_options()->pluck('id');
 

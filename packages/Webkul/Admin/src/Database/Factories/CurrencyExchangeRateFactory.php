@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +22,7 @@ class CurrencyExchangeRateFactory extends Factory
     public function definition()
     {
         return [
-            'rate' => rand(1, 100),
+            'rate' => random_int(1, 100),
         ];
     }
 }

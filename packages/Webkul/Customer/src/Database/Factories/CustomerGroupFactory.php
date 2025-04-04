@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,9 +24,9 @@ class CustomerGroupFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'            => ucfirst($this->faker->word),
+            'name' => ucfirst($this->faker->word),
             'is_user_defined' => $this->faker->boolean,
-            'code'            => $this->faker->regexify('/^[a-zA-Z]+[a-zA-Z0-9_]+$/'),
+            'code' => $this->faker->regexify('/^[a-zA-Z]+[a-zA-Z0-9_]+$/'),
         ];
     }
 }

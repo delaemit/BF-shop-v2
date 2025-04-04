@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Contracts;
 
-interface CompareItem {}
+use Webkul\Core\Contracts\ModelContract;
+
+interface CompareItem extends ModelContract
+{
+}

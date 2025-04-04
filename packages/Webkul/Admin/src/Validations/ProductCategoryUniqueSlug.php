@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Validations;
 
 use Illuminate\Contracts\Validation\Rule;
@@ -28,25 +30,27 @@ class ProductCategoryUniqueSlug implements Rule
     /**
      * Constructor.
      *
-     * @param  string  $tableName
-     * @param  string  $id
+     * @param string $tableName
+     * @param string $id
      */
     public function __construct(
         protected $tableName = null,
         protected $id = null
-    ) {}
+    ) {
+    }
 
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed $value
+     *
      * @return bool
      */
     public function passes($attribute, $value)
     {
-        if (in_array($value, $this->reservedSlugs)) {
-            return ! ($this->isSlugReserved = true);
+        if (in_array($value, $this->reservedSlugs, true)) {
+            return !($this->isSlugReserved = true);
         }
 
         return $this->isSlugUnique($value);
@@ -69,18 +73,20 @@ class ProductCategoryUniqueSlug implements Rule
     /**
      * Checks slug is unique or not.
      *
-     * @param  string  $slug
+     * @param string $slug
+     *
      * @return bool
      */
     protected function isSlugUnique($slug)
     {
-        return ! $this->isSlugExistsInCategories($slug) && ! $this->isSlugExistsInProducts($slug);
+        return !$this->isSlugExistsInCategories($slug) && !$this->isSlugExistsInProducts($slug);
     }
 
     /**
      * Is slug is exists in categories.
      *
-     * @param  string  $slug
+     * @param string $slug
+     *
      * @return bool
      */
     protected function isSlugExistsInCategories($slug)
@@ -106,12 +112,13 @@ class ProductCategoryUniqueSlug implements Rule
     /**
      * Is slug is exists in products.
      *
-     * @param  string  $slug
+     * @param string $slug
+     *
      * @return bool
      */
     protected function isSlugExistsInProducts($slug)
     {
-        if (core()->getConfigData('catalog.products.search.engine') == 'elastic') {
+        if (core()->getConfigData('catalog.products.search.engine') === 'elastic') {
             $searchEngine = core()->getConfigData('catalog.products.search.storefront_mode');
         }
 
@@ -124,7 +131,7 @@ class ProductCategoryUniqueSlug implements Rule
             && $this->tableName
             && $this->id
             && $this->tableName === 'products'
-            && $this->id == $product->id
+            && $this->id === $product->id
         ) {
             $product = null;
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Mail\Customer;
 
 use Illuminate\Mail\Mailables\Address;
@@ -13,9 +15,13 @@ class SubscriptionNotification extends Mailable
     /**
      * Create a mailable instance
      *
+     * @param SubscribersList $subscribersList
+     *
      * @return void
      */
-    public function __construct(public SubscribersList $subscribersList) {}
+    public function __construct(public SubscribersList $subscribersList)
+    {
+    }
 
     /**
      * Get the message envelope.
@@ -38,7 +44,7 @@ class SubscriptionNotification extends Mailable
         return new Content(
             view: 'shop::emails.customers.subscribed',
             with: [
-                'fullName' => trim($this->subscribersList->first_name.' '.$this->subscribersList->last_name),
+                'fullName' => trim($this->subscribersList->first_name . ' ' . $this->subscribersList->last_name),
             ],
         );
     }

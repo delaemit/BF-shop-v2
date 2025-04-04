@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -36,12 +38,12 @@ class ChannelFactory extends Factory
     public function definition(): array
     {
         return [
-            'code'              => $code = $this->faker->unique()->word(),
-            'theme'             => $code,
-            'hostname'          => 'http://'.$this->faker->ipv4(),
-            'root_category_id'  => 1,
+            'code' => $code = $this->faker->unique()->word(),
+            'theme' => $code,
+            'hostname' => 'http://' . $this->faker->ipv4(),
+            'root_category_id' => 1,
             'default_locale_id' => 1,
-            'base_currency_id'  => 1,
+            'base_currency_id' => 1,
         ];
     }
 }

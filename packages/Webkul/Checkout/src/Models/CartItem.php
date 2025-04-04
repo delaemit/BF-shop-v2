@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Checkout\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -40,7 +42,7 @@ class CartItem extends Model implements CartItemContract
             return $this->typeInstance;
         }
 
-        $this->typeInstance = app(config('product_types.'.$this->type.'.class'));
+        $this->typeInstance = app(config('product_types.' . $this->type . '.class'));
 
         if ($this->product) {
             $this->typeInstance->setProduct($this->product);

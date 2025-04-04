@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Traits;
 
 use enshrined\svgSanitize\Sanitizer as MainSanitizer;
@@ -18,14 +20,16 @@ trait Sanitizer
     /**
      * Sanitize SVG file.
      *
-     * @param  string  $path
+     * @param string $path
+     * @param mixed $mimeType
+     *
      * @return void
      */
-    public function sanitizeSVG($path, $mimeType)
+    public function sanitizeSVG($path, $mimeType): void
     {
         if ($this->checkMimeType($mimeType)) {
             /* sanitizer instance */
-            $sanitizer = new MainSanitizer;
+            $sanitizer = new MainSanitizer();
 
             /* grab svg file */
             $dirtySVG = Storage::get($path);
@@ -38,11 +42,13 @@ trait Sanitizer
     /**
      * Sanitize SVG file.
      *
-     * @param  string  $path
+     * @param string $path
+     * @param mixed $mimeType
+     *
      * @return void
      */
     public function checkMimeType($mimeType)
     {
-        return in_array($mimeType, $this->mimeTypes);
+        return in_array($mimeType, $this->mimeTypes, true);
     }
 }

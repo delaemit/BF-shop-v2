@@ -1,5 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Contracts;
 
-interface Channel {}
+/**
+ * @mixin \Webkul\Core\Models\Channel
+ */
+interface Channel extends ModelContract
+{
+}

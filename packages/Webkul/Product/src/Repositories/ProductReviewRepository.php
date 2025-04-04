@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -21,11 +23,9 @@ class ProductReviewRepository extends Repository
      */
     public function getCustomerReview()
     {
-        $reviews = $this->model
+        return $this->model
             ->where(['customer_id' => auth()->guard('customer')->user()->id])
             ->with('product')
             ->paginate(5);
-
-        return $reviews;
     }
 }

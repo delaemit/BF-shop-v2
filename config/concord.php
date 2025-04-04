@@ -1,13 +1,14 @@
 <?php
 
-return [
+declare(strict_types=1);
 
-    /**
+return [
+    /*
      * The path of the convention file.
      */
     'convention' => Webkul\Core\CoreConvention::class,
 
-    /**
+    /*
      * Example:
      *
      * VendorA\ModuleX\Providers\ModuleServiceProvider::class,
@@ -43,5 +44,4 @@ return [
         \Webkul\Theme\Providers\ModuleServiceProvider::class,
         \Webkul\User\Providers\ModuleServiceProvider::class,
     ],
-
 ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Listeners;
 
 use Webkul\CatalogRule\Jobs\DeleteCatalogRuleIndex as DeleteCatalogRuleIndexJob;
@@ -12,27 +14,33 @@ class CatalogRule
     /**
      * Create a new listener instance.
      *
+     * @param CatalogRuleRepository $catalogRuleRepository
+     * @param CatalogRuleProductPriceRepository $catalogRuleProductPriceRepository
+     *
      * @return void
      */
     public function __construct(
         protected CatalogRuleRepository $catalogRuleRepository,
         protected CatalogRuleProductPriceRepository $catalogRuleProductPriceRepository
-    ) {}
+    ) {
+    }
 
     /**
-     * @param  \Webkul\CatalogRule\Contracts\CatalogRule  $catalogRule
+     * @param \Webkul\CatalogRule\Contracts\CatalogRule $catalogRule
+     *
      * @return void
      */
-    public function afterUpdateCreate($catalogRule)
+    public function afterUpdateCreate($catalogRule): void
     {
         UpdateCreateCatalogRuleIndexJob::dispatch($catalogRule);
     }
 
     /**
-     * @param  int  $catalogRuleId
+     * @param int $catalogRuleId
+     *
      * @return void
      */
-    public function beforeUpdate($catalogRuleId)
+    public function beforeUpdate($catalogRuleId): void
     {
         $catalogRule = $this->catalogRuleRepository->find($catalogRuleId);
 
@@ -44,10 +52,11 @@ class CatalogRule
     }
 
     /**
-     * @param  int  $catalogRuleId
+     * @param int $catalogRuleId
+     *
      * @return void
      */
-    public function beforeDelete($catalogRuleId)
+    public function beforeDelete($catalogRuleId): void
     {
         $catalogRule = $this->catalogRuleRepository->find($catalogRuleId);
 

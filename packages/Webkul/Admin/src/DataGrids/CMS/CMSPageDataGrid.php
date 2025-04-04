@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\CMS;
 
 use Illuminate\Support\Facades\DB;
@@ -24,7 +26,7 @@ class CMSPageDataGrid extends DataGrid
                 'cms_page_translations.locale'
             )
             ->addSelect(DB::raw('GROUP_CONCAT(DISTINCT code) as channel'))
-            ->join('cms_page_translations', function ($join) use ($currentLocale) {
+            ->join('cms_page_translations', function ($join) use ($currentLocale): void {
                 $join->on('cms_pages.id', '=', 'cms_page_translations.cms_page_id')
                     ->where('cms_page_translations.locale', '=', $currentLocale);
             })
@@ -44,46 +46,46 @@ class CMSPageDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.cms.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.cms.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'              => 'channel',
-            'label'              => trans('admin::app.cms.index.datagrid.channel'),
-            'type'               => 'string',
-            'filterable'         => true,
-            'filterable_type'    => 'dropdown',
+            'index' => 'channel',
+            'label' => trans('admin::app.cms.index.datagrid.channel'),
+            'type' => 'string',
+            'filterable' => true,
+            'filterable_type' => 'dropdown',
             'filterable_options' => collect(core()->getAllChannels())
-                ->map(fn ($channel) => ['label' => $channel->name, 'value' => $channel->id])
+                ->map(fn($channel) => ['label' => $channel->name, 'value' => $channel->id])
                 ->values()
                 ->toArray(),
-            'sortable'   => true,
+            'sortable' => true,
             'visibility' => false,
         ]);
 
         $this->addColumn([
-            'index'      => 'page_title',
-            'label'      => trans('admin::app.cms.index.datagrid.page-title'),
-            'type'       => 'string',
+            'index' => 'page_title',
+            'label' => trans('admin::app.cms.index.datagrid.page-title'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'url_key',
-            'label'      => trans('admin::app.cms.index.datagrid.url-key'),
-            'type'       => 'string',
+            'index' => 'url_key',
+            'label' => trans('admin::app.cms.index.datagrid.url-key'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
@@ -92,38 +94,32 @@ class CMSPageDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         $this->addAction([
-            'icon'   => 'icon-view',
-            'title'  => trans('admin::app.cms.index.datagrid.view'),
+            'icon' => 'icon-view',
+            'title' => trans('admin::app.cms.index.datagrid.view'),
             'method' => 'GET',
-            'index'  => 'url_key',
+            'index' => 'url_key',
             'target' => '_blank',
-            'url'    => function ($row) {
-                return route('shop.cms.page', $row->url_key);
-            },
+            'url' => fn($row) => route('shop.cms.page', $row->url_key),
         ]);
 
         if (bouncer()->hasPermission('cms.edit')) {
             $this->addAction([
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.cms.index.datagrid.edit'),
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.cms.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.cms.edit', $row->id);
-                },
+                'url' => fn($row) => route('admin.cms.edit', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('cms.delete')) {
             $this->addAction([
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.cms.index.datagrid.delete'),
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.cms.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.cms.delete', $row->id);
-                },
+                'url' => fn($row) => route('admin.cms.delete', $row->id),
             ]);
         }
     }
@@ -133,13 +129,13 @@ class CMSPageDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareMassActions()
+    public function prepareMassActions(): void
     {
         if (bouncer()->hasPermission('cms.delete')) {
             $this->addMassAction([
-                'title'  => trans('admin::app.cms.index.datagrid.delete'),
+                'title' => trans('admin::app.cms.index.datagrid.delete'),
                 'method' => 'POST',
-                'url'    => route('admin.cms.mass_delete'),
+                'url' => route('admin.cms.mass_delete'),
             ]);
         }
     }

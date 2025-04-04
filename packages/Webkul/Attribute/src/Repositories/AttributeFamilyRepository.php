@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Repositories;
 
 use Illuminate\Container\Container;
@@ -10,6 +12,10 @@ class AttributeFamilyRepository extends Repository
 {
     /**
      * Create a new repository instance.
+     *
+     * @param AttributeRepository $attributeRepository
+     * @param AttributeGroupRepository $attributeGroupRepository
+     * @param Container $container
      *
      * @return void
      */
@@ -30,6 +36,8 @@ class AttributeFamilyRepository extends Repository
     }
 
     /**
+     * @param array $data
+     *
      * @return \Webkul\Attribute\Contracts\AttributeFamily
      */
     public function create(array $data)
@@ -60,7 +68,9 @@ class AttributeFamilyRepository extends Repository
     }
 
     /**
-     * @param  int  $id
+     * @param int $id
+     * @param array $data
+     *
      * @return \Webkul\Attribute\Contracts\AttributeFamily
      */
     public function update(array $data, $id)
@@ -133,11 +143,11 @@ class AttributeFamilyRepository extends Repository
 
         foreach ($attributeFamilies as $key => $attributeFamily) {
             if (
-                $attributeFamily->name != null
-                || $attributeFamily->name != ''
+                $attributeFamily->name !== null
+                || $attributeFamily->name !== ''
             ) {
                 $trimmed[$key] = [
-                    'id'   => $attributeFamily->id,
+                    'id' => $attributeFamily->id,
                     'code' => $attributeFamily->code,
                     'name' => $attributeFamily->name,
                 ];

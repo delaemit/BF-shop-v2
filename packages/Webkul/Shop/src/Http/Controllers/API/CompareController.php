@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -13,12 +15,16 @@ class CompareController extends APIController
     /**
      * Create a new controller instance.
      *
+     * @param CompareItemRepository $compareItemRepository
+     * @param ProductRepository $productRepository
+     *
      * @return void
      */
     public function __construct(
         protected CompareItemRepository $compareItemRepository,
         protected ProductRepository $productRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Address route index page.
@@ -27,7 +33,7 @@ class CompareController extends APIController
     {
         $productIds = request()->input('product_ids') ?? [];
 
-        /**
+        /*
          * This will handle for customers.
          */
         if ($customer = auth()->guard('customer')->user()) {
@@ -56,8 +62,8 @@ class CompareController extends APIController
         ]);
 
         $compareProduct = $this->compareItemRepository->findOneByField([
-            'customer_id'  => auth()->guard('customer')->user()->id,
-            'product_id'   => request()->input('product_id'),
+            'customer_id' => auth()->guard('customer')->user()->id,
+            'product_id' => request()->input('product_id'),
         ]);
 
         if ($compareProduct) {
@@ -68,7 +74,7 @@ class CompareController extends APIController
 
         $this->compareItemRepository->create([
             'customer_id' => auth()->guard('customer')->user()->id,
-            'product_id'  => request()->input('product_id'),
+            'product_id' => request()->input('product_id'),
         ]);
 
         return new JsonResource([
@@ -82,11 +88,11 @@ class CompareController extends APIController
     public function destroy(): JsonResource
     {
         $success = $this->compareItemRepository->deleteWhere([
-            'product_id'  => request()->input('product_id'),
+            'product_id' => request()->input('product_id'),
             'customer_id' => auth()->guard('customer')->user()->id,
         ]);
 
-        if (! $success) {
+        if (!$success) {
             return new JsonResource([
                 'message' => trans('shop::app.compare.remove-error'),
             ]);
@@ -104,7 +110,7 @@ class CompareController extends APIController
             ->get();
 
         return new JsonResource([
-            'data'    => CompareItemResource::collection($products),
+            'data' => CompareItemResource::collection($products),
             'message' => trans('shop::app.compare.remove-success'),
         ]);
     }
@@ -118,7 +124,7 @@ class CompareController extends APIController
             'customer_id' => auth()->guard('customer')->user()->id,
         ]);
 
-        if (! $success) {
+        if (!$success) {
             return new JsonResource([
                 'message' => trans('shop::app.compare.remove-error'),
             ]);

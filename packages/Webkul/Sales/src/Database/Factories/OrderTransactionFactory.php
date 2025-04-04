@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,9 +23,9 @@ class OrderTransactionFactory extends Factory
     {
         return [
             'transaction_id' => bin2hex(random_bytes(20)),
-            'type'           => 'cashondelivery',
+            'type' => 'cashondelivery',
             'payment_method' => 'cashondelivery',
-            'status'         => 'paid',
+            'status' => 'paid',
         ];
     }
 }

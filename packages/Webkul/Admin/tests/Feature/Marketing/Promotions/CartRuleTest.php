@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\CartRule\Models\CartRule;
 
 use function Pest\Laravel\deleteJson;
@@ -47,7 +49,7 @@ it('should store the newly created cart rule', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.marketing.promotions.cart_rules.store', [
-        'name'        => $name = fake()->name(),
+        'name' => $name = fake()->name(),
         'description' => $description = substr(fake()->paragraph(), 0, 50),
 
         'channels' => [
@@ -61,10 +63,10 @@ it('should store the newly created cart rule', function () {
         ],
 
         'discount_amount' => 0,
-        'coupon_type'     => 0,
-        'action_type'     => $actionType = fake()->randomElement(['by_percent', 'by_fixed', 'cart_fixed', 'buy_x_get_y']),
-        'starts_from'     => '',
-        'ends_till'       => '',
+        'coupon_type' => 0,
+        'action_type' => $actionType = fake()->randomElement(['by_percent', 'by_fixed', 'cart_fixed', 'buy_x_get_y']),
+        'starts_from' => '',
+        'ends_till' => '',
     ]))
         ->assertRedirect(route('admin.marketing.promotions.cart_rules.index'))
         ->isRedirection();
@@ -72,7 +74,7 @@ it('should store the newly created cart rule', function () {
     $this->assertModelWise([
         CartRule::class => [
             [
-                'name'        => $name,
+                'name' => $name,
                 'description' => $description,
                 'action_type' => $actionType,
             ],
@@ -141,7 +143,7 @@ it('should update the cart rule', function () {
     $this->loginAsAdmin();
 
     putJson(route('admin.marketing.promotions.cart_rules.update', $cartRule->id), [
-        'name'        => $name = fake()->name(),
+        'name' => $name = fake()->name(),
         'description' => $description = substr(substr(fake()->paragraph(), 0, 50), 0, 50),
 
         'channels' => [
@@ -155,10 +157,10 @@ it('should update the cart rule', function () {
         ],
 
         'discount_amount' => 0,
-        'coupon_type'     => 0,
-        'action_type'     => $actionType = fake()->randomElement(['by_percent', 'by_fixed', 'cart_fixed', 'buy_x_get_y']),
-        'starts_from'     => '',
-        'ends_till'       => '',
+        'coupon_type' => 0,
+        'action_type' => $actionType = fake()->randomElement(['by_percent', 'by_fixed', 'cart_fixed', 'buy_x_get_y']),
+        'starts_from' => '',
+        'ends_till' => '',
     ])
         ->assertRedirect(route('admin.marketing.promotions.cart_rules.index'))
         ->isRedirection();
@@ -166,7 +168,7 @@ it('should update the cart rule', function () {
     $this->assertModelWise([
         CartRule::class => [
             [
-                'name'        => $name,
+                'name' => $name,
                 'description' => $description,
                 'action_type' => $actionType,
             ],

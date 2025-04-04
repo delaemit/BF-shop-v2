@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Paypal\Helpers;
 
 use Webkul\Paypal\Payment\Standard;
@@ -25,34 +27,39 @@ class Ipn
     /**
      * Create a new helper instance.
      *
+     * @param Standard $paypalStandard
+     * @param OrderRepository $orderRepository
+     * @param InvoiceRepository $invoiceRepository
+     *
      * @return void
      */
     public function __construct(
         protected Standard $paypalStandard,
         protected OrderRepository $orderRepository,
         protected InvoiceRepository $invoiceRepository
-    ) {}
+    ) {
+    }
 
     /**
      * This function process the IPN sent from paypal end.
      *
-     * @param  array  $post
-     * @return null|void|\Exception
+     * @param array $post
+     *
+     * @return \Exception|void|null
      */
     public function processIpn($post)
     {
         $this->post = $post;
 
-        if (! $this->postBack()) {
+        if (!$this->postBack()) {
             return;
         }
 
         try {
             if (
                 isset($this->post['txn_type'])
-                && $this->post['txn_type'] == 'recurring_payment'
+                && $this->post['txn_type'] === 'recurring_payment'
             ) {
-
             } else {
                 $this->getOrder();
 
@@ -68,7 +75,7 @@ class Ipn
      *
      * @return void
      */
-    protected function getOrder()
+    protected function getOrder(): void
     {
         if (empty($this->order)) {
             $this->order = $this->orderRepository->findOneByField(['cart_id' => $this->post['invoice']]);
@@ -80,17 +87,16 @@ class Ipn
      *
      * @return void
      */
-    protected function processOrder()
+    protected function processOrder(): void
     {
-        if ($this->post['payment_status'] == 'Completed') {
-            if ($this->post['mc_gross'] != $this->order->grand_total) {
+        if ($this->post['payment_status'] === 'Completed') {
+            if ($this->post['mc_gross'] !== $this->order->grand_total) {
                 return;
-            } else {
-                $this->orderRepository->update(['status' => 'processing'], $this->order->id);
+            }
+            $this->orderRepository->update(['status' => 'processing'], $this->order->id);
 
-                if ($this->order->canInvoice()) {
-                    $invoice = $this->invoiceRepository->create($this->prepareInvoiceData());
-                }
+            if ($this->order->canInvoice()) {
+                $invoice = $this->invoiceRepository->create($this->prepareInvoiceData());
             }
         }
     }
@@ -123,11 +129,11 @@ class Ipn
         $request = curl_init();
 
         curl_setopt_array($request, [
-            CURLOPT_URL            => $url,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => http_build_query(['cmd' => '_notify-validate'] + $this->post),
+            CURLOPT_URL => $url,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query(['cmd' => '_notify-validate'] + $this->post),
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER         => false,
+            CURLOPT_HEADER => false,
         ]);
 
         $response = curl_exec($request);
@@ -135,7 +141,7 @@ class Ipn
 
         curl_close($request);
 
-        if ($status == 200 && $response == 'VERIFIED') {
+        if ($status === 200 && $response === 'VERIFIED') {
             return true;
         }
 

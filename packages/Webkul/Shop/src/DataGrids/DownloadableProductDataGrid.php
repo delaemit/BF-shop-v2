@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\DataGrids;
 
 use Illuminate\Support\Facades\DB;
@@ -10,17 +12,17 @@ class DownloadableProductDataGrid extends DataGrid
     /**
      * Downloadable Product status Expired.
      */
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * Downloadable Product status Pending.
      */
-    const STATUS_PENDING = 'pending';
+    public const STATUS_PENDING = 'pending';
 
     /**
      * Downloadable Product status Available
      */
-    const STATUS_AVAILABLE = 'available';
+    public const STATUS_AVAILABLE = 'available';
 
     /**
      * Prepare query builder.
@@ -34,7 +36,7 @@ class DownloadableProductDataGrid extends DataGrid
             ->leftJoin('orders', 'downloadable_link_purchased.order_id', '=', 'orders.id')
             ->leftJoin('invoices', 'downloadable_link_purchased.order_id', '=', 'invoices.order_id')
             ->addSelect('downloadable_link_purchased.*', 'invoices.state as invoice_state', 'orders.increment_id')
-            ->addSelect(DB::raw('('.DB::getTablePrefix().'downloadable_link_purchased.download_bought - '.DB::getTablePrefix().'downloadable_link_purchased.download_canceled - '.DB::getTablePrefix().'downloadable_link_purchased.download_used) as remaining_downloads'))
+            ->addSelect(DB::raw('(' . DB::getTablePrefix() . 'downloadable_link_purchased.download_bought - ' . DB::getTablePrefix() . 'downloadable_link_purchased.download_canceled - ' . DB::getTablePrefix() . 'downloadable_link_purchased.download_used) as remaining_downloads'))
             ->where('downloadable_link_purchased.customer_id', auth()->guard('customer')->user()->id);
 
         $this->addFilter('status', 'downloadable_link_purchased.status');
@@ -49,51 +51,51 @@ class DownloadableProductDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'increment_id',
-            'label'      => trans('shop::app.customers.account.downloadable-products.orderId'),
-            'type'       => 'string',
+            'index' => 'increment_id',
+            'label' => trans('shop::app.customers.account.downloadable-products.orderId'),
+            'type' => 'string',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'product_name',
-            'label'      => trans('shop::app.customers.account.downloadable-products.title'),
-            'type'       => 'string',
+            'index' => 'product_name',
+            'label' => trans('shop::app.customers.account.downloadable-products.title'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
-            'closure'    => function ($row) {
+            'sortable' => true,
+            'closure' => function ($row) {
                 if (
-                    $row->status == 'pending'
-                    || $row->status == 'expired'
+                    $row->status === 'pending'
+                    || $row->status === 'expired'
                     || $row->invoice_state !== 'paid'
                 ) {
                     return $row->product_name;
                 }
 
-                return '<a class="text-blue-600" href="'.route('shop.customers.account.downloadable_products.download', $row->id).'" target="_blank">'.$row->product_name.'</a>';
+                return '<a class="text-blue-600" href="' . route('shop.customers.account.downloadable_products.download', $row->id) . '" target="_blank">' . $row->product_name . '</a>';
             },
         ]);
 
         $this->addColumn([
-            'index'           => 'created_at',
-            'label'           => trans('shop::app.customers.account.downloadable-products.date'),
-            'type'            => 'date',
-            'filterable'      => true,
+            'index' => 'created_at',
+            'label' => trans('shop::app.customers.account.downloadable-products.date'),
+            'type' => 'date',
+            'filterable' => true,
             'filterable_type' => 'date_range',
-            'sortable'        => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'              => 'status',
-            'label'              => trans('shop::app.customers.account.downloadable-products.status'),
-            'type'               => 'string',
-            'filterable'         => true,
-            'filterable_type'    => 'dropdown',
+            'index' => 'status',
+            'label' => trans('shop::app.customers.account.downloadable-products.status'),
+            'type' => 'string',
+            'filterable' => true,
+            'filterable_type' => 'dropdown',
             'filterable_options' => [
                 [
                     'label' => trans('shop::app.customers.account.downloadable-products.expired'),
@@ -108,29 +110,27 @@ class DownloadableProductDataGrid extends DataGrid
                     'value' => self::STATUS_AVAILABLE,
                 ],
             ],
-            'sortable'   => true,
-            'closure'    => function ($row) {
+            'sortable' => true,
+            'closure' => function ($row) {
                 switch ($row->status) {
                     case self::STATUS_EXPIRED:
-                        return '<p class="label-closed">'.trans('shop::app.customers.account.downloadable-products.expired').'</p>';
-
+                        return '<p class="label-closed">' . trans('shop::app.customers.account.downloadable-products.expired') . '</p>';
                     case self::STATUS_PENDING:
-                        return '<p class="label-pending">'.trans('shop::app.customers.account.downloadable-products.pending').'</p>';
-
+                        return '<p class="label-pending">' . trans('shop::app.customers.account.downloadable-products.pending') . '</p>';
                     case self::STATUS_AVAILABLE:
-                        return '<p class="label-active">'.trans('shop::app.customers.account.downloadable-products.available').'</p>';
+                        return '<p class="label-active">' . trans('shop::app.customers.account.downloadable-products.available') . '</p>';
                 }
             },
         ]);
 
         $this->addColumn([
-            'index'           => 'remaining_downloads',
-            'label'           => trans('shop::app.customers.account.downloadable-products.remaining-downloads'),
-            'type'            => 'datetime',
+            'index' => 'remaining_downloads',
+            'label' => trans('shop::app.customers.account.downloadable-products.remaining-downloads'),
+            'type' => 'datetime',
             'filterable_type' => 'datetime_range',
-            'sortable'        => true,
-            'closure'         => function ($row) {
-                if (! $row->download_bought) {
+            'sortable' => true,
+            'closure' => function ($row) {
+                if (!$row->download_bought) {
                     return trans('shop::app.customer.account.downloadable_products.unlimited');
                 }
 

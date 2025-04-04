@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Jobs\ElasticSearch;
 
 use Illuminate\Bus\Queueable;
@@ -16,7 +18,8 @@ class DeleteIndex implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  array  $productIds
+     * @param array $productIds
+     *
      * @return void
      */
     public function __construct(protected $productIds)
@@ -29,9 +32,9 @@ class DeleteIndex implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        if (core()->getConfigData('catalog.products.search.engine') != 'elastic') {
+        if (core()->getConfigData('catalog.products.search.engine') !== 'elastic') {
             return;
         }
 
@@ -39,7 +42,7 @@ class DeleteIndex implements ShouldQueue
 
         foreach (core()->getAllChannels() as $channel) {
             foreach ($channel->locales as $locale) {
-                $index = 'products_'.$channel->code.'_'.$locale->code.'_index';
+                $index = 'products_' . $channel->code . '_' . $locale->code . '_index';
 
                 $removeIndices[$index] = $this->productIds;
             }

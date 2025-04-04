@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -35,7 +37,7 @@ class OrderTransaction extends Model implements OrderTransactionContract
      */
     public function getPaymentTitleAttribute()
     {
-        if (! $this->payment_method) {
+        if (!$this->payment_method) {
             return;
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +22,7 @@ class ProductOrderedInventoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'qty'        => $this->faker->numberBetween(100, 200),
+            'qty' => $this->faker->numberBetween(100, 200),
             'channel_id' => 1,
         ];
     }

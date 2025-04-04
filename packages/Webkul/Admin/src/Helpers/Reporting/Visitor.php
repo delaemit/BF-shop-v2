@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Helpers\Reporting;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -11,6 +13,8 @@ class Visitor extends AbstractReporting
     /**
      * Create a helper instance.
      *
+     * @param VisitRepository $visitRepository
+     *
      * @return void
      */
     public function __construct(protected VisitRepository $visitRepository)
@@ -21,13 +25,13 @@ class Visitor extends AbstractReporting
     /**
      * Retrieves total visitors and their progress.
      *
-     * @param  string  $visitableType
+     * @param string $visitableType
      */
     public function getTotalVisitorsProgress($visitableType = null): array
     {
         return [
             'previous' => $previous = $this->getTotalVisitors($this->lastStartDate, $this->lastEndDate, $visitableType),
-            'current'  => $current = $this->getTotalVisitors($this->startDate, $this->endDate, $visitableType),
+            'current' => $current = $this->getTotalVisitors($this->startDate, $this->endDate, $visitableType),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -35,9 +39,10 @@ class Visitor extends AbstractReporting
     /**
      * Retrieves total visitors and their progress.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $visitableType
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $visitableType
+     *
      * @return array
      */
     public function getTotalVisitors($startDate, $endDate, $visitableType = null): int
@@ -64,13 +69,13 @@ class Visitor extends AbstractReporting
     /**
      * Retrieves unique visitors and their progress.
      *
-     * @param  string  $visitableType
+     * @param string $visitableType
      */
     public function getTotalUniqueVisitorsProgress($visitableType = null): array
     {
         return [
             'previous' => $previous = $this->getTotalUniqueVisitors($this->lastStartDate, $this->lastEndDate, $visitableType),
-            'current'  => $current = $this->getTotalUniqueVisitors($this->startDate, $this->endDate, $visitableType),
+            'current' => $current = $this->getTotalUniqueVisitors($this->startDate, $this->endDate, $visitableType),
             'progress' => $this->getPercentageChange($previous, $current),
         ];
     }
@@ -78,9 +83,10 @@ class Visitor extends AbstractReporting
     /**
      * Retrieves total unique visitors
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $visitableType
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $visitableType
+     *
      * @return array
      */
     public function getTotalUniqueVisitors($startDate, $endDate, $visitableType = null): int
@@ -109,7 +115,7 @@ class Visitor extends AbstractReporting
     /**
      * Returns previous sales over time
      *
-     * @param  string  $visitableType
+     * @param string $visitableType
      */
     public function getPreviousTotalVisitorsOverTime($visitableType = null): array
     {
@@ -119,7 +125,7 @@ class Visitor extends AbstractReporting
     /**
      * Returns current sales over time
      *
-     * @param  string  $visitableType
+     * @param string $visitableType
      */
     public function getCurrentTotalVisitorsOverTime($visitableType = null): array
     {
@@ -129,7 +135,7 @@ class Visitor extends AbstractReporting
     /**
      * Returns previous sales over week
      *
-     * @param  string  $visitableType
+     * @param string $visitableType
      */
     public function getPreviousTotalVisitorsOverWeek($visitableType = null): array
     {
@@ -139,7 +145,7 @@ class Visitor extends AbstractReporting
     /**
      * Returns current sales over week
      *
-     * @param  string  $visitableType
+     * @param string $visitableType
      */
     public function getCurrentTotalVisitorsOverWeek($visitableType = null): array
     {
@@ -149,8 +155,8 @@ class Visitor extends AbstractReporting
     /**
      * Gets visitable with most visits.
      *
-     * @param  string  $visitableType
-     * @param  int  $limit
+     * @param string $visitableType
+     * @param int $limit
      */
     public function getVisitableWithMostVisits($visitableType = null, $limit = null): Collection
     {
@@ -170,7 +176,7 @@ class Visitor extends AbstractReporting
             ->limit($limit)
             ->get();
 
-        $visits->map(function ($visit) {
+        $visits->map(function ($visit): void {
             $visit->name = $visit->visitable->name;
         });
 
@@ -180,10 +186,10 @@ class Visitor extends AbstractReporting
     /**
      * Generates visitor graph data.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $period
-     * @param  string  $visitableType
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $period
+     * @param string $visitableType
      */
     public function getTotalVisitorsOverTime($startDate, $endDate, $period = 'auto', $visitableType = null): array
     {
@@ -220,9 +226,9 @@ class Visitor extends AbstractReporting
     /**
      * Generates visitor over week graph data.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $visitableType
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $visitableType
      */
     public function getTotalVisitorsOverWeek($startDate, $endDate, $visitableType = null): array
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -51,9 +53,9 @@ return [
      */
 
     'templates' => [
-        'small'  => 'Webkul\Shop\CacheFilters\Small',
+        'small' => 'Webkul\Shop\CacheFilters\Small',
         'medium' => 'Webkul\Shop\CacheFilters\Medium',
-        'large'  => 'Webkul\Shop\CacheFilters\Large',
+        'large' => 'Webkul\Shop\CacheFilters\Large',
     ],
 
     /*

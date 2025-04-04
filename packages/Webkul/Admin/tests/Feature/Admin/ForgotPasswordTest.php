@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Notification;
 use Webkul\Admin\Mail\Admin\ResetPasswordNotification;
 use Webkul\User\Models\Admin;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,8 +22,8 @@ class SitemapFactory extends Factory
     public function definition()
     {
         return [
-            'file_name' => strtolower(fake()->word()).'.xml',
-            'path'      => '/',
+            'file_name' => strtolower(fake()->word()) . '.xml',
+            'path' => '/',
         ];
     }
 }

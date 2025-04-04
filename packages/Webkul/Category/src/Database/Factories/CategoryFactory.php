@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Category\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -28,30 +30,26 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'status'    => 1,
-            'position'  => $this->faker->randomDigit(),
+            'status' => 1,
+            'position' => $this->faker->randomDigit(),
             'parent_id' => 1,
         ];
     }
 
-    public function inactive(): CategoryFactory
+    public function inactive(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'status' => 0,
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'status' => 0,
+        ]);
     }
 
     /**
      * Handle rtl state
      */
-    public function rtl(): CategoryFactory
+    public function rtl(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'direction' => 'rtl',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'direction' => 'rtl',
+        ]);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DebugBar\DataCollector;
 
 use DebugBar\DataCollector\AssetProvider;
@@ -25,13 +27,16 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     public $count = 0;
 
     /**
+     * @param Dispatcher $events
+     * @param PDOCollector $pdoCollector
+     *
      * @return void
      */
     public function __construct(
         Dispatcher $events,
         PDOCollector $pdoCollector
     ) {
-        $events->listen('eloquent.*', function ($event, $models) {
+        $events->listen('eloquent.*', function ($event, $models): void {
             if (Str::contains($event, 'eloquent.retrieved')) {
                 foreach (array_filter($models) as $model) {
                     $class = get_class($model);
@@ -41,26 +46,27 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
             }
         });
 
-        $events->listen('composing:*', function ($view, $data = []) {
+        $events->listen('composing:*', function ($view, $data = []): void {
             $view = $data ? $data[0] : $view;
 
             $this->views[] = $this->trimViewName($view->getName(), $view->getPath());
         });
 
         app()['db']->listen(
-            function ($query, $bindings = null, $time = null, $connectionName = null) use ($pdoCollector) {
+            function ($query, $bindings = null, $time = null, $connectionName = null) use ($pdoCollector): void {
                 $this->queries[] = [
-                    'sql'          => $this->addQueryBindings($query),
-                    'duration'     => $query->time,
+                    'sql' => $this->addQueryBindings($query),
+                    'duration' => $query->time,
                     'duration_str' => $pdoCollector->formatDuration($query->time),
-                    'connection'   => $query->connection->getDatabaseName(),
+                    'connection' => $query->connection->getDatabaseName(),
                 ];
             }
         );
     }
 
     /**
-     * @param  \Illuminate\Database\Events\QueryExecuted  $query
+     * @param \Illuminate\Database\Events\QueryExecuted $query
+     *
      * @return string
      */
     public function addQueryBindings($query)
@@ -69,17 +75,20 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
 
         $bindings = $this->checkBindings($query->connection->prepareBindings($query->bindings));
 
-        if (! empty($bindings)) {
+        if (!empty($bindings)) {
             foreach ($bindings as $key => $binding) {
                 $regex = is_numeric($key)
-                    ? "/\?(?=(?:[^'\\\']*'[^'\\\']*')*[^'\\\']*$)/"
-                    : "/:{$key}(?=(?:[^'\\\']*'[^'\\\']*')*[^'\\\']*$)/";
+                    ? "/\\?(?=(?:[^'\\\\']*'[^'\\\\']*')*[^'\\\\']*$)/"
+                    : "/:{$key}(?=(?:[^'\\\\']*'[^'\\\\']*')*[^'\\\\']*$)/";
 
                 if (
-                    ! is_int($binding)
-                    && ! is_float($binding)
+                    !is_int($binding)
+                    && !is_float($binding)
                 ) {
                     $binding = $query->connection->getPdo()->quote($binding ?? '');
+                }
+                if (is_int($binding)) {
+                    $binding = (string) $binding;
                 }
 
                 $sql = preg_replace($regex, $binding, $sql, 1);
@@ -92,7 +101,8 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     /**
      * Check bindings for illegal (non UTF-8) strings, like Binary data.
      *
-     * @param  array  $bindings
+     * @param array $bindings
+     *
      * @return mixed
      */
     public function checkBindings($bindings)
@@ -100,7 +110,7 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
         foreach ($bindings as &$binding) {
             if (
                 is_string($binding)
-                && ! mb_check_encoding($binding, 'UTF-8')
+                && !mb_check_encoding($binding, 'UTF-8')
             ) {
                 $binding = '[BINARY DATA]';
             }
@@ -110,8 +120,9 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     }
 
     /**
-     * @param  string  $name
-     * @param  string  $path
+     * @param string $name
+     * @param string $path
+     *
      * @return string
      */
     public function trimViewName($name, $path)
@@ -143,24 +154,23 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
                 || count($queries)
             ) {
                 $modules[] = [
-                    'name'    => $module->getNamespaceRoot(),
-                    'models'  => $models,
-                    'views'   => $views,
+                    'name' => $module->getNamespaceRoot(),
+                    'models' => $models,
+                    'views' => $views,
                     'queries' => $queries,
                 ];
             }
         }
 
-        $data = [
-            'count'   => count($modules),
+        return [
+            'count' => count($modules),
             'modules' => $modules,
         ];
-
-        return $data;
     }
 
     /**
-     * @param  string  $classNamespace
+     * @param string $classNamespace
+     *
      * @return array
      */
     public function getModels($classNamespace)
@@ -168,8 +178,8 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
         $models = [];
 
         foreach ($this->models as $model => $count) {
-            if (strpos($model, $classNamespace.'\\') !== false) {
-                $models[] = $model.' ('.$count.')';
+            if (strpos($model, $classNamespace . '\\') !== false) {
+                $models[] = $model . ' (' . $count . ')';
             }
         }
 
@@ -177,25 +187,26 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     }
 
     /**
-     * @param  string  $classNamespace
+     * @param string $classNamespace
+     *
      * @return array
      */
     public function getTemplates($classNamespace)
     {
         $viewNamespace = Str::lower(class_basename($classNamespace));
 
-        $classNamespace = str_replace('\\', '/', $classNamespace).'/';
+        $classNamespace = str_replace('\\', '/', $classNamespace) . '/';
 
         $views = [];
 
         foreach ($this->views as $view) {
             if (strpos($view, $classNamespace) !== false) {
                 $views[] = $view;
-            } elseif (strpos($view, 'resources/themes/'.$viewNamespace.'/') !== false) {
+            } elseif (strpos($view, 'resources/themes/' . $viewNamespace . '/') !== false) {
                 $views[] = $view;
-            } elseif (strpos($view, 'resources/admin-themes/'.$viewNamespace.'/') !== false) {
+            } elseif (strpos($view, 'resources/admin-themes/' . $viewNamespace . '/') !== false) {
                 $views[] = $view;
-            } elseif (strpos($view, 'resources/vendor/views/'.$viewNamespace.'/') !== false) {
+            } elseif (strpos($view, 'resources/vendor/views/' . $viewNamespace . '/') !== false) {
                 $views[] = $view;
             }
         }
@@ -204,7 +215,8 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     }
 
     /**
-     * @param  string  $classNamespace
+     * @param string $classNamespace
+     *
      * @return array
      */
     public function getQueries($classNamespace)
@@ -216,9 +228,9 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
         foreach ($this->queries as $query) {
             $sqlParts = explode(' ', str_replace('`', '', $query['sql']));
 
-            $tableName = $sqlParts[array_search('from', $sqlParts) + 1];
+            $tableName = $sqlParts[array_search('from', $sqlParts, true) + 1];
 
-            if (in_array($tableName, $moduleTables)) {
+            if (in_array($tableName, $moduleTables, true)) {
                 $queries[] = $query;
             }
         }
@@ -227,7 +239,8 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     }
 
     /**
-     * @param  string  $classNamespace
+     * @param string $classNamespace
+     *
      * @return array
      */
     public function getDatabaseTables($classNamespace)
@@ -235,7 +248,7 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
         $tables = [];
 
         foreach (Concord::getModelBindings() as $contract => $model) {
-            if (strpos($model, $classNamespace.'\\') !== false) {
+            if (strpos($model, $classNamespace . '\\') !== false) {
                 $tables[] = app($model)->getTable();
             }
         }
@@ -244,7 +257,7 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -252,20 +265,20 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getWidgets()
     {
         return [
-            'modules'       => [
-                'icon'    => 'cubes',
-                'widget'  => 'PhpDebugBar.Widgets.ModulesWidget',
-                'map'     => 'modules',
+            'modules' => [
+                'icon' => 'cubes',
+                'widget' => 'PhpDebugBar.Widgets.ModulesWidget',
+                'map' => 'modules',
                 'default' => '[]',
             ],
 
             'modules:badge' => [
-                'map'     => 'modules.count',
+                'map' => 'modules.count',
                 'default' => 0,
             ],
         ];
@@ -277,10 +290,10 @@ class ModuleCollector extends DataCollector implements AssetProvider, DataCollec
     public function getAssets()
     {
         return [
-            'base_path' => __DIR__.'/../Resources/',
-            'base_url'  => __DIR__.'/../Resources/',
-            'css'       => 'widgets/modules/widget.css',
-            'js'        => 'widgets/modules/widget.js',
+            'base_path' => __DIR__ . '/../Resources/',
+            'base_url' => __DIR__ . '/../Resources/',
+            'css' => 'widgets/modules/widget.css',
+            'js' => 'widgets/modules/widget.js',
         ];
     }
 }

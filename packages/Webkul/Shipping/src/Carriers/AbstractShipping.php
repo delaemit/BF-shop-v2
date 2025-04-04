@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shipping\Carriers;
 
 use Webkul\Shipping\Exceptions\CarrierCodeException;
@@ -56,7 +58,7 @@ abstract class AbstractShipping
         if (empty($this->method)) {
             $code = $this->getCode();
 
-            return $code.'_'.$code;
+            return $code . '_' . $code;
         }
 
         return $this->method;
@@ -85,11 +87,12 @@ abstract class AbstractShipping
     /**
      * Retrieve information from shipping configuration.
      *
-     * @param  string  $field
+     * @param string $field
+     *
      * @return mixed
      */
     public function getConfigData($field)
     {
-        return core()->getConfigData('sales.carriers.'.$this->getCode().'.'.$field);
+        return core()->getConfigData('sales.carriers.' . $this->getCode() . '.' . $field);
     }
 }

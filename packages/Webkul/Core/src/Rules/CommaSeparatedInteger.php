@@ -1,18 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Rules;
 
-use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class CommaSeparatedInteger implements ValidationRule
 {
     /**
      * Run the validation rule.
+     *
+     * @param string $attribute
+     * @param mixed $value
+     * @param \Closure $fail
      */
-    public function validate(string $attribute, mixed $value, Closure $fail): void
+    public function validate(string $attribute, mixed $value, \Closure $fail): void
     {
-        if (! $this->isCommaSeparatedInteger($attribute, $value)) {
+        if (!$this->isCommaSeparatedInteger($attribute, $value)) {
             $fail('core::validation.comma-separated-integer')->translate();
         }
     }
@@ -20,8 +25,9 @@ class CommaSeparatedInteger implements ValidationRule
     /**
      * Determine if the value is comma separated integer.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed $value
+     *
      * @return bool
      */
     public function isCommaSeparatedInteger($attribute, $value)
@@ -29,7 +35,7 @@ class CommaSeparatedInteger implements ValidationRule
         $integerValues = explode(',', $value);
 
         foreach ($integerValues as $integerValue) {
-            if (! preg_match('/^[0-9]+$/', $integerValue)) {
+            if (!preg_match('/^[0-9]+$/', $integerValue)) {
                 return false;
             }
         }

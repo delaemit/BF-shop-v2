@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Generators;
 
 use Webkul\Sales\Models\Invoice;
@@ -19,10 +21,11 @@ class InvoiceSequencer extends Sequencer
     /**
      * Set all configs.
      *
-     * @param  string  $configKey
+     * @param string $configKey
+     *
      * @return void
      */
-    public function setAllConfigs()
+    public function setAllConfigs(): void
     {
         $this->prefix = core()->getConfigData('sales.invoice_settings.invoice_number.invoice_number_prefix');
 

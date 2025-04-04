@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Customer\Repositories;
 
 use Illuminate\Support\Facades\Storage;
@@ -20,13 +22,13 @@ class CustomerRepository extends Repository
      * Check if customer has order pending or processing.
      *
      * @param  \Webkul\Customer\Models\Customer
+     * @param mixed $customer
+     *
      * @return bool
      */
     public function haveActiveOrders($customer)
     {
-        return $customer->orders->pluck('status')->contains(function ($val) {
-            return $val === 'pending' || $val === 'processing';
-        });
+        return $customer->orders->pluck('status')->contains(fn($val) => $val === 'pending' || $val === 'processing');
     }
 
     /**
@@ -44,19 +46,20 @@ class CustomerRepository extends Repository
     /**
      * Upload customer's images.
      *
-     * @param  array  $data
-     * @param  \Webkul\Customer\Models\Customer  $customer
-     * @param  string  $type
+     * @param array $data
+     * @param \Webkul\Customer\Models\Customer $customer
+     * @param string $type
+     *
      * @return void
      */
-    public function uploadImages($data, $customer, $type = 'image')
+    public function uploadImages($data, $customer, $type = 'image'): void
     {
         if (isset($data[$type])) {
             $request = request();
 
             foreach ($data[$type] as $imageId => $image) {
-                $file = $type.'.'.$imageId;
-                $dir = 'customer/'.$customer->id;
+                $file = $type . '.' . $imageId;
+                $dir = 'customer/' . $customer->id;
 
                 if ($request->hasFile($file)) {
                     if ($customer->{$type}) {
@@ -80,17 +83,18 @@ class CustomerRepository extends Repository
     /**
      * Sync new registered customer data.
      *
-     * @param  \Webkul\Customer\Contracts\Customer  $customer
+     * @param \Webkul\Customer\Contracts\Customer $customer
+     *
      * @return mixed
      */
     public function syncNewRegisteredCustomerInformation($customer)
     {
-        /**
+        /*
          * Setting registered customer to orders.
          */
         Order::where('customer_email', $customer->email)->update([
-            'is_guest'      => 0,
-            'customer_id'   => $customer->id,
+            'is_guest' => 0,
+            'customer_id' => $customer->id,
             'customer_type' => \Webkul\Customer\Models\Customer::class,
         ]);
 
@@ -99,16 +103,16 @@ class CustomerRepository extends Repository
          */
         $orders = Order::where('customer_id', $customer->id)->get();
 
-        /**
+        /*
          * Setting registered customer to associated order's relations.
          */
-        $orders->each(function ($order) use ($customer) {
+        $orders->each(function ($order) use ($customer): void {
             $order->addresses()->update([
                 'customer_id' => $customer->id,
             ]);
 
             $order->shipments()->update([
-                'customer_id'   => $customer->id,
+                'customer_id' => $customer->id,
                 'customer_type' => \Webkul\Customer\Models\Customer::class,
             ]);
 

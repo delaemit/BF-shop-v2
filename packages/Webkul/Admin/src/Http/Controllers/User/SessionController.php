@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\User;
 
 use Webkul\Admin\Http\Controllers\Controller;
@@ -36,19 +38,19 @@ class SessionController extends Controller
     public function store()
     {
         $this->validate(request(), [
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
         $remember = request('remember');
 
-        if (! auth()->guard('admin')->attempt(request(['email', 'password']), $remember)) {
+        if (!auth()->guard('admin')->attempt(request(['email', 'password']), $remember)) {
             session()->flash('error', trans('admin::app.settings.users.login-error'));
 
             return redirect()->back();
         }
 
-        if (! auth()->guard('admin')->user()->status) {
+        if (!auth()->guard('admin')->user()->status) {
             session()->flash('warning', trans('admin::app.settings.users.activate-warning'));
 
             auth()->guard('admin')->logout();
@@ -56,7 +58,7 @@ class SessionController extends Controller
             return redirect()->route('admin.session.create');
         }
 
-        if (! bouncer()->hasPermission('dashboard')) {
+        if (!bouncer()->hasPermission('dashboard')) {
             $permissions = auth()->guard('admin')->user()->role->permissions;
 
             foreach ($permissions as $permission) {
@@ -74,7 +76,8 @@ class SessionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy()

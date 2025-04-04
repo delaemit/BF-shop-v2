@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\API;
 
 class CoreController extends APIController
@@ -12,8 +14,8 @@ class CoreController extends APIController
     public function getCountries()
     {
         return response()->json([
-            'data' => core()->countries()->map(fn ($country) => [
-                'id'   => $country->id,
+            'data' => core()->countries()->map(fn($country) => [
+                'id' => $country->id,
                 'code' => $country->code,
                 'name' => $country->name,
             ]),

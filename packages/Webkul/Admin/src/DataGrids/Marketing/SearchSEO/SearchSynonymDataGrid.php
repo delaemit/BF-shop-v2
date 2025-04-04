@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Marketing\SearchSEO;
 
 use Illuminate\Support\Facades\DB;
@@ -27,32 +29,32 @@ class SearchSynonymDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'id',
-            'label'      => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'id',
+            'label' => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'name',
-            'label'      => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.name'),
-            'type'       => 'string',
+            'index' => 'name',
+            'label' => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'terms',
-            'label'      => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.terms'),
-            'type'       => 'string',
+            'index' => 'terms',
+            'label' => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.terms'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
     }
 
@@ -61,30 +63,26 @@ class SearchSynonymDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('marketing.search_synonyms.edit')) {
             $this->addAction([
-                'index'  => 'edit',
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.edit'),
+                'index' => 'edit',
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.edit'),
                 'method' => 'GET',
-                'route'  => 'admin.marketing.search_seo.search_synonyms.update',
-                'url'    => function ($row) {
-                    return route('admin.marketing.search_seo.search_synonyms.update', $row->id);
-                },
+                'route' => 'admin.marketing.search_seo.search_synonyms.update',
+                'url' => fn($row) => route('admin.marketing.search_seo.search_synonyms.update', $row->id),
             ]);
         }
 
         if (bouncer()->hasPermission('marketing.search_synonyms.delete')) {
             $this->addAction([
-                'index'  => 'delete',
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.delete'),
+                'index' => 'delete',
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.marketing.search_seo.search_synonyms.delete', $row->id);
-                },
+                'url' => fn($row) => route('admin.marketing.search_seo.search_synonyms.delete', $row->id),
             ]);
         }
     }
@@ -94,13 +92,13 @@ class SearchSynonymDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareMassActions()
+    public function prepareMassActions(): void
     {
         if (bouncer()->hasPermission('marketing.search_synonyms.delete')) {
             $this->addMassAction([
-                'title'  => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.delete'),
+                'title' => trans('admin::app.marketing.search-seo.search-synonyms.index.datagrid.delete'),
                 'method' => 'POST',
-                'url'    => route('admin.marketing.search_seo.search_synonyms.mass_delete'),
+                'url' => route('admin.marketing.search_seo.search_synonyms.mass_delete'),
             ]);
         }
     }

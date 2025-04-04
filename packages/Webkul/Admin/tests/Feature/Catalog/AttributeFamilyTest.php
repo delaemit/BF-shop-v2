@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Attribute\Models\AttributeFamily as AttributeFamilyModel;
 
 use function Pest\Laravel\deleteJson;
@@ -49,12 +51,12 @@ it('should store newly created attribute family', function () {
     $this->loginAsAdmin();
 
     postJson(route('admin.catalog.families.store'), [
-        'code'             => $code = fake()->numerify('code########'),
-        'name'             => $name = fake()->name(),
+        'code' => $code = fake()->numerify('code########'),
+        'name' => $name = fake()->name(),
         'attribute_groups' => [
             [
-                'code'   => $code,
-                'name'   => $name,
+                'code' => $code,
+                'name' => $name,
                 'column' => 1,
             ],
         ],

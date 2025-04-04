@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Repositories;
 
 use Illuminate\Http\UploadedFile;
@@ -16,6 +18,8 @@ class AttributeOptionRepository extends Repository
     }
 
     /**
+     * @param array $data
+     *
      * @return \Webkul\Attribute\Contracts\AttributeOption
      */
     public function create(array $data)
@@ -28,8 +32,10 @@ class AttributeOptionRepository extends Repository
     }
 
     /**
-     * @param  int  $id
-     * @param  string  $attribute
+     * @param int $id
+     * @param string $attribute
+     * @param array $data
+     *
      * @return \Webkul\Attribute\Contracts\AttributeOption
      */
     public function update(array $data, $id)
@@ -42,11 +48,12 @@ class AttributeOptionRepository extends Repository
     }
 
     /**
-     * @param  array  $data
-     * @param  int  $optionId
+     * @param array $data
+     * @param int $optionId
+     *
      * @return void
      */
-    public function uploadSwatchImage($data, $optionId)
+    public function uploadSwatchImage($data, $optionId): void
     {
         if (empty($data['swatch_value'])) {
             return;

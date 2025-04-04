@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Notification\Events;
 
 use Illuminate\Broadcasting\Channel;
@@ -15,14 +17,18 @@ class UpdateOrderNotification implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
-    public function __construct(protected $data) {}
+    public function __construct(protected $data)
+    {
+    }
 
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return array|\Illuminate\Broadcasting\Channel
      */
     public function broadcastOn()
     {

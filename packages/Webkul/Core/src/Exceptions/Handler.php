@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
@@ -63,14 +65,14 @@ class Handler extends BaseHandler
 
             if ($request->wantsJson()) {
                 return response()->json([
-                    'error'       => trans("{$namespace}::app.errors.{$errorCode}.title"),
+                    'error' => trans("{$namespace}::app.errors.{$errorCode}.title"),
                     'description' => trans("{$namespace}::app.errors.{$errorCode}.description"),
                 ], $errorCode);
             }
 
             $viewPath = "{$namespace}::errors.{$errorCode}";
 
-            if (! view()->exists($viewPath)) {
+            if (!view()->exists($viewPath)) {
                 $viewPath = "{$namespace}::errors.index";
             }
 
@@ -100,14 +102,14 @@ class Handler extends BaseHandler
 
             if ($request->wantsJson()) {
                 return response()->json([
-                    'error'       => trans("{$namespace}::app.errors.{$errorCode}.title"),
+                    'error' => trans("{$namespace}::app.errors.{$errorCode}.title"),
                     'description' => trans("{$namespace}::app.shop.errors.{$errorCode}.description"),
                 ], $errorCode);
             }
 
             $viewPath = "{$namespace}::errors.{$errorCode}";
 
-            if (! view()->exists($viewPath)) {
+            if (!view()->exists($viewPath)) {
                 $viewPath = "{$namespace}::errors.index";
             }
 

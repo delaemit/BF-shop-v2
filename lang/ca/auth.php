@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'failed'   => 'Aquestes credencials no coincideixen amb els nostres registres.',
+    'failed' => 'Aquestes credencials no coincideixen amb els nostres registres.',
     'password' => 'La contrasenya proporcionada es incorrecta.',
     'throttle' => 'Massa intents d\'inici de sessió. Si us plau, intenta-ho de nou en :seconds segons.',
 

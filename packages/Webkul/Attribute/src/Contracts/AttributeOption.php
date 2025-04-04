@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Contracts;
 
-interface AttributeOption {}
+use Webkul\Core\Contracts\ModelContract;
+
+interface AttributeOption extends ModelContract
+{
+}

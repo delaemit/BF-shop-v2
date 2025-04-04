@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -18,6 +20,9 @@ class ProductReviewAttachmentRepository extends Repository
 
     /**
      * Upload.
+     *
+     * @param array $attachments
+     * @param ProductReview $review
      */
     public function upload(array $attachments, ProductReview $review): void
     {
@@ -25,9 +30,9 @@ class ProductReviewAttachmentRepository extends Repository
             $fileType = explode('/', $attachment->getMimeType());
 
             $this->create([
-                'path'      => $attachment->store('review/'.$review->id),
+                'path' => $attachment->store('review/' . $review->id),
                 'review_id' => $review->id,
-                'type'      => $fileType[0],
+                'type' => $fileType[0],
                 'mime_type' => $fileType[1],
             ]);
         }

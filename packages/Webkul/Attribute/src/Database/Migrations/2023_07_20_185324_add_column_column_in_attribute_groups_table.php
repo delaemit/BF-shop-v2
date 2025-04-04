@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::table('attribute_groups', function (Blueprint $table) {
+        Schema::table('attribute_groups', function (Blueprint $table): void {
             $table->integer('column')->default(1)->after('name');
         });
 
@@ -20,10 +21,10 @@ return new class extends Migration
         foreach ($families as $family) {
             DB::table('attribute_groups')
                 ->insert([
-                    'name'                => 'Settings',
-                    'column'              => 2,
-                    'is_user_defined'     => 0,
-                    'position'            => 3,
+                    'name' => 'Settings',
+                    'column' => 2,
+                    'is_user_defined' => 0,
+                    'position' => 3,
                     'attribute_family_id' => $family->id,
                 ]);
 
@@ -51,7 +52,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('attribute_groups', function (Blueprint $table) {
+        Schema::table('attribute_groups', function (Blueprint $table): void {
             $table->dropColumn('column');
         });
     }

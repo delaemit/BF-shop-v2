@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Attribute\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -9,6 +11,9 @@ use Webkul\Attribute\Contracts\AttributeOption as AttributeOptionContract;
 use Webkul\Attribute\Database\Factories\AttributeOptionFactory;
 use Webkul\Core\Eloquent\TranslatableModel;
 
+/**
+ * @property \Webkul\Attribute\Models\Attribute $attribute
+ */
 class AttributeOption extends TranslatableModel implements AttributeOptionContract
 {
     use HasFactory;
@@ -48,12 +53,10 @@ class AttributeOption extends TranslatableModel implements AttributeOptionContra
     {
         if (
             $this->swatch_value
-            && $this->attribute->swatch_type == 'image'
+            && $this->attribute->swatch_type === 'image'
         ) {
-            return url('cache/small/'.$this->swatch_value);
+            return url('cache/small/' . $this->swatch_value);
         }
-
-        return null;
     }
 
     /**

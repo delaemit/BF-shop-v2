@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Listeners;
 
 use Webkul\Admin\Mail\Order\InventorySourceNotification;
@@ -11,9 +13,11 @@ class Shipment extends Base
     /**
      * After order is created
      *
+     * @param ShipmentContract $shipment
+     *
      * @return void
      */
-    public function afterCreated(ShipmentContract $shipment)
+    public function afterCreated(ShipmentContract $shipment): void
     {
         try {
             if (core()->getConfigData('emails.general.notifications.emails.general.notifications.new_shipment_mail_to_admin')) {

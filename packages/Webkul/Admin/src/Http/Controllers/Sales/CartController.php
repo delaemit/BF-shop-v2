@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Sales;
 
 use Illuminate\Http\JsonResponse;
@@ -21,6 +23,11 @@ class CartController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CartRepository $cartRepository
+     * @param CustomerRepository $customerRepository
+     * @param ProductRepository $productRepository
+     * @param CartRuleCouponRepository $cartRuleCouponRepository
+     *
      * @return void
      */
     public function __construct(
@@ -28,10 +35,13 @@ class CartController extends Controller
         protected CustomerRepository $customerRepository,
         protected ProductRepository $productRepository,
         protected CartRuleCouponRepository $cartRuleCouponRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Cart.
+     *
+     * @param int $id
      */
     public function index(int $id): JsonResource
     {
@@ -57,12 +67,12 @@ class CartController extends Controller
 
         try {
             $cart = Cart::createCart([
-                'customer'  => $customer,
+                'customer' => $customer,
                 'is_active' => false,
             ]);
 
             return new JsonResource([
-                'data'         => new CartResource($cart),
+                'data' => new CartResource($cart),
                 'redirect_url' => route('admin.sales.orders.create', $cart->id),
             ]);
         } catch (\Exception $exception) {
@@ -74,6 +84,8 @@ class CartController extends Controller
 
     /**
      * Store items in cart.
+     *
+     * @param int $cartId
      */
     public function storeItem(int $cartId): JsonResource
     {
@@ -93,7 +105,7 @@ class CartController extends Controller
             Cart::addProduct($product, $params);
 
             return new JsonResource([
-                'data'    => new CartResource(Cart::getCart()),
+                'data' => new CartResource(Cart::getCart()),
                 'message' => trans('admin::app.sales.orders.create.cart.success-add-to-cart'),
             ]);
         } catch (\Exception $exception) {
@@ -105,6 +117,8 @@ class CartController extends Controller
 
     /**
      * Removes the item from the cart if it exists.
+     *
+     * @param int $cartId
      */
     public function destroyItem(int $cartId): JsonResource
     {
@@ -121,13 +135,15 @@ class CartController extends Controller
         Cart::collectTotals();
 
         return new JsonResource([
-            'data'    => new CartResource(Cart::getCart()),
+            'data' => new CartResource(Cart::getCart()),
             'message' => trans('admin::app.sales.orders.create.cart.success-remove'),
         ]);
     }
 
     /**
      * Updates the quantity of the items present in the cart.
+     *
+     * @param int $cartId
      */
     public function updateItem(int $cartId): JsonResource
     {
@@ -139,7 +155,7 @@ class CartController extends Controller
             Cart::updateItems(request()->input());
 
             return new JsonResource([
-                'data'    => new CartResource(Cart::getCart()),
+                'data' => new CartResource(Cart::getCart()),
                 'message' => trans('admin::app.sales.orders.create.cart.success-update'),
             ]);
         } catch (\Exception $exception) {
@@ -151,6 +167,9 @@ class CartController extends Controller
 
     /**
      * Store address.
+     *
+     * @param CartAddressRequest $cartAddressRequest
+     * @param int $id
      */
     public function storeAddress(CartAddressRequest $cartAddressRequest, int $id): JsonResource|JsonResponse
     {
@@ -171,27 +190,29 @@ class CartController extends Controller
         Cart::collectTotals();
 
         if ($cart->haveStockableItems()) {
-            if (! $rates = Shipping::collectRates()) {
+            if (!$rates = Shipping::collectRates()) {
                 return new JsonResource([
-                    'redirect'     => true,
+                    'redirect' => true,
                     'redirect_url' => route('shop.checkout.cart.index'),
                 ]);
             }
 
             return new JsonResource([
                 'redirect' => false,
-                'data'     => $rates,
+                'data' => $rates,
             ]);
         }
 
         return new JsonResource([
             'redirect' => false,
-            'data'     => Payment::getSupportedPaymentMethods(),
+            'data' => Payment::getSupportedPaymentMethods(),
         ]);
     }
 
     /**
      * Store shipping method.
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -207,8 +228,8 @@ class CartController extends Controller
 
         if (
             Cart::hasError()
-            || ! $validatedData['shipping_method']
-            || ! Cart::saveShippingMethod($validatedData['shipping_method'])
+            || !$validatedData['shipping_method']
+            || !Cart::saveShippingMethod($validatedData['shipping_method'])
         ) {
             return response()->json([
                 'redirect_url' => route('shop.checkout.cart.index'),
@@ -222,6 +243,8 @@ class CartController extends Controller
 
     /**
      * Store payment method.
+     *
+     * @param int $id
      *
      * @return array
      */
@@ -237,8 +260,8 @@ class CartController extends Controller
 
         if (
             Cart::hasError()
-            || ! $validatedData['payment']
-            || ! Cart::savePaymentMethod($validatedData['payment'])
+            || !$validatedData['payment']
+            || !Cart::savePaymentMethod($validatedData['payment'])
         ) {
             return response()->json([
                 'redirect_url' => route('shop.checkout.cart.index'),
@@ -256,6 +279,8 @@ class CartController extends Controller
 
     /**
      * Apply coupon to the cart.
+     *
+     * @param int $id
      */
     public function storeCoupon(int $id)
     {
@@ -270,38 +295,38 @@ class CartController extends Controller
         try {
             $coupon = $this->cartRuleCouponRepository->findOneByField('code', $params['code']);
 
-            if (! $coupon) {
+            if (!$coupon) {
                 return (new JsonResource([
-                    'data'     => new CartResource(Cart::getCart()),
-                    'message'  => trans('admin::app.sales.orders.create.coupon-not-found'),
+                    'data' => new CartResource(Cart::getCart()),
+                    'message' => trans('admin::app.sales.orders.create.coupon-not-found'),
                 ]))->response()->setStatusCode(Response::HTTP_NOT_FOUND);
             }
 
             if ($coupon->cart_rule->status) {
-                if (Cart::getCart()->coupon_code == $params['code']) {
+                if (Cart::getCart()->coupon_code === $params['code']) {
                     return (new JsonResource([
-                        'data'     => new CartResource(Cart::getCart()),
-                        'message'  => trans('admin::app.sales.orders.create.coupon-already-applied'),
+                        'data' => new CartResource(Cart::getCart()),
+                        'message' => trans('admin::app.sales.orders.create.coupon-already-applied'),
                     ]))->response()->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
 
                 Cart::setCouponCode($params['code'])->collectTotals();
 
-                if (Cart::getCart()->coupon_code == $params['code']) {
+                if (Cart::getCart()->coupon_code === $params['code']) {
                     return new JsonResource([
-                        'data'     => new CartResource(Cart::getCart()),
-                        'message'  => trans('admin::app.sales.orders.create.coupon-applied'),
+                        'data' => new CartResource(Cart::getCart()),
+                        'message' => trans('admin::app.sales.orders.create.coupon-applied'),
                     ]);
                 }
             }
 
             return (new JsonResource([
-                'data'     => new CartResource(Cart::getCart()),
-                'message'  => trans('admin::app.sales.orders.create.coupon-not-found'),
+                'data' => new CartResource(Cart::getCart()),
+                'message' => trans('admin::app.sales.orders.create.coupon-not-found'),
             ]))->response()->setStatusCode(Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             return (new JsonResource([
-                'data'    => new CartResource(Cart::getCart()),
+                'data' => new CartResource(Cart::getCart()),
                 'message' => trans('admin::app.sales.orders.create.coupon-error'),
             ]))->response()->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -309,6 +334,8 @@ class CartController extends Controller
 
     /**
      * Remove applied coupon from the cart.
+     *
+     * @param int $id
      */
     public function destroyCoupon(int $id): JsonResource
     {
@@ -319,8 +346,8 @@ class CartController extends Controller
         Cart::removeCouponCode()->collectTotals();
 
         return new JsonResource([
-            'data'     => new CartResource(Cart::getCart()),
-            'message'  => trans('admin::app.sales.orders.create.coupon-remove'),
+            'data' => new CartResource(Cart::getCart()),
+            'message' => trans('admin::app.sales.orders.create.coupon-remove'),
         ]);
     }
 }

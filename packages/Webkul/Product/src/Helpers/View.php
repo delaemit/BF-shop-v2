@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers;
 
 use Webkul\Attribute\Repositories\AttributeOptionRepository;
@@ -9,8 +11,9 @@ class View
     /**
      * Returns the visible custom attributes
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
-     * @return void|array
+     * @param \Webkul\Product\Contracts\Product $product
+     *
+     * @return array|void
      */
     public function getAdditionalData($product)
     {
@@ -23,22 +26,22 @@ class View
         foreach ($attributes as $attribute) {
             $value = $product->{$attribute->code};
 
-            if ($attribute->type == 'boolean') {
+            if ($attribute->type === 'boolean') {
                 $value = $value ? 'Yes' : 'No';
             } elseif ($value) {
-                if ($attribute->type == 'select') {
+                if ($attribute->type === 'select') {
                     $attributeOption = $attributeOptionRepository->find($value);
 
                     if ($attributeOption) {
                         $value = $attributeOption->label ?? null;
 
-                        if (! $value) {
+                        if (!$value) {
                             continue;
                         }
                     }
                 } elseif (
-                    $attribute->type == 'multiselect'
-                    || $attribute->type == 'checkbox'
+                    $attribute->type === 'multiselect'
+                    || $attribute->type === 'checkbox'
                 ) {
                     $labels = [];
 
@@ -55,12 +58,12 @@ class View
             }
 
             $data[] = [
-                'id'         => $attribute->id,
-                'code'       => $attribute->code,
-                'label'      => $attribute->name,
-                'value'      => $value,
+                'id' => $attribute->id,
+                'code' => $attribute->code,
+                'label' => $attribute->name,
+                'value' => $value,
                 'admin_name' => $attribute->admin_name,
-                'type'       => $attribute->type,
+                'type' => $attribute->type,
             ];
         }
 

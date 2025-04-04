@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\Customer\Account;
 
 use Illuminate\Support\Facades\Event;
@@ -12,9 +14,13 @@ class AddressController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param CustomerAddressRepository $customerAddressRepository
+     *
      * @return void
      */
-    public function __construct(protected CustomerAddressRepository $customerAddressRepository) {}
+    public function __construct(protected CustomerAddressRepository $customerAddressRepository)
+    {
+    }
 
     /**
      * Address route index page.
@@ -39,6 +45,8 @@ class AddressController extends Controller
     /**
      * Create a new address for customer.
      *
+     * @param AddressRequest $request
+     *
      * @return view
      */
     public function store(AddressRequest $request)
@@ -62,7 +70,7 @@ class AddressController extends Controller
             'default_address',
         ]), [
             'customer_id' => $customer->id,
-            'address'     => implode(PHP_EOL, array_filter($request->input('address'))),
+            'address' => implode(PHP_EOL, array_filter($request->input('address'))),
         ]);
 
         $customerAddress = $this->customerAddressRepository->create($data);
@@ -77,16 +85,18 @@ class AddressController extends Controller
     /**
      * For editing the existing addresses of current logged in customer.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
     {
         $address = $this->customerAddressRepository->findOneWhere([
-            'id'          => $id,
+            'id' => $id,
             'customer_id' => auth()->guard('customer')->id(),
         ]);
 
-        if (! $address) {
+        if (!$address) {
             abort(404);
         }
 
@@ -96,13 +106,16 @@ class AddressController extends Controller
     /**
      * Edit's the pre-made resource of customer called Address.
      *
+     * @param int $id
+     * @param AddressRequest $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(int $id, AddressRequest $request)
     {
         $customer = auth()->guard('customer')->user();
 
-        if (! $customer->addresses()->find($id)) {
+        if (!$customer->addresses()->find($id)) {
             session()->flash('warning', trans('shop::app.customers.account.addresses.index.security-warning'));
 
             return redirect()->route('shop.customers.account.addresses.index');
@@ -124,7 +137,7 @@ class AddressController extends Controller
             'email',
         ]), [
             'customer_id' => $customer->id,
-            'address'     => implode(PHP_EOL, array_filter($request->input('address'))),
+            'address' => implode(PHP_EOL, array_filter($request->input('address'))),
         ]);
 
         $customerAddress = $this->customerAddressRepository->update($data, $id);
@@ -139,6 +152,8 @@ class AddressController extends Controller
     /**
      * To change the default address or make the default address,
      * by default when first address is created will be the default address.
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -166,16 +181,18 @@ class AddressController extends Controller
     /**
      * Delete address of the current customer.
      *
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(int $id)
     {
         $address = $this->customerAddressRepository->findOneWhere([
-            'id'          => $id,
+            'id' => $id,
             'customer_id' => auth()->guard('customer')->user()->id,
         ]);
 
-        if (! $address) {
+        if (!$address) {
             abort(404);
         }
 

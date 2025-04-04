@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Middleware;
 
 use Closure;
@@ -10,14 +12,20 @@ class Locale
     /**
      * Create a middleware instance.
      *
+     * @param LocaleRepository $localeRepository
+     *
      * @return void
      */
-    public function __construct(protected LocaleRepository $localeRepository) {}
+    public function __construct(protected LocaleRepository $localeRepository)
+    {
+    }
 
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     * @param Closure $next
+     *
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -25,11 +33,11 @@ class Locale
         $locales = core()->getCurrentChannel()->locales->pluck('code')->toArray();
         $localeCode = core()->getRequestedLocaleCode('locale', false);
 
-        if (! $localeCode || ! in_array($localeCode, $locales)) {
+        if (!$localeCode || !in_array($localeCode, $locales)) {
             $localeCode = session()->get('locale');
         }
 
-        if (! $localeCode || ! in_array($localeCode, $locales)) {
+        if (!$localeCode || !in_array($localeCode, $locales)) {
             $localeCode = core()->getCurrentChannel()->default_locale->code;
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\FPC\Listeners;
 
 use Spatie\ResponseCache\Facades\ResponseCache;
@@ -9,13 +11,14 @@ class Refund extends Product
     /**
      * After refund is created
      *
-     * @param  \Webkul\Sale\Contracts\Refund  $refund
+     * @param \Webkul\Sale\Contracts\Refund $refund
+     *
      * @return void
      */
-    public function afterCreate($refund)
+    public function afterCreate($refund): void
     {
         foreach ($refund->items as $item) {
-            if (! $item->product) {
+            if (!$item->product) {
                 continue;
             }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\DataTransfer\Jobs\Import;
 
 use Illuminate\Bus\Batchable;
@@ -17,7 +19,8 @@ class LinkBatch implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  mixed  $importBatch
+     * @param mixed $importBatch
+     *
      * @return void
      */
     public function __construct(protected $importBatch)
@@ -30,7 +33,7 @@ class LinkBatch implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $typeImported = app(ImportHelper::class)
             ->setImport($this->importBatch->import)

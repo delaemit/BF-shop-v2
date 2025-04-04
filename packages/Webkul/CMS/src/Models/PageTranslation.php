@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CMS\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -12,14 +14,14 @@ class PageTranslation extends Model implements PageTranslationContract
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     /**
      * Table associated with the model.
      *
      * @var string
      */
     protected $table = 'cms_page_translations';
-
-    public $timestamps = false;
 
     protected $fillable = [
         'page_title',

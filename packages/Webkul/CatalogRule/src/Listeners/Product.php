@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Listeners;
 
 use Webkul\CatalogRule\Jobs\UpdateCreateProductIndex as UpdateCreateProductIndexJob;
@@ -7,10 +9,11 @@ use Webkul\CatalogRule\Jobs\UpdateCreateProductIndex as UpdateCreateProductIndex
 class Product
 {
     /**
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function afterUpdate($product)
+    public function afterUpdate($product): void
     {
         UpdateCreateProductIndexJob::dispatch($product);
     }

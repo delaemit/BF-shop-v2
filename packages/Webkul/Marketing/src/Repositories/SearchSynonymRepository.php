@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Marketing\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -17,7 +19,8 @@ class SearchSynonymRepository extends Repository
     /**
      * Returns synonyms by query
      *
-     * @param  string  $query
+     * @param string $query
+     *
      * @return array
      */
     public function getSynonymsByQuery($query)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\DataGrids\Catalog;
 
 use Illuminate\Support\Facades\DB;
@@ -29,7 +31,7 @@ class CategoryDataGrid extends DataGrid
                 'categories.status',
                 'category_translations.locale',
             )
-            ->leftJoin('category_translations', function ($join) {
+            ->leftJoin('category_translations', function ($join): void {
                 $join->on('categories.id', '=', 'category_translations.category_id')
                     ->where('category_translations.locale', '=', app()->getLocale());
             })
@@ -46,38 +48,38 @@ class CategoryDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareColumns()
+    public function prepareColumns(): void
     {
         $this->addColumn([
-            'index'      => 'category_id',
-            'label'      => trans('admin::app.catalog.categories.index.datagrid.id'),
-            'type'       => 'integer',
+            'index' => 'category_id',
+            'label' => trans('admin::app.catalog.categories.index.datagrid.id'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'name',
-            'label'      => trans('admin::app.catalog.categories.index.datagrid.name'),
-            'type'       => 'string',
+            'index' => 'name',
+            'label' => trans('admin::app.catalog.categories.index.datagrid.name'),
+            'type' => 'string',
             'searchable' => true,
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'      => 'position',
-            'label'      => trans('admin::app.catalog.categories.index.datagrid.position'),
-            'type'       => 'integer',
+            'index' => 'position',
+            'label' => trans('admin::app.catalog.categories.index.datagrid.position'),
+            'type' => 'integer',
             'filterable' => true,
-            'sortable'   => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index'              => 'status',
-            'label'              => trans('admin::app.catalog.categories.index.datagrid.status'),
-            'type'               => 'boolean',
-            'filterable'         => true,
+            'index' => 'status',
+            'label' => trans('admin::app.catalog.categories.index.datagrid.status'),
+            'type' => 'boolean',
+            'filterable' => true,
             'filterable_options' => [
                 [
                     'label' => trans('admin::app.catalog.categories.index.datagrid.active'),
@@ -88,13 +90,13 @@ class CategoryDataGrid extends DataGrid
                     'value' => 0,
                 ],
             ],
-            'sortable'   => true,
-            'closure'    => function ($value) {
+            'sortable' => true,
+            'closure' => function ($value) {
                 if ($value->status) {
-                    return '<span class="badge badge-md badge-success">'.trans('admin::app.catalog.categories.index.datagrid.active').'</span>';
+                    return '<span class="badge badge-md badge-success">' . trans('admin::app.catalog.categories.index.datagrid.active') . '</span>';
                 }
 
-                return '<span class="badge badge-md badge-danger">'.trans('admin::app.catalog.categories.index.datagrid.inactive').'</span>';
+                return '<span class="badge badge-md badge-danger">' . trans('admin::app.catalog.categories.index.datagrid.inactive') . '</span>';
             },
         ]);
     }
@@ -104,43 +106,39 @@ class CategoryDataGrid extends DataGrid
      *
      * @return void
      */
-    public function prepareActions()
+    public function prepareActions(): void
     {
         if (bouncer()->hasPermission('catalog.categories.edit')) {
             $this->addAction([
-                'icon'   => 'icon-edit',
-                'title'  => trans('admin::app.catalog.categories.index.datagrid.edit'),
+                'icon' => 'icon-edit',
+                'title' => trans('admin::app.catalog.categories.index.datagrid.edit'),
                 'method' => 'GET',
-                'url'    => function ($row) {
-                    return route('admin.catalog.categories.edit', $row->category_id);
-                },
+                'url' => fn($row) => route('admin.catalog.categories.edit', $row->category_id),
             ]);
         }
 
         if (bouncer()->hasPermission('catalog.categories.delete')) {
             $this->addAction([
-                'icon'   => 'icon-delete',
-                'title'  => trans('admin::app.catalog.categories.index.datagrid.delete'),
+                'icon' => 'icon-delete',
+                'title' => trans('admin::app.catalog.categories.index.datagrid.delete'),
                 'method' => 'DELETE',
-                'url'    => function ($row) {
-                    return route('admin.catalog.categories.delete', $row->category_id);
-                },
+                'url' => fn($row) => route('admin.catalog.categories.delete', $row->category_id),
             ]);
         }
 
         if (bouncer()->hasPermission('catalog.categories.delete')) {
             $this->addMassAction([
-                'title'  => trans('admin::app.catalog.categories.index.datagrid.delete'),
+                'title' => trans('admin::app.catalog.categories.index.datagrid.delete'),
                 'method' => 'POST',
-                'url'    => route('admin.catalog.categories.mass_delete'),
+                'url' => route('admin.catalog.categories.mass_delete'),
             ]);
         }
 
         if (bouncer()->hasPermission('catalog.categories.edit')) {
             $this->addMassAction([
-                'title'   => trans('admin::app.catalog.categories.index.datagrid.update-status'),
-                'method'  => 'POST',
-                'url'     => route('admin.catalog.categories.mass_update'),
+                'title' => trans('admin::app.catalog.categories.index.datagrid.update-status'),
+                'method' => 'POST',
+                'url' => route('admin.catalog.categories.mass_update'),
                 'options' => [
                     [
                         'label' => trans('admin::app.catalog.categories.index.datagrid.active'),

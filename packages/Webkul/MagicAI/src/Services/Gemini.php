@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\MagicAI\Services;
 
 use GuzzleHttp\Client;
@@ -8,20 +10,26 @@ class Gemini
 {
     /**
      * New service instance.
+     *
+     * @param string $model
+     * @param string $prompt
+     * @param bool $stream
+     * @param bool $raw
      */
     public function __construct(
         protected string $model,
         protected string $prompt,
         protected bool $stream,
         protected bool $raw,
-    ) {}
+    ) {
+    }
 
     /**
      * Send request to Gemini AI.
      */
     public function ask(): string
     {
-        $httpClient = new Client;
+        $httpClient = new Client();
 
         $apiKey = core()->getConfigData('general.magic_ai.settings.api_key');
 
@@ -30,11 +38,11 @@ class Gemini
         try {
             $result = $httpClient->request('POST', $endpoint, [
                 'headers' => [
-                    'Accept'       => 'application/json',
+                    'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'contents'    => [
+                    'contents' => [
                         ['parts' => [['text' => $this->prompt]]],
                     ],
                 ],

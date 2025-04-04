@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'next'     => 'Avanti &raquo;',
+    'next' => 'Avanti &raquo;',
     'previous' => '&laquo; Precedente',
 
 ];

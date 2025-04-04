@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Webkul\Attribute\Repositories\AttributeRepository;
@@ -12,62 +14,72 @@ class ElasticSearchRepository
     /**
      * Create a new repository instance.
      *
+     * @param CustomerRepository $customerRepository
+     * @param AttributeRepository $attributeRepository
+     * @param SearchSynonymRepository $searchSynonymRepository
+     *
      * @return void
      */
     public function __construct(
         protected CustomerRepository $customerRepository,
         protected AttributeRepository $attributeRepository,
         protected SearchSynonymRepository $searchSynonymRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Return elastic search index name
      */
     public function getIndexName(): string
     {
-        return 'products_'.core()->getRequestedChannelCode().'_'.core()->getRequestedLocaleCode().'_index';
+        return 'products_' . core()->getRequestedChannelCode() . '_' . core()->getRequestedLocaleCode() . '_index';
     }
 
     /**
      * Returns product ids from Elasticsearch
+     *
+     * @param array $params
+     * @param array $options
      */
     public function search(array $params, array $options): array
     {
         $filters = $this->getFilters($params);
 
-        if (! empty($params['category_id'])) {
+        if (!empty($params['category_id'])) {
             $filters['filter'][]['term']['category_ids'] = $params['category_id'];
         }
 
-        if (! empty($params['type'])) {
+        if (!empty($params['type'])) {
             $filters['filter'][]['term']['type'] = $params['type'];
         }
 
         $results = Elasticsearch::search([
             'index' => $params['index'] ?? $this->getIndexName(),
-            'body'  => [
-                'from'          => $options['from'],
-                'size'          => $options['limit'],
+            'body' => [
+                'from' => $options['from'],
+                'size' => $options['limit'],
                 'stored_fields' => [],
-                'query'         => [
-                    'bool' => $filters ?: new \stdClass,
+                'query' => [
+                    'bool' => $filters ?: new \stdClass(),
                 ],
-                'sort'          => $this->getSortOptions($options),
+                'sort' => $this->getSortOptions($options),
             ],
         ]);
 
         return [
             'total' => $results['hits']['total']['value'],
-            'ids'   => collect($results['hits']['hits'])->pluck('_id')->toArray(),
+            'ids' => collect($results['hits']['hits'])->pluck('_id')->toArray(),
         ];
     }
 
     /**
      * Prepare filters for search results
+     *
+     * @param array $params
      */
     public function getFilters(array $params): array
     {
-        if (! empty($params['query'])) {
+        if (!empty($params['query'])) {
             $params['name'] = $params['query'];
         }
 
@@ -94,19 +106,22 @@ class ElasticSearchRepository
 
     /**
      * Return applied filters
+     *
+     * @param mixed $attribute
+     * @param array $params
      */
     public function getFilterValue(mixed $attribute, array $params): array
     {
         switch ($attribute->type) {
             case 'boolean':
-                /**
+                /*
                  * Need to remove this condition after the next release.
                  *
                  * Previously, these attributes were not indexed in Elasticsearch.
                  * Therefore, we need to check if the attributes exist in the index
                  * to maintain backward compatibility.
                  */
-                if (in_array($attribute->code, ['status', 'visible_individually'])) {
+                if (in_array($attribute->code, ['status', 'visible_individually'], true)) {
                     return [
                         'bool' => [
                             'should' => [
@@ -130,7 +145,7 @@ class ElasticSearchRepository
 
                 return [
                     'term' => [
-                        $attribute->code => intval($params[$attribute->code]),
+                        $attribute->code => (int) $params[$attribute->code],
                     ],
                 ];
 
@@ -141,7 +156,7 @@ class ElasticSearchRepository
 
                 return [
                     'range' => [
-                        $attribute->code.'_'.$customerGroup->id => [
+                        $attribute->code . '_' . $customerGroup->id => [
                             'gte' => core()->convertToBasePrice(current($range)),
                             'lte' => core()->convertToBasePrice(end($range)),
                         ],
@@ -151,13 +166,11 @@ class ElasticSearchRepository
             case 'text':
                 $synonyms = $this->searchSynonymRepository->getSynonymsByQuery($params[$attribute->code]);
 
-                $synonyms = array_map(function ($synonym) {
-                    return '"'.$synonym.'"';
-                }, $synonyms);
+                $synonyms = array_map(fn($synonym) => '"' . $synonym . '"', $synonyms);
 
                 return [
                     'query_string' => [
-                        'query'         => implode(' OR ', $synonyms),
+                        'query' => implode(' OR ', $synonyms),
                         'default_field' => $attribute->code,
                     ],
                 ];
@@ -166,7 +179,7 @@ class ElasticSearchRepository
                 $filter[]['terms'][$attribute->code] = explode(',', $params[$attribute->code]);
 
                 if ($attribute->is_configurable) {
-                    $filter[]['terms']['ca_'.$attribute->code] = explode(',', $params[$attribute->code]);
+                    $filter[]['terms']['ca_' . $attribute->code] = explode(',', $params[$attribute->code]);
                 }
 
                 return $filter;
@@ -175,28 +188,30 @@ class ElasticSearchRepository
 
     /**
      * Returns sort options
+     *
+     * @param array $options
      */
     public function getSortOptions(array $options): array
     {
-        if ($options['order'] == 'rand') {
+        if ($options['order'] === 'rand') {
             return [
                 '_script' => [
-                    'type'   => 'number',
+                    'type' => 'number',
                     'script' => 'Math.random()',
-                    'order'  => 'asc',
+                    'order' => 'asc',
                 ],
             ];
         }
 
         $sort = $options['sort'];
 
-        if ($options['sort'] == 'price') {
+        if ($options['sort'] === 'price') {
             $customerGroup = $this->customerRepository->getCurrentGroup();
 
-            $sort = 'price_'.$customerGroup->id;
+            $sort = 'price_' . $customerGroup->id;
         }
 
-        if ($options['sort'] == 'name') {
+        if ($options['sort'] === 'name') {
             $sort .= '.keyword';
         }
 

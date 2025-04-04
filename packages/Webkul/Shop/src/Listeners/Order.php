@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Listeners;
 
 use Webkul\Sales\Contracts\Order as OrderContract;
@@ -12,12 +14,14 @@ class Order extends Base
     /**
      * After order is created
      *
+     * @param OrderContract $order
+     *
      * @return void
      */
-    public function afterCreated(OrderContract $order)
+    public function afterCreated(OrderContract $order): void
     {
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.new_order')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.new_order')) {
                 return;
             }
 
@@ -30,13 +34,14 @@ class Order extends Base
     /**
      * Send cancel order mail.
      *
-     * @param  \Webkul\Sales\Contracts\Order  $order
+     * @param \Webkul\Sales\Contracts\Order $order
+     *
      * @return void
      */
-    public function afterCanceled($order)
+    public function afterCanceled($order): void
     {
         try {
-            if (! core()->getConfigData('emails.general.notifications.emails.general.notifications.cancel_order')) {
+            if (!core()->getConfigData('emails.general.notifications.emails.general.notifications.cancel_order')) {
                 return;
             }
 
@@ -49,17 +54,18 @@ class Order extends Base
     /**
      * Send order comment mail.
      *
-     * @param  \Webkul\Sales\Contracts\OrderComment  $comment
+     * @param \Webkul\Sales\Contracts\OrderComment $comment
+     *
      * @return void
      */
-    public function afterCommented($comment)
+    public function afterCommented($comment): void
     {
-        if (! $comment->customer_notified) {
+        if (!$comment->customer_notified) {
             return;
         }
 
         try {
-            /**
+            /*
              * Email to customer.
              */
             $this->prepareMail($comment, new CommentedNotification($comment));

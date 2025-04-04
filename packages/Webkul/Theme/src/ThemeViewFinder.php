@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Theme;
 
 use Illuminate\Support\Arr;
@@ -12,7 +14,8 @@ class ThemeViewFinder extends FileViewFinder
     /**
      * Override findNamespacedView() to add "resources/themes/theme_name/views/..." paths
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return string
      */
     protected function findNamespacedView($name)
@@ -20,7 +23,7 @@ class ThemeViewFinder extends FileViewFinder
         // Extract the $view and the $namespace parts
         [$namespace, $view] = $this->parseNamespaceSegments($name);
 
-        if (! Str::contains(request()->url(), config('app.admin_url').'/')) {
+        if (!Str::contains(request()->url(), config('app.admin_url') . '/')) {
             $paths = $this->addThemeNamespacePaths($namespace);
 
             try {
@@ -28,7 +31,7 @@ class ThemeViewFinder extends FileViewFinder
             } catch (\Exception $e) {
                 if ($namespace !== 'shop') {
                     if (strpos($view, 'shop.') !== false) {
-                        $view = str_replace('shop.', 'shop.'.Themes::current()->code.'.', $view);
+                        $view = str_replace('shop.', 'shop.' . Themes::current()->code . '.', $view);
                     }
                 }
 
@@ -44,9 +47,9 @@ class ThemeViewFinder extends FileViewFinder
             try {
                 return $this->findInPaths($view, $paths);
             } catch (\Exception $e) {
-                if ($namespace != 'admin') {
+                if ($namespace !== 'admin') {
                     if (strpos($view, 'admin.') !== false) {
-                        $view = str_replace('admin.', 'admin.'.Themes::current()->code.'.', $view);
+                        $view = str_replace('admin.', 'admin.' . Themes::current()->code . '.', $view);
                     }
                 }
 
@@ -56,12 +59,13 @@ class ThemeViewFinder extends FileViewFinder
     }
 
     /**
-     * @param  string  $namespace
+     * @param string $namespace
+     *
      * @return array
      */
     public function addThemeNamespacePaths($namespace)
     {
-        if (! isset($this->hints[$namespace])) {
+        if (!isset($this->hints[$namespace])) {
             return [];
         }
 
@@ -70,7 +74,7 @@ class ThemeViewFinder extends FileViewFinder
         $searchPaths = array_diff($this->paths, Themes::getLaravelViewPaths());
 
         foreach (array_reverse($searchPaths) as $path) {
-            $newPath = base_path().'/'.$path;
+            $newPath = base_path() . '/' . $path;
 
             $paths = Arr::prepend($paths, $newPath);
         }
@@ -81,24 +85,23 @@ class ThemeViewFinder extends FileViewFinder
     /**
      * Override replaceNamespace() to add path for custom error pages "resources/themes/theme_name/views/errors/..."
      *
-     * @param  string  $namespace
-     * @param  string|array  $hints
+     * @param string $namespace
+     * @param array|string $hints
+     *
      * @return void
      */
-    public function replaceNamespace($namespace, $hints)
+    public function replaceNamespace($namespace, $hints): void
     {
         $this->hints[$namespace] = (array) $hints;
 
         // Overide Error Pages
         if (
-            $namespace == 'errors'
-            || $namespace == 'mails'
+            $namespace === 'errors'
+            || $namespace === 'mails'
         ) {
             $searchPaths = array_diff($this->paths, Themes::getLaravelViewPaths());
 
-            $addPaths = array_map(function ($path) use ($namespace) {
-                return base_path().'/'."$path/$namespace";
-            }, $searchPaths);
+            $addPaths = array_map(fn($path) => base_path() . '/' . "$path/$namespace", $searchPaths);
 
             $this->prependNamespace($namespace, $addPaths);
         }
@@ -107,10 +110,11 @@ class ThemeViewFinder extends FileViewFinder
     /**
      * Set the array of paths where the views are being searched.
      *
-     * @param  array  $paths
+     * @param array $paths
+     *
      * @return void
      */
-    public function setPaths($paths)
+    public function setPaths($paths): void
     {
         $this->paths = $paths;
 

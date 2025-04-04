@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Middleware;
 
 use Closure;
@@ -9,13 +11,15 @@ class AuthenticateCustomer
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|null  $guard
+     * @param \Illuminate\Http\Request $request
+     * @param string|null $guard
+     * @param Closure $next
+     *
      * @return mixed
      */
     public function handle($request, Closure $next, $guard = 'customer')
     {
-        if (! auth()->guard($guard)->check()) {
+        if (!auth()->guard($guard)->check()) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => '',
@@ -24,7 +28,7 @@ class AuthenticateCustomer
 
             return redirect()->route('shop.customer.session.index');
         } else {
-            if (! auth()->guard($guard)->user()->status) {
+            if (!auth()->guard($guard)->user()->status) {
                 auth()->guard($guard)->logout();
 
                 if ($request->expectsJson()) {

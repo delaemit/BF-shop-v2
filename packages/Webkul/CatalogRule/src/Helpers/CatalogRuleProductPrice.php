@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Helpers;
 
 use Carbon\Carbon;
@@ -10,26 +12,31 @@ class CatalogRuleProductPrice
     /**
      * Create a new helper instance.
      *
+     * @param CatalogRuleProductPriceRepository $catalogRuleProductPriceRepository
+     * @param CatalogRuleProduct $catalogRuleProductHelper
+     *
      * @return void
      */
     public function __construct(
         protected CatalogRuleProductPriceRepository $catalogRuleProductPriceRepository,
         protected CatalogRuleProduct $catalogRuleProductHelper
-    ) {}
+    ) {
+    }
 
     /**
      * Collect discount on cart
      *
-     * @param  int  $batchCount
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param int $batchCount
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return void
      */
-    public function indexRuleProductPrice($batchCount, $product = null)
+    public function indexRuleProductPrice($batchCount, $product = null): void
     {
         $dates = [
-            'current'  => $currentDate = Carbon::now(),
+            'current' => $currentDate = Carbon::now(),
             'previous' => (clone $currentDate)->subDays('1')->setTime(23, 59, 59),
-            'next'     => (clone $currentDate)->addDays('1')->setTime(0, 0, 0),
+            'next' => (clone $currentDate)->addDays('1')->setTime(0, 0, 0),
         ];
 
         $prices = $endRuleFlags = [];
@@ -39,11 +46,11 @@ class CatalogRuleProductPrice
         $catalogRuleProducts = $this->catalogRuleProductHelper->getCatalogRuleProducts($product);
 
         foreach ($catalogRuleProducts as $row) {
-            $productKey = $row->product_id.'-'.$row->channel_id.'-'.$row->customer_group_id;
+            $productKey = $row->product_id . '-' . $row->channel_id . '-' . $row->customer_group_id;
 
             if (
                 $previousKey
-                && $previousKey != $productKey
+                && $previousKey !== $productKey
             ) {
                 $endRuleFlags = [];
 
@@ -57,30 +64,30 @@ class CatalogRuleProductPrice
             foreach ($dates as $key => $date) {
                 if (
                     (
-                        ! $row->starts_from
+                        !$row->starts_from
                         || $date >= $row->starts_from
                     )
                     && (
-                        ! $row->ends_till
+                        !$row->ends_till
                         || $date <= $row->ends_till
                     )
                 ) {
-                    $priceKey = $date->getTimestamp().'-'.$productKey;
+                    $priceKey = $date->getTimestamp() . '-' . $productKey;
 
                     if (isset($endRuleFlags[$priceKey])) {
                         continue;
                     }
 
-                    if (! isset($prices[$priceKey])) {
+                    if (!isset($prices[$priceKey])) {
                         $prices[$priceKey] = [
-                            'rule_date'         => $date,
-                            'catalog_rule_id'   => $row->catalog_rule_id,
-                            'channel_id'        => $row->channel_id,
+                            'rule_date' => $date,
+                            'catalog_rule_id' => $row->catalog_rule_id,
+                            'channel_id' => $row->channel_id,
                             'customer_group_id' => $row->customer_group_id,
-                            'product_id'        => $row->product_id,
-                            'price'             => $this->calculate($row),
-                            'starts_from'       => $row->starts_from,
-                            'ends_till'         => $row->ends_till,
+                            'product_id' => $row->product_id,
+                            'price' => $this->calculate($row),
+                            'starts_from' => $row->starts_from,
+                            'ends_till' => $row->ends_till,
                         ];
                     } else {
                         $prices[$priceKey]['price'] = $this->calculate($row, $prices[$priceKey]);
@@ -105,8 +112,9 @@ class CatalogRuleProductPrice
     /**
      * Calculates product price based on rule
      *
-     * @param  array  $rule
-     * @param  \Webkul\Product\Contracts\Product|null  $productData
+     * @param array $rule
+     * @param \Webkul\Product\Contracts\Product|null $productData
+     *
      * @return float
      */
     public function calculate($rule, $productData = null)
@@ -118,19 +126,16 @@ class CatalogRuleProductPrice
                 $price = min($rule->discount_amount, $price);
 
                 break;
-
             case 'to_percent':
                 $price = $price * $rule->discount_amount / 100;
 
                 break;
-
             case 'by_fixed':
                 $price = max(0, $price - $rule->discount_amount);
 
                 break;
-
             case 'by_percent':
-                $price = $price * (1 - $rule->discount_amount / 100);
+                $price *= (1 - $rule->discount_amount / 100);
 
                 break;
         }
@@ -141,10 +146,11 @@ class CatalogRuleProductPrice
     /**
      * Clean products price indices
      *
-     * @param  array  $productIds
+     * @param array $productIds
+     *
      * @return void
      */
-    public function cleanProductPriceIndices($productIds = [])
+    public function cleanProductPriceIndices($productIds = []): void
     {
         if (count($productIds)) {
             $this->catalogRuleProductPriceRepository->whereIn('product_id', $productIds)->delete();

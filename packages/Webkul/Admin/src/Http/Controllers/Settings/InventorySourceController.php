@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Http\Controllers\Settings;
 
 use Illuminate\Http\JsonResponse;
@@ -14,9 +16,13 @@ class InventorySourceController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param InventorySourceRepository $inventorySourceRepository
+     *
      * @return void
      */
-    public function __construct(protected InventorySourceRepository $inventorySourceRepository) {}
+    public function __construct(protected InventorySourceRepository $inventorySourceRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -44,6 +50,8 @@ class InventorySourceController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param InventorySourceRequest $inventorySourceRequest
      *
      * @return \Illuminate\Http\Response
      */
@@ -82,6 +90,8 @@ class InventorySourceController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function edit(int $id)
@@ -94,13 +104,16 @@ class InventorySourceController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param InventorySourceRequest $inventorySourceRequest
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(InventorySourceRequest $inventorySourceRequest, int $id)
     {
         Event::dispatch('inventory.inventory_source.update.before', $id);
 
-        if (! $inventorySourceRequest->status) {
+        if (!$inventorySourceRequest->status) {
             $inventorySourceRequest['status'] = 0;
         }
 
@@ -134,12 +147,14 @@ class InventorySourceController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
      */
     public function destroy(int $id): JsonResponse
     {
         $this->inventorySourceRepository->findOrFail($id);
 
-        if ($this->inventorySourceRepository->count() == 1) {
+        if ($this->inventorySourceRepository->count() === 1) {
             return response()->json(['message' => trans('admin::app.settings.inventory-sources.last-delete-error')], 400);
         }
 

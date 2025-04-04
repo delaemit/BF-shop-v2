@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,12 +20,16 @@ class OnepageController extends APIController
     /**
      * Create a new controller instance.
      *
+     * @param OrderRepository $orderRepository
+     * @param CustomerRepository $customerRepository
+     *
      * @return void
      */
     public function __construct(
         protected OrderRepository $orderRepository,
         protected CustomerRepository $customerRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Return cart summary.
@@ -37,24 +43,26 @@ class OnepageController extends APIController
 
     /**
      * Store address.
+     *
+     * @param CartAddressRequest $cartAddressRequest
      */
     public function storeAddress(CartAddressRequest $cartAddressRequest): JsonResource
     {
         $params = $cartAddressRequest->all();
 
         if (
-            ! auth()->guard('customer')->check()
-            && ! Cart::getCart()->hasGuestCheckoutItems()
+            !auth()->guard('customer')->check()
+            && !Cart::getCart()->hasGuestCheckoutItems()
         ) {
             return new JsonResource([
                 'redirect' => true,
-                'data'     => route('shop.customer.session.index'),
+                'data' => route('shop.customer.session.index'),
             ]);
         }
 
         if (Cart::hasError()) {
             return new JsonResource([
-                'redirect'     => true,
+                'redirect' => true,
                 'redirect_url' => route('shop.checkout.cart.index'),
             ]);
         }
@@ -66,22 +74,22 @@ class OnepageController extends APIController
         Cart::collectTotals();
 
         if ($cart->haveStockableItems()) {
-            if (! $rates = Shipping::collectRates()) {
+            if (!$rates = Shipping::collectRates()) {
                 return new JsonResource([
-                    'redirect'     => true,
+                    'redirect' => true,
                     'redirect_url' => route('shop.checkout.cart.index'),
                 ]);
             }
 
             return new JsonResource([
                 'redirect' => false,
-                'data'     => $rates,
+                'data' => $rates,
             ]);
         }
 
         return new JsonResource([
             'redirect' => false,
-            'data'     => Payment::getSupportedPaymentMethods(),
+            'data' => Payment::getSupportedPaymentMethods(),
         ]);
     }
 
@@ -98,8 +106,8 @@ class OnepageController extends APIController
 
         if (
             Cart::hasError()
-            || ! $validatedData['shipping_method']
-            || ! Cart::saveShippingMethod($validatedData['shipping_method'])
+            || !$validatedData['shipping_method']
+            || !Cart::saveShippingMethod($validatedData['shipping_method'])
         ) {
             return response()->json([
                 'redirect_url' => route('shop.checkout.cart.index'),
@@ -124,8 +132,8 @@ class OnepageController extends APIController
 
         if (
             Cart::hasError()
-            || ! $validatedData['payment']
-            || ! Cart::savePaymentMethod($validatedData['payment'])
+            || !$validatedData['payment']
+            || !Cart::savePaymentMethod($validatedData['payment'])
         ) {
             return response()->json([
                 'redirect_url' => route('shop.checkout.cart.index'),
@@ -148,7 +156,7 @@ class OnepageController extends APIController
     {
         if (Cart::hasError()) {
             return new JsonResource([
-                'redirect'     => true,
+                'redirect' => true,
                 'redirect_url' => route('shop.checkout.cart.index'),
             ]);
         }
@@ -167,7 +175,7 @@ class OnepageController extends APIController
 
         if ($redirectUrl = Payment::getRedirectUrl($cart)) {
             return new JsonResource([
-                'redirect'     => true,
+                'redirect' => true,
                 'redirect_url' => $redirectUrl,
             ]);
         }
@@ -181,7 +189,7 @@ class OnepageController extends APIController
         session()->flash('order_id', $order->id);
 
         return new JsonResource([
-            'redirect'     => true,
+            'redirect' => true,
             'redirect_url' => route('shop.checkout.onepage.success'),
         ]);
     }
@@ -189,7 +197,7 @@ class OnepageController extends APIController
     /**
      * Validate order before creation.
      *
-     * @return void|\Exception
+     * @return \Exception|void
      */
     public function validateOrder()
     {
@@ -206,31 +214,31 @@ class OnepageController extends APIController
 
         if (
             auth()->guard('customer')->user()
-            && ! auth()->guard('customer')->user()->status
+            && !auth()->guard('customer')->user()->status
         ) {
             throw new \Exception(trans('shop::app.checkout.cart.inactive-account-message'));
         }
 
-        if (! Cart::haveMinimumOrderAmount()) {
+        if (!Cart::haveMinimumOrderAmount()) {
             throw new \Exception(trans('shop::app.checkout.cart.minimum-order-message', ['amount' => core()->currency($minimumOrderAmount)]));
         }
 
-        if ($cart->haveStockableItems() && ! $cart->shipping_address) {
+        if ($cart->haveStockableItems() && !$cart->shipping_address) {
             throw new \Exception(trans('shop::app.checkout.onepage.address.check-shipping-address'));
         }
 
-        if (! $cart->billing_address) {
+        if (!$cart->billing_address) {
             throw new \Exception(trans('shop::app.checkout.onepage.address.check-billing-address'));
         }
 
         if (
             $cart->haveStockableItems()
-            && ! $cart->selected_shipping_rate
+            && !$cart->selected_shipping_rate
         ) {
             throw new \Exception(trans('shop::app.checkout.cart.specify-shipping-method'));
         }
 
-        if (! $cart->payment) {
+        if (!$cart->payment) {
             throw new \Exception(trans('shop::app.checkout.cart.specify-payment-method'));
         }
     }

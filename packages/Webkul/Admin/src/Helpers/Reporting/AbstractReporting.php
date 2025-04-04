@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Admin\Helpers\Reporting;
 
 use Carbon\CarbonPeriod;
@@ -49,13 +51,13 @@ abstract class AbstractReporting
 
     /**
      * Sets the channel IDs and codes.
+     *
+     * @param ?string $code
      */
     public function setChannel(?string $code = null): self
     {
         $this->channelIds = core()->getAllChannels()
-            ->filter(function ($channel) use ($code) {
-                return $code ? $channel->code == $code : true;
-            })
+            ->filter(fn($channel) => $code ? $channel->code === $code : true)
             ->pluck('id')
             ->toArray();
 
@@ -67,7 +69,8 @@ abstract class AbstractReporting
     /**
      * Set the start date or default to 30 days ago if not provided.
      *
-     * @param  \Carbon\Carbon|null  $startDate
+     * @param \Carbon\Carbon|null $startDate
+     *
      * @return void
      */
     public function setStartDate(?Carbon $startDate = null): self
@@ -83,7 +86,8 @@ abstract class AbstractReporting
      * Sets the end date to the provided date's end of day, or to the current
      * date if not provided or if the provided date is in the future.
      *
-     * @param  \Carbon\Carbon|null  $endDate
+     * @param \Carbon\Carbon|null $endDate
+     *
      * @return void
      */
     public function setEndDate(?Carbon $endDate = null): self
@@ -120,11 +124,11 @@ abstract class AbstractReporting
      */
     private function setLastStartDate(): void
     {
-        if (! isset($this->startDate)) {
+        if (!isset($this->startDate)) {
             $this->setStartDate(request()->date('start'));
         }
 
-        if (! isset($this->endDate)) {
+        if (!isset($this->endDate)) {
             $this->setEndDate(request()->date('end'));
         }
 
@@ -162,12 +166,12 @@ abstract class AbstractReporting
     /**
      * Calculate the percentage change between previous and current values.
      *
-     * @param  float|int  $previous
-     * @param  float|int  $current
+     * @param float|int $previous
+     * @param float|int $current
      */
     public function getPercentageChange($previous, $current): float|int
     {
-        if (! $previous) {
+        if (!$previous) {
             return $current ? 100 : 0;
         }
 
@@ -177,14 +181,15 @@ abstract class AbstractReporting
     /**
      * Returns time intervals.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
-     * @param  string  $period
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param string $period
+     *
      * @return array
      */
     public function getTimeInterval($startDate, $endDate, $period)
     {
-        if ($period == 'auto') {
+        if ($period === 'auto') {
             $totalMonths = $startDate->diffInMonths($endDate) + 1;
 
             /**
@@ -192,10 +197,10 @@ abstract class AbstractReporting
              */
             $intervals = $this->getMonthsInterval($startDate, $endDate);
 
-            if (! empty($intervals)) {
+            if (!empty($intervals)) {
                 return [
                     'group_column' => 'MONTH(created_at)',
-                    'intervals'    => $intervals,
+                    'intervals' => $intervals,
                 ];
             }
 
@@ -204,56 +209,56 @@ abstract class AbstractReporting
              */
             $intervals = $this->getWeeksInterval($startDate, $endDate);
 
-            if (! empty($intervals)) {
+            if (!empty($intervals)) {
                 return [
                     'group_column' => 'WEEK(created_at)',
-                    'intervals'    => $intervals,
+                    'intervals' => $intervals,
                 ];
             }
 
-            /**
+            /*
              * If the difference between the start and end date is less than 6 weeks
              */
             return [
                 'group_column' => 'DAYOFYEAR(created_at)',
-                'intervals'    => $this->getDaysInterval($startDate, $endDate),
-            ];
-        } else {
-            $datePeriod = CarbonPeriod::create($this->startDate, "1 $period", $this->endDate);
-
-            if ($period == 'year') {
-                $formatter = '?';
-            } elseif ($period == 'month') {
-                $formatter = '?-?';
-            } else {
-                $formatter = '?-?-?';
-            }
-
-            $groupColumn = 'DATE_FORMAT(created_at, "'.Str::replaceArray('?', ['%Y', '%m', '%d'], $formatter).'")';
-
-            $intervals = [];
-
-            foreach ($datePeriod as $date) {
-                $formattedDate = $date->format(Str::replaceArray('?', ['Y', 'm', 'd'], $formatter));
-
-                $intervals[] = [
-                    'filter' => $formattedDate,
-                    'start'  => $formattedDate,
-                ];
-            }
-
-            return [
-                'group_column' => $groupColumn,
-                'intervals'    => $intervals,
+                'intervals' => $this->getDaysInterval($startDate, $endDate),
             ];
         }
+        $datePeriod = CarbonPeriod::create($this->startDate, "1 $period", $this->endDate);
+
+        if ($period === 'year') {
+            $formatter = '?';
+        } elseif ($period === 'month') {
+            $formatter = '?-?';
+        } else {
+            $formatter = '?-?-?';
+        }
+
+        $groupColumn = 'DATE_FORMAT(created_at, "' . Str::replaceArray('?', ['%Y', '%m', '%d'], $formatter) . '")';
+
+        $intervals = [];
+
+        foreach ($datePeriod as $date) {
+            $formattedDate = $date->format(Str::replaceArray('?', ['Y', 'm', 'd'], $formatter));
+
+            $intervals[] = [
+                'filter' => $formattedDate,
+                'start' => $formattedDate,
+            ];
+        }
+
+        return [
+            'group_column' => $groupColumn,
+            'intervals' => $intervals,
+        ];
     }
 
     /**
      * Returns time intervals.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     *
      * @return array
      */
     public function getMonthsInterval($startDate, $endDate)
@@ -262,7 +267,7 @@ abstract class AbstractReporting
 
         $totalMonths = $startDate->diffInMonths($endDate) + 1;
 
-        /**
+        /*
          * If the difference between the start and end date is less than 5 months
          */
         if ($totalMonths <= 5) {
@@ -276,14 +281,14 @@ abstract class AbstractReporting
 
             $start = $intervalStartDate->startOfDay();
 
-            $end = ($totalMonths - 1 == $i)
+            $end = ($totalMonths - 1 === $i)
                 ? $endDate
                 : $intervalStartDate->addMonth()->subDay()->endOfDay();
 
             $intervals[] = [
                 'filter' => $start->month,
-                'start'  => $start->format('d M'),
-                'end'    => $end->format('d M'),
+                'start' => $start->format('d M'),
+                'end' => $end->format('d M'),
             ];
         }
 
@@ -293,21 +298,22 @@ abstract class AbstractReporting
     /**
      * Returns time intervals.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     *
      * @return array
      */
     public function getWeeksInterval($startDate, $endDate)
     {
         $intervals = [];
 
-        $startWeekDay = Carbon::createFromTimeString(core()->xWeekRange($startDate, 0).' 00:00:01');
+        $startWeekDay = Carbon::createFromTimeString(core()->xWeekRange($startDate, 0) . ' 00:00:01');
 
-        $endWeekDay = Carbon::createFromTimeString(core()->xWeekRange($endDate, 1).' 23:59:59');
+        $endWeekDay = Carbon::createFromTimeString(core()->xWeekRange($endDate, 1) . ' 23:59:59');
 
         $totalWeeks = $startWeekDay->diffInWeeks($endWeekDay);
 
-        /**
+        /*
          * If the difference between the start and end date is less than 6 weeks
          */
         if ($totalWeeks <= 6) {
@@ -319,18 +325,18 @@ abstract class AbstractReporting
 
             $intervalStartDate->addWeeks($i);
 
-            $start = $i == 0
+            $start = $i === 0
                 ? $startDate
-                : Carbon::createFromTimeString(core()->xWeekRange($intervalStartDate, 0).' 00:00:01');
+                : Carbon::createFromTimeString(core()->xWeekRange($intervalStartDate, 0) . ' 00:00:01');
 
-            $end = ($totalWeeks - 1 == $i)
+            $end = ($totalWeeks - 1 === $i)
                 ? $endDate
-                : Carbon::createFromTimeString(core()->xWeekRange($intervalStartDate->subDay(), 1).' 23:59:59');
+                : Carbon::createFromTimeString(core()->xWeekRange($intervalStartDate->subDay(), 1) . ' 23:59:59');
 
             $intervals[] = [
                 'filter' => $start->week,
-                'start'  => $start->format('d M'),
-                'end'    => $end->format('d M'),
+                'start' => $start->format('d M'),
+                'end' => $end->format('d M'),
             ];
         }
 
@@ -340,8 +346,9 @@ abstract class AbstractReporting
     /**
      * Returns time intervals.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  \Carbon\Carbon  $endDate
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     *
      * @return array
      */
     public function getDaysInterval($startDate, $endDate)
@@ -357,8 +364,8 @@ abstract class AbstractReporting
 
             $intervals[] = [
                 'filter' => $intervalStartDate->dayOfYear,
-                'start'  => $intervalStartDate->startOfDay()->format('d M'),
-                'end'    => $intervalStartDate->endOfDay()->format('d M'),
+                'start' => $intervalStartDate->startOfDay()->format('d M'),
+                'end' => $intervalStartDate->endOfDay()->format('d M'),
             ];
         }
 

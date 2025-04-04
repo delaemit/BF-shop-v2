@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers;
 
 use Illuminate\Support\Carbon;
@@ -9,11 +11,6 @@ use Webkul\Product\Repositories\ProductRepository;
 
 class Price extends AbstractIndexer
 {
-    /**
-     * @var int
-     */
-    private $batchSize;
-
     /**
      * Channels
      *
@@ -29,7 +26,16 @@ class Price extends AbstractIndexer
     protected $customerGroups;
 
     /**
+     * @var int
+     */
+    private $batchSize;
+
+    /**
      * Create a new indexer instance.
+     *
+     * @param CustomerGroupRepository $customerGroupRepository
+     * @param ProductRepository $productRepository
+     * @param ProductPriceIndexRepository $productPriceIndexRepository
      *
      * @return void
      */
@@ -46,7 +52,7 @@ class Price extends AbstractIndexer
      *
      * @return void
      */
-    public function reindexFull()
+    public function reindexFull(): void
     {
         while (true) {
             $paginator = $this->productRepository
@@ -69,7 +75,7 @@ class Price extends AbstractIndexer
 
             $this->reindexBatch($paginator->items());
 
-            if (! $cursor = $paginator->nextCursor()) {
+            if (!$cursor = $paginator->nextCursor()) {
                 break;
             }
 
@@ -84,7 +90,7 @@ class Price extends AbstractIndexer
      *
      * @return void
      */
-    public function reindexSelective()
+    public function reindexSelective(): void
     {
         while (true) {
             $paginator = $this->productRepository
@@ -103,25 +109,23 @@ class Price extends AbstractIndexer
                     'catalog_rule_prices',
                     'variants.catalog_rule_prices',
                 ])
-                ->join('product_attribute_values as special_price_from_pav', function ($join) {
+                ->join('product_attribute_values as special_price_from_pav', function ($join): void {
                     $join->on('products.id', '=', 'special_price_from_pav.product_id')
                         ->where('special_price_from_pav.attribute_id', self::SPECIAL_PRICE_FROM_ATTRIBUTE_ID);
                 })
-                ->join('product_attribute_values as special_price_to_pav', function ($join) {
+                ->join('product_attribute_values as special_price_to_pav', function ($join): void {
                     $join->on('products.id', '=', 'special_price_to_pav.product_id')
                         ->where('special_price_to_pav.attribute_id', self::SPECIAL_PRICE_TO_ATTRIBUTE_ID);
                 })
                 ->leftJoin('catalog_rule_product_prices', 'products.id', '=', 'catalog_rule_product_prices.product_id')
-                ->where(function ($query) {
-                    return $query->orWhere('special_price_from_pav.date_value', Carbon::now()->format('Y-m-d'))
-                        ->orWhere('special_price_to_pav.date_value', Carbon::now()->subDays(1)->format('Y-m-d'))
-                        ->orWhere('catalog_rule_product_prices.rule_date', Carbon::now()->subDays(1)->format('Y-m-d'));
-                })
+                ->where(fn($query) => $query->orWhere('special_price_from_pav.date_value', Carbon::now()->format('Y-m-d'))
+                    ->orWhere('special_price_to_pav.date_value', Carbon::now()->subDays(1)->format('Y-m-d'))
+                    ->orWhere('catalog_rule_product_prices.rule_date', Carbon::now()->subDays(1)->format('Y-m-d')))
                 ->cursorPaginate($this->batchSize);
 
             $this->reindexBatch($paginator->items());
 
-            if (! $cursor = $paginator->nextCursor()) {
+            if (!$cursor = $paginator->nextCursor()) {
                 break;
             }
 
@@ -134,9 +138,11 @@ class Price extends AbstractIndexer
     /**
      * Reindex products by batch size
      *
+     * @param mixed $products
+     *
      * @return void
      */
-    public function reindexBatch($products)
+    public function reindexBatch($products): void
     {
         $newIndices = [];
 
@@ -183,6 +189,9 @@ class Price extends AbstractIndexer
     /**
      * Check if index value changed
      *
+     * @param mixed $oldIndex
+     * @param mixed $newIndex
+     *
      * @return bool
      */
     public function isIndexChanged($oldIndex, $newIndex)
@@ -192,6 +201,8 @@ class Price extends AbstractIndexer
 
     /**
      * Returns indexer for product type
+     *
+     * @param mixed $product
      *
      * @return string
      */

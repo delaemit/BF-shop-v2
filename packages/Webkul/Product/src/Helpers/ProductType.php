@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers;
 
 use Webkul\Product\Type\AbstractType;
@@ -9,13 +11,14 @@ class ProductType
     /**
      * Checks if a ProductType may have variants
      *
-     * @param  string  $typeKey  as defined in config('product_types)
+     * @param string $typeKey as defined in config('product_types)
+     *
      * @return bool whether ProductType is able to have variants
      */
     public static function hasVariants(string $typeKey): bool
     {
         /** @var AbstractType $type */
-        $type = app(config('product_types.'.$typeKey.'.class'));
+        $type = app(config('product_types.' . $typeKey . '.class'));
 
         return $type->hasVariants();
     }
@@ -31,7 +34,7 @@ class ProductType
 
         foreach (config('product_types') as $type) {
             if (self::hasVariants($type['key'])) {
-                array_push($havingVariants, $type['key']);
+                $havingVariants[] = $type['key'];
             }
         }
 

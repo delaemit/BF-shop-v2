@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -31,30 +33,24 @@ class InvoiceFactory extends Factory
         return [];
     }
 
-    public function pending(): InvoiceFactory
+    public function pending(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'status' => 'pending',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'status' => 'pending',
+        ]);
     }
 
-    public function paid(): InvoiceFactory
+    public function paid(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'status' => 'paid',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'status' => 'paid',
+        ]);
     }
 
-    public function refunded(): InvoiceFactory
+    public function refunded(): self
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'status' => 'refunded',
-            ];
-        });
+        return $this->state(fn(array $attributes) => [
+            'status' => 'refunded',
+        ]);
     }
 }

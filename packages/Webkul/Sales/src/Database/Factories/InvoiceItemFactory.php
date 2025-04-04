@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Sales\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,14 +26,14 @@ class InvoiceItemFactory extends Factory
         $quantity = $this->faker->randomNumber();
 
         return [
-            'name'            => $this->faker->word,
-            'sku'             => $this->faker->unique()->ean13,
-            'qty'             => $quantity,
-            'price'           => $basePrice,
-            'base_price'      => $basePrice,
-            'total'           => $quantity * $basePrice,
-            'base_total'      => $quantity * $basePrice,
-            'tax_amount'      => 0,
+            'name' => $this->faker->word,
+            'sku' => $this->faker->unique()->ean13,
+            'qty' => $quantity,
+            'price' => $basePrice,
+            'base_price' => $basePrice,
+            'total' => $quantity * $basePrice,
+            'base_total' => $quantity * $basePrice,
+            'tax_amount' => 0,
             'base_tax_amount' => 0,
         ];
     }

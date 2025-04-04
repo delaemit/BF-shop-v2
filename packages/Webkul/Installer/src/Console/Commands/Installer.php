@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Console\Commands;
 
-use DateTimeZone;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -69,25 +70,25 @@ class Installer extends Command
      * @var array
      */
     protected $locales = [
-        'ar'    => 'Arabic',
-        'bn'    => 'Bengali',
-        'ca'    => 'Catalan',
-        'de'    => 'German',
-        'en'    => 'English',
-        'es'    => 'Spanish',
-        'fa'    => 'Persian',
-        'fr'    => 'French',
-        'he'    => 'Hebrew',
+        'ar' => 'Arabic',
+        'bn' => 'Bengali',
+        'ca' => 'Catalan',
+        'de' => 'German',
+        'en' => 'English',
+        'es' => 'Spanish',
+        'fa' => 'Persian',
+        'fr' => 'French',
+        'he' => 'Hebrew',
         'hi_IN' => 'Hindi',
-        'it'    => 'Italian',
-        'ja'    => 'Japanese',
-        'nl'    => 'Dutch',
-        'pl'    => 'Polish',
+        'it' => 'Italian',
+        'ja' => 'Japanese',
+        'nl' => 'Dutch',
+        'pl' => 'Polish',
         'pt_BR' => 'Brazilian Portuguese',
-        'ru'    => 'Russian',
-        'sin'   => 'Sinhala',
-        'tr'    => 'Turkish',
-        'uk'    => 'Ukrainian',
+        'ru' => 'Russian',
+        'sin' => 'Sinhala',
+        'tr' => 'Turkish',
+        'uk' => 'Ukrainian',
         'zh_CN' => 'Chinese',
     ];
 
@@ -171,7 +172,7 @@ class Installer extends Command
     {
         $hasExistingEnv = file_exists(base_path('.env'));
 
-        if (! $hasExistingEnv) {
+        if (!$hasExistingEnv) {
             $this->components->info('Creating the environment configuration file.');
 
             File::copy('.env.example', '.env');
@@ -179,11 +180,11 @@ class Installer extends Command
             $this->components->info('Great! your environment configuration file already exists.');
         }
 
-        ! $this->option('skip-env-check')
+        !$this->option('skip-env-check')
             ? $this->askDetailsAndUpdateEnv()
             : $this->components->warn('Skipping environment check. This will assume that the `.env` file is already configured. If not, please create it manually.');
 
-        if (! $hasExistingEnv) {
+        if (!$hasExistingEnv) {
             $this->updateEnvVariables();
 
             $this->reconnectDatabase();
@@ -205,10 +206,12 @@ class Installer extends Command
         app(BagistoDatabaseSeeder::class)->run($this->getSeederConfiguration());
         $this->components->info('Basic data seeded successfully.');
 
-        $this->warn('Step: Linking storage directory...');
-        $this->call('storage:link');
+        if (file_exists(public_path('storage'))) {
+            $this->warn('Step: Linking storage directory...');
+            $this->call('storage:link');
+        }
 
-        if (! $this->option('skip-admin-creation')) {
+        if (!$this->option('skip-admin-creation')) {
             $this->warn('Step: Create admin credentials...');
             $this->askForAdminDetails();
         }
@@ -229,7 +232,7 @@ class Installer extends Command
             $this->askForApplicationDetails();
 
             $this->askForDatabaseDetails();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $this->error('Error in updating `.env` file, please create it manually and then run `php artisan migrate` again.');
         }
     }
@@ -336,8 +339,8 @@ class Installer extends Command
         ];
 
         if (
-            ! $databaseDetails['DB_DATABASE']
-            || ! $databaseDetails['DB_USERNAME']
+            !$databaseDetails['DB_DATABASE']
+            || !$databaseDetails['DB_USERNAME']
         ) {
             return $this->error('Please enter the database credentials.');
         }
@@ -365,15 +368,15 @@ class Installer extends Command
         $adminEmail = text(
             label    : 'Enter the email address of the admin user',
             default  : 'admin@example.com',
-            validate : fn (string $value) => match (true) {
-                ! filter_var($value, FILTER_VALIDATE_EMAIL) => 'The email address you entered is not valid please try again.',
-                default                                     => null
+            validate : fn(string $value) => match (true) {
+                !filter_var($value, FILTER_VALIDATE_EMAIL) => 'The email address you entered is not valid please try again.',
+                default => null
             }
         );
 
-        $adminPassword = text(
-            label    : 'Configure the password for the admin user',
-            default  : 'admin123',
+        $adminPassword = password(
+            label: 'Configure the password for the admin user',
+            placeholder: 'admin123',
             required : true,
             validate : function (string $value) {
                 if (strlen($value) < 6) {
@@ -395,11 +398,11 @@ class Installer extends Command
             DB::table('admins')->updateOrInsert(
                 ['id' => 1],
                 [
-                    'name'     => $adminName,
-                    'email'    => $adminEmail,
+                    'name' => $adminName,
+                    'email' => $adminEmail,
                     'password' => $password,
-                    'role_id'  => 1,
-                    'status'   => 1,
+                    'role_id' => 1,
+                    'status' => 1,
                 ]
             );
 
@@ -418,9 +421,9 @@ class Installer extends Command
             $this->info('-----------------------------');
             $this->info('Congratulations!');
             $this->info('The installation has been finished and you can now use Bagisto.');
-            $this->info('Go to '.$this->getEnvVariable('APP_URL').'/'.$this->getEnvVariable('APP_ADMIN_URL', 'admin').' and authenticate with:');
-            $this->info('Email: '.$adminEmail);
-            $this->info('Password: '.$adminPassword);
+            $this->info('Go to ' . $this->getEnvVariable('APP_URL') . '/' . $this->getEnvVariable('APP_ADMIN_URL', 'admin') . ' and authenticate with:');
+            $this->info('Email: ' . $adminEmail);
+            $this->info('Password: ' . $adminPassword);
             $this->info('Cheers!');
 
             Event::dispatch('bagisto.installed');
@@ -431,6 +434,10 @@ class Installer extends Command
 
     /**
      * Method for asking the details of `.env` files.
+     *
+     * @param string $key
+     * @param string $question
+     * @param string $defaultValue
      */
     protected function updateTextTypeEnv(string $key, string $question, string $defaultValue): void
     {
@@ -445,6 +452,11 @@ class Installer extends Command
 
     /**
      * Method for asking choice based on the list of options.
+     *
+     * @param string $key
+     * @param string $question
+     * @param array $choices
+     * @param bool $useSuggest
      *
      * @return string
      */
@@ -469,8 +481,13 @@ class Installer extends Command
 
     /**
      * Method for getting allowed choices based on the list of options.
+     *
+     * @param string $key
+     * @param string $question
+     * @param array $choices
+     * @param string $defaultChoice
      */
-    protected function updateMultiSelectTypeEnv(string $key, string $question, array $choices, string $defaultChoice)
+    protected function updateMultiSelectTypeEnv(string $key, string $question, array $choices, string $defaultChoice): void
     {
         $choices = array_merge(['all' => 'All'], $choices);
 
@@ -509,7 +526,7 @@ class Installer extends Command
     protected function updateEnvVariables(): void
     {
         foreach ($this->envDetails as $key => $value) {
-            if (! in_array($key, $this->fillableEnvVariables)) {
+            if (!in_array($key, $this->fillableEnvVariables, true)) {
                 continue;
             }
 
@@ -521,6 +538,10 @@ class Installer extends Command
 
     /**
      * Update the single `.env` value.
+     *
+     * @param string $key
+     * @param string $value
+     * @param bool $addQuotes
      */
     protected function updateEnvVariable(string $key, string $value, bool $addQuotes = false): void
     {
@@ -528,7 +549,7 @@ class Installer extends Command
 
         // Check if $value contains spaces, and if so, add double quotes, or if $addQuotes is true.
         if ($addQuotes || preg_match('/\s/', $value)) {
-            $value = '"'.$value.'"';
+            $value = '"' . $value . '"';
         }
 
         $data = preg_replace("/$key=(.*)/", "$key=$value", $data);
@@ -543,20 +564,20 @@ class Installer extends Command
     {
         $this->warn('Step: Loading configurations...');
 
-        /**
+        /*
          * Setting application environment.
          */
         app()['env'] = $this->getEnvVariable('APP_ENV');
 
-        /**
+        /*
          * Setting application configuration.
          */
         config([
-            'app.env'      => $this->getEnvVariable('APP_ENV'),
-            'app.name'     => $this->getEnvVariable('APP_NAME'),
-            'app.url'      => $this->getEnvVariable('APP_URL'),
+            'app.env' => $this->getEnvVariable('APP_ENV'),
+            'app.name' => $this->getEnvVariable('APP_NAME'),
+            'app.url' => $this->getEnvVariable('APP_URL'),
             'app.timezone' => $this->getEnvVariable('APP_TIMEZONE'),
-            'app.locale'   => $this->getEnvVariable('APP_LOCALE'),
+            'app.locale' => $this->getEnvVariable('APP_LOCALE'),
             'app.currency' => $this->getEnvVariable('APP_CURRENCY'),
         ]);
 
@@ -566,12 +587,12 @@ class Installer extends Command
         $databaseConnection = $this->getEnvVariable('DB_CONNECTION');
 
         config([
-            "database.connections.{$databaseConnection}.host"     => $this->getEnvVariable('DB_HOST'),
-            "database.connections.{$databaseConnection}.port"     => $this->getEnvVariable('DB_PORT'),
-            "database.connections.{$databaseConnection}.database" => $this->getEnvVariable('DB_DATABASE'),
-            "database.connections.{$databaseConnection}.username" => $this->getEnvVariable('DB_USERNAME'),
-            "database.connections.{$databaseConnection}.password" => $this->getEnvVariable('DB_PASSWORD'),
-            "database.connections.{$databaseConnection}.prefix"   => $this->getEnvVariable('DB_PREFIX'),
+            "database.connections.$databaseConnection.host" => $this->getEnvVariable('DB_HOST'),
+            "database.connections.$databaseConnection.port" => $this->getEnvVariable('DB_PORT'),
+            "database.connections.$databaseConnection.database" => $this->getEnvVariable('DB_DATABASE'),
+            "database.connections.$databaseConnection.username" => $this->getEnvVariable('DB_USERNAME'),
+            "database.connections.$databaseConnection.password" => $this->getEnvVariable('DB_PASSWORD'),
+            "database.connections.$databaseConnection.prefix" => $this->getEnvVariable('DB_PREFIX'),
         ]);
 
         DB::purge($databaseConnection);
@@ -581,8 +602,11 @@ class Installer extends Command
 
     /**
      * Check key in `.env` file because it will help to find values at runtime.
+     *
+     * @param string $key
+     * @param mixed|null $default
      */
-    protected function getEnvVariable(string $key, $default = null): string|bool
+    protected function getEnvVariable(string $key, mixed $default = null): null|bool|string
     {
         if ($data = file(base_path('.env'))) {
             foreach ($data as $line) {
@@ -590,10 +614,8 @@ class Installer extends Command
 
                 $rowValues = explode('=', $line);
 
-                if (strlen($line) !== 0) {
-                    if (strpos($key, $rowValues[0]) !== false) {
-                        return $rowValues[1];
-                    }
+                if (($line !== '') && str_contains($key, $rowValues[0])) {
+                    return $rowValues[1];
                 }
             }
         }
@@ -609,12 +631,12 @@ class Installer extends Command
         $connection = $this->envDetails['DB_CONNECTION'] ?? 'mysql';
 
         config([
-            "database.connections.{$connection}.host"     => $this->envDetails['DB_HOST'] ?? '',
-            "database.connections.{$connection}.port"     => $this->envDetails['DB_PORT'] ?? '',
-            "database.connections.{$connection}.database" => $this->envDetails['DB_DATABASE'] ?? '',
-            "database.connections.{$connection}.username" => $this->envDetails['DB_USERNAME'] ?? '',
-            "database.connections.{$connection}.password" => $this->envDetails['DB_PASSWORD'] ?? '',
-            "database.connections.{$connection}.prefix"   => $this->envDetails['DB_PREFIX'] ?? '',
+            "database.connections.$connection.host" => $this->envDetails['DB_HOST'] ?? '',
+            "database.connections.$connection.port" => $this->envDetails['DB_PORT'] ?? '',
+            "database.connections.$connection.database" => $this->envDetails['DB_DATABASE'] ?? '',
+            "database.connections.$connection.username" => $this->envDetails['DB_USERNAME'] ?? '',
+            "database.connections.$connection.password" => $this->envDetails['DB_PASSWORD'] ?? '',
+            "database.connections.$connection.prefix" => $this->envDetails['DB_PREFIX'] ?? '',
         ]);
 
         DB::purge($connection);
@@ -636,13 +658,13 @@ class Installer extends Command
      */
     protected function getTimezones(): array
     {
-        $timezoneAbbreviations = DateTimeZone::listAbbreviations();
+        $timezoneAbbreviations = \DateTimeZone::listAbbreviations();
 
         $timezones = [];
 
         foreach ($timezoneAbbreviations as $zones) {
             foreach ($zones as $zone) {
-                if (! empty($zone['timezone_id'])) {
+                if (!empty($zone['timezone_id'])) {
                     $timezones[$zone['timezone_id']] = $zone['timezone_id'];
                 }
             }
@@ -659,9 +681,9 @@ class Installer extends Command
     protected function getSeederConfiguration(): array
     {
         return [
-            'default_locale'     => $this->envDetails['APP_LOCALE'] ?? $this->getEnvVariable('APP_LOCALE', 'en'),
-            'allowed_locales'    => $this->envDetails['APP_ALLOWED_LOCALES'] ?? [$this->getEnvVariable('APP_LOCALE', 'en')],
-            'default_currency'   => $this->envDetails['APP_CURRENCY'] ?? $this->getEnvVariable('APP_CURRENCY', 'USD'),
+            'default_locale' => $this->envDetails['APP_LOCALE'] ?? $this->getEnvVariable('APP_LOCALE', 'en'),
+            'allowed_locales' => $this->envDetails['APP_ALLOWED_LOCALES'] ?? [$this->getEnvVariable('APP_LOCALE', 'en')],
+            'default_currency' => $this->envDetails['APP_CURRENCY'] ?? $this->getEnvVariable('APP_CURRENCY', 'USD'),
             'allowed_currencies' => $this->envDetails['APP_ALLOWED_CURRENCIES'] ?? [$this->getEnvVariable('APP_CURRENCY', 'USD')],
         ];
     }

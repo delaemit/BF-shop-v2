@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Illuminate\Support\Facades\Storage;
@@ -18,25 +20,26 @@ class ProductAttributeValueRepository extends Repository
     /**
      * Save attribute values
      *
-     * @param  array  $data
-     * @param  \Webkul\Product\Contracts\Product  $product
-     * @param  mixed  $attributes
+     * @param array $data
+     * @param \Webkul\Product\Contracts\Product $product
+     * @param mixed $attributes
+     *
      * @return void
      */
-    public function saveValues($data, $product, $attributes)
+    public function saveValues($data, $product, $attributes): void
     {
         $attributeValuesToInsert = [];
 
         foreach ($attributes as $attribute) {
             if ($attribute->type === 'boolean') {
-                $data[$attribute->code] = ! empty($data[$attribute->code]);
+                $data[$attribute->code] = !empty($data[$attribute->code]);
             }
 
-            if (in_array($attribute->type, ['multiselect', 'checkbox'])) {
+            if (in_array($attribute->type, ['multiselect', 'checkbox'], true)) {
                 $data[$attribute->code] = implode(',', $data[$attribute->code] ?? []);
             }
 
-            if (! isset($data[$attribute->code])) {
+            if (!isset($data[$attribute->code])) {
                 continue;
             }
 
@@ -54,9 +57,9 @@ class ProductAttributeValueRepository extends Repository
                 $data[$attribute->code] = null;
             }
 
-            if (in_array($attribute->type, ['image', 'file'])) {
-                $data[$attribute->code] = gettype($data[$attribute->code]) === 'object'
-                    ? request()->file($attribute->code)->store('product/'.$product->id)
+            if (in_array($attribute->type, ['image', 'file'], true)) {
+                $data[$attribute->code] = \gettype($data[$attribute->code]) === 'object'
+                    ? request()->file($attribute->code)->store('product/' . $product->id)
                     : $data[$attribute->code];
             }
 
@@ -94,33 +97,33 @@ class ProductAttributeValueRepository extends Repository
                 $attribute->id,
             ]));
 
-            if (! $attributeValue) {
+            if (!$attributeValue) {
                 $attributeValuesToInsert[] = array_merge($this->getAttributeTypeColumnValues($attribute, $data[$attribute->code]), [
-                    'product_id'   => $product->id,
+                    'product_id' => $product->id,
                     'attribute_id' => $attribute->id,
-                    'channel'      => $channel,
-                    'locale'       => $locale,
-                    'unique_id'    => $uniqueId,
+                    'channel' => $channel,
+                    'locale' => $locale,
+                    'unique_id' => $uniqueId,
                 ]);
             } else {
                 $previousTextValue = $attributeValue->text_value;
 
-                if (in_array($attribute->type, ['image', 'file'])) {
+                if (in_array($attribute->type, ['image', 'file'], true)) {
                     /**
                      * If $data[$attribute->code]['delete'] is not empty, that means someone selected the "delete" option.
                      */
-                    if (! empty($data[$attribute->code]['delete'])) {
+                    if (!empty($data[$attribute->code]['delete'])) {
                         Storage::delete($previousTextValue);
 
                         $data[$attribute->code] = null;
                     }
-                    /**
+                    /*
                      * If $data[$attribute->code] is not equal to the previous one, that means someone has
                      * updated the file or image. In that case, we will remove the previous file.
                      */
                     elseif (
-                        ! empty($previousTextValue)
-                        && $data[$attribute->code] != $previousTextValue
+                        !empty($previousTextValue)
+                        && $data[$attribute->code] !== $previousTextValue
                     ) {
                         Storage::delete($previousTextValue);
                     }
@@ -128,19 +131,20 @@ class ProductAttributeValueRepository extends Repository
 
                 $attributeValue = $this->update([
                     $attribute->column_name => $data[$attribute->code],
-                    'unique_id'             => $uniqueId,
+                    'unique_id' => $uniqueId,
                 ], $attributeValue->id);
             }
         }
 
-        if (! empty($attributeValuesToInsert)) {
+        if (!empty($attributeValuesToInsert)) {
             $this->insert($attributeValuesToInsert);
         }
     }
 
     /**
-     * @param  mixed  $attribute
-     * @param  mixed  $value
+     * @param mixed $attribute
+     * @param mixed $value
+     *
      * @return array
      */
     public function getAttributeTypeColumnValues($attribute, $value)
@@ -153,10 +157,11 @@ class ProductAttributeValueRepository extends Repository
     }
 
     /**
-     * @param  string  $column
-     * @param  int  $attributeId
-     * @param  int  $productId
-     * @param  string  $value
+     * @param string $column
+     * @param int $attributeId
+     * @param int $productId
+     * @param string $value
+     *
      * @return bool
      */
     public function isValueUnique($productId, $attributeId, $column, $value)
@@ -168,6 +173,6 @@ class ProductAttributeValueRepository extends Repository
             ->where('product_id', '!=', $productId)
             ->count('id');
 
-        return ! $count;
+        return !$count;
     }
 }

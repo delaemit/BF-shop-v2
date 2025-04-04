@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\CatalogRule\Repositories;
 
 use Illuminate\Container\Container;
@@ -13,6 +15,12 @@ class CatalogRuleRepository extends Repository
 {
     /**
      * Create a new repository instance.
+     *
+     * @param AttributeFamilyRepository $attributeFamilyRepository
+     * @param AttributeRepository $attributeRepository
+     * @param CategoryRepository $categoryRepository
+     * @param TaxCategoryRepository $taxCategoryRepository
+     * @param Container $container
      *
      * @return void
      */
@@ -37,6 +45,8 @@ class CatalogRuleRepository extends Repository
     /**
      * Create.
      *
+     * @param array $data
+     *
      * @return \Webkul\CatalogRule\Contracts\CatalogRule
      */
     public function create(array $data)
@@ -55,7 +65,9 @@ class CatalogRuleRepository extends Repository
     /**
      * Update.
      *
-     * @param  int  $id
+     * @param int $id
+     * @param array $data
+     *
      * @return \Webkul\CatalogRule\Contracts\CatalogRule
      */
     public function update(array $data, $id)
@@ -75,15 +87,17 @@ class CatalogRuleRepository extends Repository
 
     /**
      * Transform form data.
+     *
+     * @param array $data
      */
     public function transformFormData(array $data): array
     {
         return [
             ...$data,
-            'starts_from' => ! empty($data['starts_from']) ? $data['starts_from'] : null,
-            'ends_till'   => ! empty($data['ends_till']) ? $data['ends_till'] : null,
-            'status'      => isset($data['status']),
-            'conditions'  => $data['conditions'] ?? [],
+            'starts_from' => !empty($data['starts_from']) ? $data['starts_from'] : null,
+            'ends_till' => !empty($data['ends_till']) ? $data['ends_till'] : null,
+            'status' => isset($data['status']),
+            'conditions' => $data['conditions'] ?? [],
         ];
     }
 
@@ -96,18 +110,18 @@ class CatalogRuleRepository extends Repository
     {
         $attributes = [
             [
-                'key'      => 'product',
-                'label'    => trans('admin::app.marketing.promotions.catalog-rules.create.product-attribute'),
+                'key' => 'product',
+                'label' => trans('admin::app.marketing.promotions.catalog-rules.create.product-attribute'),
                 'children' => [
                     [
-                        'key'     => 'product|category_ids',
-                        'type'    => 'multiselect',
-                        'label'   => trans('admin::app.marketing.promotions.catalog-rules.create.categories'),
+                        'key' => 'product|category_ids',
+                        'type' => 'multiselect',
+                        'label' => trans('admin::app.marketing.promotions.catalog-rules.create.categories'),
                         'options' => $this->categoryRepository->getCategoryTree(),
                     ], [
-                        'key'     => 'product|attribute_family_id',
-                        'type'    => 'select',
-                        'label'   => trans('admin::app.marketing.promotions.catalog-rules.create.attribute-family'),
+                        'key' => 'product|attribute_family_id',
+                        'type' => 'select',
+                        'label' => trans('admin::app.marketing.promotions.catalog-rules.create.attribute-family'),
                         'options' => $this->getAttributeFamilies(),
                     ],
                 ],
@@ -117,7 +131,7 @@ class CatalogRuleRepository extends Repository
         foreach ($this->attributeRepository->findWhereNotIn('type', ['textarea', 'image', 'file']) as $attribute) {
             $attributeType = $attribute->type;
 
-            if ($attribute->code == 'tax_category_id') {
+            if ($attribute->code === 'tax_category_id') {
                 $options = $this->getTaxCategories();
             } else {
                 if ($attribute->type === 'select') {
@@ -127,18 +141,18 @@ class CatalogRuleRepository extends Repository
                 }
             }
 
-            if ($attribute->validation == 'decimal') {
+            if ($attribute->validation === 'decimal') {
                 $attributeType = 'decimal';
             }
 
-            if ($attribute->validation == 'numeric') {
+            if ($attribute->validation === 'numeric') {
                 $attributeType = 'integer';
             }
 
             $attributes[0]['children'][] = [
-                'key'     => 'product|'.$attribute->code,
-                'type'    => $attribute->type,
-                'label'   => $attribute->name,
+                'key' => 'product|' . $attribute->code,
+                'type' => $attribute->type,
+                'label' => $attribute->name,
                 'options' => $options,
             ];
         }
@@ -157,7 +171,7 @@ class CatalogRuleRepository extends Repository
 
         foreach ($this->taxCategoryRepository->all() as $taxCategory) {
             $taxCategories[] = [
-                'id'         => $taxCategory->id,
+                'id' => $taxCategory->id,
                 'admin_name' => $taxCategory->name,
             ];
         }
@@ -176,7 +190,7 @@ class CatalogRuleRepository extends Repository
 
         foreach ($this->attributeFamilyRepository->all() as $attributeFamily) {
             $attributeFamilies[] = [
-                'id'         => $attributeFamily->id,
+                'id' => $attributeFamily->id,
                 'admin_name' => $attributeFamily->name,
             ];
         }

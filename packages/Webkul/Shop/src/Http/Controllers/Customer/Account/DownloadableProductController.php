@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\Customer\Account;
 
 use Illuminate\Support\Facades\Storage;
@@ -12,9 +14,13 @@ class DownloadableProductController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param DownloadableLinkPurchasedRepository $downloadableLinkPurchasedRepository
+     *
      * @return void
      */
-    public function __construct(protected DownloadableLinkPurchasedRepository $downloadableLinkPurchasedRepository) {}
+    public function __construct(protected DownloadableLinkPurchasedRepository $downloadableLinkPurchasedRepository)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -33,17 +39,18 @@ class DownloadableProductController extends Controller
     /**
      * Download the for the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function download($id)
     {
         $downloadableLinkPurchased = $this->downloadableLinkPurchasedRepository->findOneByField([
-            'id'          => $id,
+            'id' => $id,
             'customer_id' => auth()->guard('customer')->user()->id,
         ]);
 
-        if ($downloadableLinkPurchased->status == 'pending') {
+        if ($downloadableLinkPurchased->status === 'pending') {
             abort(403);
         }
 
@@ -51,15 +58,15 @@ class DownloadableProductController extends Controller
 
         if (isset($downloadableLinkPurchased->order->invoices)) {
             foreach ($downloadableLinkPurchased->order->invoices as $invoice) {
-                $totalInvoiceQty = $totalInvoiceQty + $invoice->total_qty;
+                $totalInvoiceQty += $invoice->total_qty;
             }
         }
 
         $orderedQty = $downloadableLinkPurchased->order->total_qty_ordered;
-        $totalInvoiceQty = $totalInvoiceQty * ($downloadableLinkPurchased->download_bought / $orderedQty);
+        $totalInvoiceQty *= ($downloadableLinkPurchased->download_bought / $orderedQty);
 
         if (
-            $downloadableLinkPurchased->download_used == $totalInvoiceQty
+            $downloadableLinkPurchased->download_used === $totalInvoiceQty
             || $downloadableLinkPurchased->download_used > $totalInvoiceQty
         ) {
             session()->flash('warning', trans('shop::app.customers.account.downloadable-products.download-error'));
@@ -81,24 +88,23 @@ class DownloadableProductController extends Controller
         if ($downloadableLinkPurchased->download_bought) {
             $this->downloadableLinkPurchasedRepository->update([
                 'download_used' => $downloadableLinkPurchased->download_used + 1,
-                'status'        => $remainingDownloads <= 0 ? 'expired' : $downloadableLinkPurchased->status,
+                'status' => $remainingDownloads <= 0 ? 'expired' : $downloadableLinkPurchased->status,
             ], $downloadableLinkPurchased->id);
         }
 
-        if ($downloadableLinkPurchased->type == 'file') {
+        if ($downloadableLinkPurchased->type === 'file') {
             $privateDisk = Storage::disk('private');
 
             return $privateDisk->exists($downloadableLinkPurchased->file)
                 ? $privateDisk->download($downloadableLinkPurchased->file)
                 : abort(404);
-        } else {
-            $fileName = $name = substr($downloadableLinkPurchased->url, strrpos($downloadableLinkPurchased->url, '/') + 1);
-
-            $tempImage = tempnam(sys_get_temp_dir(), $fileName);
-
-            copy($downloadableLinkPurchased->url, $tempImage);
-
-            return response()->download($tempImage, $fileName);
         }
+        $fileName = $name = substr($downloadableLinkPurchased->url, strrpos($downloadableLinkPurchased->url, '/') + 1);
+
+        $tempImage = tempnam(sys_get_temp_dir(), $fileName);
+
+        copy($downloadableLinkPurchased->url, $tempImage);
+
+        return response()->download($tempImage, $fileName);
     }
 }

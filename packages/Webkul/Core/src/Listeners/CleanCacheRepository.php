@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Listeners;
 
 use Illuminate\Support\Facades\Log;
@@ -9,7 +11,7 @@ use Prettus\Repository\Listeners\CleanCacheRepository as BaseCleanCacheRepositor
 
 class CleanCacheRepository extends BaseCleanCacheRepository
 {
-    public function handle(RepositoryEventBase $event)
+    public function handle(RepositoryEventBase $event): void
     {
         try {
             $this->repository = $event->getRepository();

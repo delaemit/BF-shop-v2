@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Helpers\Indexers;
 
 use Webkul\Core\Repositories\ChannelRepository;
@@ -8,11 +10,6 @@ use Webkul\Product\Repositories\ProductRepository;
 
 class Inventory extends AbstractIndexer
 {
-    /**
-     * @var int
-     */
-    private $batchSize;
-
     /**
      * Product instance.
      *
@@ -35,7 +32,16 @@ class Inventory extends AbstractIndexer
     protected $channels;
 
     /**
+     * @var int
+     */
+    private $batchSize;
+
+    /**
      * Create a new indexer instance.
+     *
+     * @param ChannelRepository $channelRepository
+     * @param ProductRepository $productRepository
+     * @param ProductInventoryIndexRepository $productInventoryIndexRepository
      *
      * @return void
      */
@@ -50,7 +56,8 @@ class Inventory extends AbstractIndexer
     /**
      * Set current product
      *
-     * @param  \Webkul\Product\Contracts\Product  $product
+     * @param \Webkul\Product\Contracts\Product $product
+     *
      * @return \Webkul\Product\Helpers\Indexers\Inventory\Product
      */
     public function setProduct($product)
@@ -63,7 +70,8 @@ class Inventory extends AbstractIndexer
     /**
      * Set channel
      *
-     * @param  \Webkul\Core\Contracts\Channel  $channel
+     * @param \Webkul\Core\Contracts\Channel $channel
+     *
      * @return \Webkul\Product\Helpers\Indexers\Inventory\Product
      */
     public function setChannel($channel)
@@ -78,7 +86,7 @@ class Inventory extends AbstractIndexer
      *
      * @return void
      */
-    public function reindexFull()
+    public function reindexFull(): void
     {
         while (true) {
             $paginator = $this->productRepository
@@ -92,7 +100,7 @@ class Inventory extends AbstractIndexer
 
             $this->reindexBatch($paginator->items());
 
-            if (! $cursor = $paginator->nextCursor()) {
+            if (!$cursor = $paginator->nextCursor()) {
                 break;
             }
 
@@ -105,9 +113,11 @@ class Inventory extends AbstractIndexer
     /**
      * Reindex products by batch size
      *
+     * @param mixed $products
+     *
      * @return void
      */
-    public function reindexBatch($products)
+    public function reindexBatch($products): void
     {
         $newIndices = [];
 
@@ -149,6 +159,9 @@ class Inventory extends AbstractIndexer
     /**
      * Check if index value changed
      *
+     * @param mixed $oldIndex
+     * @param mixed $newIndex
+     *
      * @return bool
      */
     public function isIndexChanged($oldIndex, $newIndex)
@@ -164,7 +177,7 @@ class Inventory extends AbstractIndexer
     public function getIndices()
     {
         return [
-            'qty'        => $this->getQuantity(),
+            'qty' => $this->getQuantity(),
             'product_id' => $this->product->id,
             'channel_id' => $this->channel->id,
         ];

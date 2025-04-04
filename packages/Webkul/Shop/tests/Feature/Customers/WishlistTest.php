@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Webkul\Customer\Models\Customer as ModelsCustomer;
 use Webkul\Customer\Models\Wishlist;
 use Webkul\Faker\Helpers\Product as ProductFaker;
@@ -12,8 +14,8 @@ it('should returns the wishlist index page', function () {
     // Arrange.
     $product = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
-            6  => 'featured',
+            5 => 'new',
+            6 => 'featured',
             11 => 'price',
             26 => 'guest_checkout',
         ],
@@ -36,8 +38,8 @@ it('should returns the wishlist index page', function () {
     $customer = ModelsCustomer::factory()->create();
 
     Wishlist::factory()->create([
-        'channel_id'  => core()->getCurrentChannel()->id,
-        'product_id'  => $product->id,
+        'channel_id' => core()->getCurrentChannel()->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -53,8 +55,8 @@ it('should returns all the wishlisted items', function () {
     // Arrange.
     $products = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
-            6  => 'featured',
+            5 => 'new',
+            6 => 'featured',
             11 => 'price',
             26 => 'guest_checkout',
         ],
@@ -80,8 +82,8 @@ it('should returns all the wishlisted items', function () {
 
     foreach ($products as $product) {
         $wishLists[] = Wishlist::factory()->create([
-            'channel_id'  => core()->getCurrentChannel()->id,
-            'product_id'  => $product->id,
+            'channel_id' => core()->getCurrentChannel()->id,
+            'product_id' => $product->id,
             'customer_id' => $customer->id,
         ]);
     }
@@ -116,8 +118,8 @@ it('should add the products to the wishlist', function () {
     // Arrange.
     $product = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
-            6  => 'featured',
+            5 => 'new',
+            6 => 'featured',
             11 => 'price',
             26 => 'guest_checkout',
         ],
@@ -151,8 +153,8 @@ it('should move wishlisted product to the cart', function () {
     // Arrange.
     $product = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
-            6  => 'featured',
+            5 => 'new',
+            6 => 'featured',
             11 => 'price',
             26 => 'guest_checkout',
         ],
@@ -175,8 +177,8 @@ it('should move wishlisted product to the cart', function () {
     $customer = ModelsCustomer::factory()->create();
 
     $wishList = Wishlist::factory()->create([
-        'channel_id'  => core()->getCurrentChannel()->id,
-        'product_id'  => $product->id,
+        'channel_id' => core()->getCurrentChannel()->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 
@@ -192,8 +194,8 @@ it('should remove all wishlisted items', function () {
     // Arrange.
     $products = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
-            6  => 'featured',
+            5 => 'new',
+            6 => 'featured',
             11 => 'price',
             26 => 'guest_checkout',
         ],
@@ -219,8 +221,8 @@ it('should remove all wishlisted items', function () {
 
     foreach ($products as $product) {
         $wishLists[] = Wishlist::factory()->create([
-            'channel_id'  => core()->getCurrentChannel()->id,
-            'product_id'  => $product->id,
+            'channel_id' => core()->getCurrentChannel()->id,
+            'product_id' => $product->id,
             'customer_id' => $customer->id,
         ]);
     }
@@ -238,8 +240,8 @@ it('should remove specified wishlisted item', function () {
     // Arrange.
     $product = (new ProductFaker([
         'attributes' => [
-            5  => 'new',
-            6  => 'featured',
+            5 => 'new',
+            6 => 'featured',
             11 => 'price',
             26 => 'guest_checkout',
         ],
@@ -262,8 +264,8 @@ it('should remove specified wishlisted item', function () {
     $customer = ModelsCustomer::factory()->create();
 
     $wishList = Wishlist::factory()->create([
-        'channel_id'  => core()->getCurrentChannel()->id,
-        'product_id'  => $product->id,
+        'channel_id' => core()->getCurrentChannel()->id,
+        'product_id' => $product->id,
         'customer_id' => $customer->id,
     ]);
 

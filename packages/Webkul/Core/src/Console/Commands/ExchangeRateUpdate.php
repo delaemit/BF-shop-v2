@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -30,7 +32,6 @@ class ExchangeRateUpdate extends Command
         try {
             app(config('services.exchange_api.'.config('services.exchange_api.default').'.class'))->updateRates();
         } catch (\Exception $e) {
-
         }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core;
 
 use Illuminate\Database\Eloquent\Model;
@@ -11,9 +13,11 @@ class Visitor extends BaseVisitor
     /**
      * Create a visit log.
      *
+     * @param ?Model $model
+     *
      * @return void
      */
-    public function visit(?Model $model = null)
+    public function visit(?Model $model = null): void
     {
         foreach ($this->except as $path) {
             if ($this->request->is($path)) {
@@ -34,7 +38,6 @@ class Visitor extends BaseVisitor
 
     /**
      * Prepare log's data.
-     *
      *
      * @throws \Exception
      */

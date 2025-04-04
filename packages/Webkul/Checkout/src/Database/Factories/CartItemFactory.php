@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Checkout\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +22,7 @@ class CartItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'quantity'   => 1,
+            'quantity' => 1,
             'created_at' => now(),
             'updated_at' => now(),
         ];
@@ -29,19 +31,19 @@ class CartItemFactory extends Factory
     /**
      * Adjust product.
      */
-    public function adjustProduct(): CartItemFactory
+    public function adjustProduct(): self
     {
         return $this->state(function () {
             $fallbackPrice = $this->faker->randomFloat(4, 0, 1000);
 
             return [
-                'price'               => $fallbackPrice,
-                'price_incl_tax'      => $fallbackPrice,
-                'base_price'          => $fallbackPrice,
+                'price' => $fallbackPrice,
+                'price_incl_tax' => $fallbackPrice,
+                'base_price' => $fallbackPrice,
                 'base_price_incl_tax' => $fallbackPrice,
-                'total'               => $fallbackPrice,
-                'total_incl_tax'      => $fallbackPrice,
-                'base_total'          => $fallbackPrice,
+                'total' => $fallbackPrice,
+                'total_incl_tax' => $fallbackPrice,
+                'base_total' => $fallbackPrice,
                 'base_total_incl_tax' => $fallbackPrice,
             ];
         });

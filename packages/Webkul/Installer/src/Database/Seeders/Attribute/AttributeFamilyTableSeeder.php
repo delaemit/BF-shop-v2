@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Installer\Database\Seeders\Attribute;
 
 use Illuminate\Database\Seeder;
@@ -10,10 +12,11 @@ class AttributeFamilyTableSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * @param  array  $parameters
+     * @param array $parameters
+     *
      * @return void
      */
-    public function run($parameters = [])
+    public function run($parameters = []): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
@@ -23,10 +26,10 @@ class AttributeFamilyTableSeeder extends Seeder
 
         DB::table('attribute_families')->insert([
             [
-                'id'              => 1,
-                'code'            => 'default',
-                'name'            => trans('installer::app.seeders.attribute.attribute-families.default', [], $defaultLocale),
-                'status'          => 0,
+                'id' => 1,
+                'code' => 'default',
+                'name' => trans('installer::app.seeders.attribute.attribute-families.default', [], $defaultLocale),
+                'status' => 0,
                 'is_user_defined' => 1,
             ],
         ]);

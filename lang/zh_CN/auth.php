@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'failed'   => '这些凭据与我们的记录不符。',
+    'failed' => '这些凭据与我们的记录不符。',
     'password' => '提供的密码不正确。',
     'throttle' => '登录尝试过多。 请在 :seconds 秒后重试。',
 

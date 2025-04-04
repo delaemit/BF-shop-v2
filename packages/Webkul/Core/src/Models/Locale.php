@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Core\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -9,6 +11,9 @@ use Illuminate\Support\Facades\Storage;
 use Webkul\Core\Contracts\Locale as LocaleContract;
 use Webkul\Core\Database\Factories\LocaleFactory;
 
+/**
+ * @property string $code
+ */
 class Locale extends Model implements LocaleContract
 {
     use HasFactory;

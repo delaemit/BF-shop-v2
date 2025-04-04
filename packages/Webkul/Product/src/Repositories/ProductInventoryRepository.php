@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Product\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
@@ -15,20 +17,22 @@ class ProductInventoryRepository extends Repository
     }
 
     /**
-     * @param  Webkul\Product\Contracts\Product  $product
+     * @param Webkul\Product\Contracts\Product $product
+     * @param array $data
+     *
      * @return void
      */
-    public function saveInventories(array $data, $product)
+    public function saveInventories(array $data, $product): void
     {
-        if (! isset($data['inventories'])) {
+        if (!isset($data['inventories'])) {
             return;
         }
 
         foreach ($data['inventories'] as $inventorySourceId => $qty) {
             $this->updateOrCreate([
-                'product_id'          => $product->id,
+                'product_id' => $product->id,
                 'inventory_source_id' => $inventorySourceId,
-                'vendor_id'           => $data['vendor_id'] ?? 0,
+                'vendor_id' => $data['vendor_id'] ?? 0,
             ], [
                 'qty' => $qty ?? 0,
             ]);

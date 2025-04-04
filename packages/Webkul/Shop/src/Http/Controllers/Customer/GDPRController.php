@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webkul\Shop\Http\Controllers\Customer;
 
 use Carbon\Carbon;
@@ -15,6 +17,10 @@ class GDPRController extends Controller
     /**
      * Create a new controller instance.
      *
+     * @param GDPRDataRequestRepository $gdprDataRequestRepository
+     * @param OrderRepository $orderRepository
+     * @param CustomerAddressRepository $customerAddressRepository
+     *
      * @return void
      */
     public function __construct(
@@ -22,7 +28,7 @@ class GDPRController extends Controller
         protected OrderRepository $orderRepository,
         protected CustomerAddressRepository $customerAddressRepository
     ) {
-        if (! core()->getConfigData('general.gdpr.settings.enabled')) {
+        if (!core()->getConfigData('general.gdpr.settings.enabled')) {
             abort(404);
         }
     }
@@ -47,11 +53,11 @@ class GDPRController extends Controller
         $customer = auth()->guard('customer')->user();
 
         $params = request()->all() + [
-            'status'        => 'pending',
-            'customer_id'   => $customer->id,
-            'customer_name' => $customer->first_name.' '.$customer->last_name,
-            'email'         => $customer->email,
-            'message'       => request()->get(request()->message),
+            'status' => 'pending',
+            'customer_id' => $customer->id,
+            'customer_name' => $customer->first_name . ' ' . $customer->last_name,
+            'email' => $customer->email,
+            'message' => request()->get(request()->message),
         ];
 
         Event::dispatch('customer.account.gdpr-request.create.before');
@@ -81,8 +87,8 @@ class GDPRController extends Controller
 
             $param = [
                 'customerInformation' => $customer,
-                'order'               => ! empty($orders) ? $orders : null,
-                'address'             => ! empty($address) ? $address : null,
+                'order' => !empty($orders) ? $orders : null,
+                'address' => !empty($address) ? $address : null,
             ];
 
             if (is_null($param['order'])) {
@@ -117,8 +123,8 @@ class GDPRController extends Controller
 
             $param = [
                 'customerInformation' => $customer,
-                'order'               => ! empty($orders) ? $orders : null,
-                'address'             => ! empty($address) ? $address : null,
+                'order' => !empty($orders) ? $orders : null,
+                'address' => !empty($address) ? $address : null,
             ];
 
             if (is_null($param['order'])) {
@@ -128,9 +134,8 @@ class GDPRController extends Controller
             if (is_null($param['address'])) {
                 unset($param['address']);
             }
-
         } catch (\Exception $e) {
-            $param = ['customerInformation'=>$customer];
+            $param = ['customerInformation' => $customer];
         }
 
         return view('shop::customers.account.gdpr.pdf', compact('param'));
@@ -146,18 +151,20 @@ class GDPRController extends Controller
 
     /**
      * Revoke a GDPR request.
+     *
+     * @param mixed $id
      */
     public function revoke($id)
     {
         $customer = auth()->guard('customer')->user();
 
         $data = $this->gdprDataRequestRepository->findWhere([
-            'id'          => $id,
+            'id' => $id,
             'customer_id' => $customer->id,
-            'status'      => 'pending',
+            'status' => 'pending',
         ])->first();
 
-        if (! $data) {
+        if (!$data) {
             session()->flash('error', trans('shop::app.customers.account.gdpr.revoke-failed'));
 
             return redirect()->route('shop.customers.account.gdpr.index');
@@ -166,7 +173,7 @@ class GDPRController extends Controller
         Event::dispatch('customer.account.gdpr-request.update.before');
 
         $gdprRequest = $this->gdprDataRequestRepository->update([
-            'status'     => 'revoked',
+            'status' => 'revoked',
             'revoked_at' => Carbon::now(),
         ], $id);
 
