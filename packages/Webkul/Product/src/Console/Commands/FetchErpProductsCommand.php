@@ -198,20 +198,20 @@ class FetchErpProductsCommand extends Command
                     $productCategoryId
                 );
 
-                foreach ($product->media as $media) {
-                    if (in_array($media['mime_type'], ['image/jpeg', 'image/png', 'image/webp'], true)) {
-                        try {
-                            $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('images');
-                        } catch (\Exception) {
-                            logger('skipped media', [
-                                'product_id' => $product->id,
-                            ]);
-
-                            continue;
-                        }
-                    }
-                    // $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('videos');
-                }
+                // foreach ($product->media as $media) {
+                //     if (in_array($media['mime_type'], ['image/jpeg', 'image/png', 'image/webp'], true)) {
+                //         try {
+                //             $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('images');
+                //         } catch (\Exception) {
+                //             logger('skipped media', [
+                //                 'product_id' => $product->id,
+                //             ]);
+                //
+                //             continue;
+                //         }
+                //     }
+                //     // $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('videos');
+                // }
                 $progress->advance();
             }
             $progress->finish();
@@ -270,20 +270,20 @@ class FetchErpProductsCommand extends Command
             'weight',
         ]);
 
-        foreach ($product->media as $media) {
-            if (in_array($media['mime_type'], ['image/jpeg', 'image/png', 'image/webp'], true)) {
-                try {
-                    $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('images');
-                } catch (\Exception) {
-                    logger('skipped media', [
-                        'product_id' => $product->id,
-                    ]);
-
-                    continue;
-                }
-            }
-            // $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('videos');
-        }
+        // foreach ($product->media as $media) {
+        //     if (in_array($media['mime_type'], ['image/jpeg', 'image/png', 'image/webp'], true)) {
+        //         try {
+        //             $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('images');
+        //         } catch (\Exception) {
+        //             logger('skipped media', [
+        //                 'product_id' => $product->id,
+        //             ]);
+        //
+        //             continue;
+        //         }
+        //     }
+        //     // $productModel->addMediaFromUrl($media['file_name'])->toMediaCollection('videos');
+        // }
     }
 
     private function createUnexistingSize(

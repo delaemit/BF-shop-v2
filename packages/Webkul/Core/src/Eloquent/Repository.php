@@ -6,8 +6,14 @@ namespace Webkul\Core\Eloquent;
 
 use Prettus\Repository\Contracts\CacheableInterface;
 use Prettus\Repository\Eloquent\BaseRepository;
+use Prettus\Repository\Exceptions\RepositoryException;
 use Prettus\Repository\Traits\CacheableRepository;
+use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method \Kalnoy\Nestedset\QueryBuilder query()
+ * @method \Kalnoy\Nestedset\QueryBuilder where($column, $operator = null, $value = null, $boolean = 'and')
+ */
 abstract class Repository extends BaseRepository implements CacheableInterface
 {
     use CacheableRepository;
@@ -15,36 +21,47 @@ abstract class Repository extends BaseRepository implements CacheableInterface
     /**
      * Cache only enabled.
      *
-     * @var array
+     * @var ?array
      */
-    protected $cacheOnly;
+    protected ?array $cacheOnly = null;
 
     /**
      * Cache except enabled.
      *
-     * @var array
+     * @var ?array
      */
-    protected $cacheExcept;
+    protected ?array $cacheExcept = null;
 
     /**
      * Clean enabled.
      *
      * @var bool
      */
-    protected $cleanEnabled;
+    protected bool $cleanEnabled = false;
+
+    protected \Illuminate\Contracts\Database\Eloquent\Builder $query;
+
+    public function makeModel()
+    {
+        $model = $this->app->make($this->model());
+
+        if (!$model instanceof Model) {
+            throw new RepositoryException("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
+        }
+
+        $this->query = $model->newQuery();
+
+        return $this->model = $model;
+    }
 
     /**
      * Allowed clean.
      *
      * @return bool
      */
-    public function allowedClean()
+    public function allowedClean(): bool
     {
-        if (!isset($this->cleanEnabled)) {
-            return config('repository.cache.clean.enabled', true);
-        }
-
-        return $this->cleanEnabled;
+        return $this->cleanEnabled ?? config('repository.cache.clean.enabled', true);
     }
 
     /**
@@ -54,28 +71,25 @@ abstract class Repository extends BaseRepository implements CacheableInterface
      *
      * @return bool
      */
-    protected function allowedCache($method)
+    protected function allowedCache($method): bool
     {
         $className = static::class;
 
-        $cacheEnabled = config("repository.cache.repositories.{$className}.enabled", config('repository.cache.enabled', true));
-
+        $cacheEnabled = config("repository.cache.repositories.$className.enabled", config('repository.cache.enabled', true));
         if (!$cacheEnabled) {
             return false;
         }
 
-        $cacheOnly = $this->cacheOnly ?? config("repository.cache.repositories.{$className}.allowed.only", config('repository.cache.allowed.only', null));
+        $cacheOnly = $this->cacheOnly ?? config("repository.cache.repositories.$className.allowed.only", config('repository.cache.allowed.only', null));
 
-        $cacheExcept = $this->cacheExcept ?? config("repository.cache.repositories.{$className}.allowed.except", config('repository.cache.allowed.only', null));
+        $cacheExcept = $this->cacheExcept ?? config("repository.cache.repositories.$className.allowed.except", config('repository.cache.allowed.only', null));
 
         if (is_array($cacheOnly)) {
             return in_array($method, $cacheOnly, true);
         }
-
         if (is_array($cacheExcept)) {
             return !in_array($method, $cacheExcept, true);
         }
-
         if (is_null($cacheOnly) && is_null($cacheExcept)) {
             return true;
         }
@@ -106,16 +120,12 @@ abstract class Repository extends BaseRepository implements CacheableInterface
      */
     public function findOneByField($field, $value = null, $columns = ['*'])
     {
-        $model = $this->findByField($field, $value, $columns);
-
-        return $model->first();
+        return $this->findByField($field, $value, $columns)->first();
     }
 
     /**
      * Find data by field and value.
      *
-     * @param string $field
-     * @param string $value
      * @param array $columns
      * @param array $where
      *
@@ -123,9 +133,7 @@ abstract class Repository extends BaseRepository implements CacheableInterface
      */
     public function findOneWhere(array $where, $columns = ['*'])
     {
-        $model = $this->findWhere($where, $columns);
-
-        return $model->first();
+        return $this->findWhere($where, $columns)->first();
     }
 
     /**

@@ -38,13 +38,13 @@ class AttributeRepository extends Repository
     /**
      * Create attribute.
      *
-     * @param array $data
+     * @param array $attributes
      *
      * @return \Webkul\Attribute\Contracts\Attribute
      */
-    public function create(array $data)
+    public function create(array $attributes)
     {
-        $data = $this->validateUserInput($data);
+        $data = $this->validateUserInput($attributes);
 
         $options = $data['options'] ?? [];
 
@@ -67,14 +67,13 @@ class AttributeRepository extends Repository
      * Update attribute.
      *
      * @param int $id
-     * @param string $attribute
-     * @param array $data
+     * @param array $attributes
      *
      * @return \Webkul\Attribute\Contracts\Attribute
      */
-    public function update(array $data, $id)
+    public function update(array $attributes, $id)
     {
-        $data = $this->validateUserInput($data);
+        $data = $this->validateUserInput($attributes);
 
         $attribute = $this->find($id);
 
@@ -83,7 +82,6 @@ class AttributeRepository extends Repository
         if (!in_array($attribute->type, ['select', 'multiselect', 'checkbox'], true)) {
             return $attribute;
         }
-
         if (!isset($data['options'])) {
             return $attribute;
         }
@@ -121,11 +119,9 @@ class AttributeRepository extends Repository
         if (isset($data['is_configurable'])) {
             $data['value_per_channel'] = $data['value_per_locale'] = 0;
         }
-
         if (!in_array($data['type'], ['select', 'multiselect', 'price', 'checkbox'], true)) {
             $data['is_filterable'] = 0;
         }
-
         if (in_array($data['type'], ['select', 'multiselect', 'boolean'], true)) {
             unset($data['value_per_locale']);
         }
@@ -136,9 +132,9 @@ class AttributeRepository extends Repository
     /**
      * Get filter attributes.
      *
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
-    public function getFilterableAttributes()
+    public function getFilterableAttributes(): \Illuminate\Support\Collection
     {
         return $this->model->with(['options', 'options.translations'])->where('is_filterable', 1)->get();
     }
@@ -146,11 +142,11 @@ class AttributeRepository extends Repository
     /**
      * Get product default attributes.
      *
-     * @param array $codes
+     * @param array|null $codes
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Support\Collection<array-key, Attribute>
      */
-    public function getProductDefaultAttributes($codes = null)
+    public function getProductDefaultAttributes(?array $codes = null): \Illuminate\Support\Collection
     {
         $attributeColumns = [
             'id',
@@ -164,7 +160,7 @@ class AttributeRepository extends Repository
 
         if (
             !is_array($codes)
-            && !$codes
+            && blank($codes)
         ) {
             return $this->findWhereIn('code', [
                 'name',

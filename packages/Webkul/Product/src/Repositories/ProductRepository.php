@@ -56,15 +56,16 @@ class ProductRepository extends Repository
     /**
      * Create product.
      *
-     * @param array $data
+     * @param array $attributes
      *
-     * @return \Webkul\Product\Contracts\Product
+     * @return \Webkul\Product\Models\Product
      */
-    public function create(array $data)
+    public function create(array $attributes): \Webkul\Product\Contracts\Product
     {
-        $typeInstance = app(config('product_types.' . $data['type'] . '.class'));
+        /** @var class-string<array-key, \Webkul\Product\Type\AbstractType> $productType */
+        $productType = config('product_types.' . $attributes['type'] . '.class');
 
-        return $typeInstance->create($data);
+        return app($productType)->create($attributes);
     }
 
     /**
